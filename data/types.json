@@ -1,0 +1,107 @@
+{"Normal": {
+	"weaknesses": ["Fighting"],
+	"resistances": [""],
+	"immunities": ["Ghost"]
+	},
+"Fire": {
+	"weaknesses": ["Water", "Ground", "Rock"],
+	"resistances": ["Fire", "Grass", "Ice", "Bug", "Steel", "Fairy"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["31/0/31/30/31/30","31/1/30/30/31/30"], "min Spe": ["31/30/31/30/31/0","31/31/30/30/31/0"], "min Atk, min Spe": ["31/0/31/30/31/0","31/1/30/30/31/0"], "max all": ["31/30/31/30/31/30","31/31/30/30/31/30"]}
+	},
+"Water": {
+	"weaknesses": ["Electric", "Grass"],
+	"resistances": ["Fire", "Water", "Ice", "Steel"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["31/0/30/30/31/31","31/1/31/30/31/30"], "min Spe": ["31/30/30/30/31/1","31/31/31/30/31/0"], "min Atk, min Spe": ["31/0/30/30/31/1","31/1/31/30/31/0"], "max all": ["31/30/30/30/31/31","31/31/31/30/31/30"]}
+	},
+"Electric": {
+	"weaknesses": ["Ground"],
+	"resistances": ["Electric", "Flying", "Steel"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["30/1/30/31/31/30","31/1/31/30/31/31","31/0/30/31/31/30"], "min Spe": ["30/31/30/31/31/0","31/30/30/31/31/0","31/31/31/30/31/1"], "min Atk, min Spe": ["30/1/30/31/31/0","31/0/30/31/31/0","31/1/31/30/31/1"], "max all": ["30/31/30/31/31/30","31/30/30/31/31/30","31/31/31/30/31/31"]}
+	},
+"Grass": {
+	"weaknesses": ["Fire", "Ice", "Poison", "Flying", "Bug"],
+	"resistances": ["Water", "Electric", "Grass", "Ground"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["30/1/31/30/31/31","31/0/31/30/31/31","31/1/30/30/31/31"], "min Spe": ["30/31/31/30/31/1","31/30/31/30/31/1","31/31/30/30/31/1"], "min Atk, min Spe": ["30/1/31/30/31/1","31/0/31/30/31/1","31/1/30/30/31/1"], "max all": ["30/31/31/30/31/31","31/30/31/30/31/31","31/31/30/30/31/31"]}
+	},
+"Ice": {
+	"weaknesses": ["Fire", "Fighting", "Rock", "Steel"],
+	"resistances": ["Ice"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["30/1/30/31/31/31","31/0/30/31/31/31","31/1/31/31/31/30"], "min Spe": ["30/31/30/31/31/1","31/30/30/31/31/1","31/31/31/31/31/0"], "min Atk, min Spe": ["30/1/30/31/31/1","31/0/30/31/31/1","31/1/31/31/31/0"], "max all": ["30/31/30/31/31/31","31/30/30/31/31/31","31/31/31/31/31/30"]}
+	},
+"Fighting": {
+	"weaknesses": ["Flying", "Psychic", "Fairy"],
+	"resistances": ["Bug", "Rock", "Dark"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["30/0/31/30/30/30","31/1/30/30/30/30","31/0/30/30/30/30"], "min Spe": ["30/30/31/30/30/0","31/31/30/30/30/0","31/30/30/30/30/0"], "min Atk, min Spe": ["30/0/31/30/30/0","31/1/30/30/30/0","31/0/30/30/30/0"], "max all": ["30/30/31/30/30/30","31/31/30/30/30/30","31/30/30/30/30/30"]}
+	},
+"Poison": {
+	"weaknesses": ["Ground", "Psychic"],
+	"resistances": ["Grass", "Fighting", "Poison", "Bug", "Fairy"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": [], "min Spe": [], "min Atk, min Spe": [], "max all": []}
+	},
+"Ground": {
+	"weaknesses": ["Water", "Grass", "Ice"],
+	"resistances": ["Poison", "Rock"],
+	"immunities": ["Electric"],
+	"hp Sets": {"min Atk": ["30/0/31/30/30/31","31/1/30/30/30/31","31/0/30/30/30/31"], "min Spe": ["30/30/31/30/30/1","31/31/30/30/30/1","31/30/30/30/30/1"], "min Atk, min Spe": ["30/0/31/30/30/1","31/1/30/30/30/1","31/0/30/30/30/1"], "max all": ["30/30/31/30/30/31","31/31/30/30/30/31","31/30/30/30/30/31"]}
+	},
+"Flying": {
+	"weaknesses": ["Electric", "Ice", "Rock"],
+	"resistances": ["Grass", "Fighting", "Bug"],
+	"immunities": ["Ground"],
+	"hp Sets": {"min Atk": ["30/0/30/30/30/31","31/1/31/30/30/30","31/0/31/30/30/30"], "min Spe": ["30/30/30/30/30/1","31/31/31/30/30/0","31/30/31/30/30/0"], "min Atk, min Spe": ["30/0/30/30/30/1","31/1/31/30/30/0","31/0/31/30/30/0"], "max all": ["30/30/30/30/30/31","31/31/31/30/30/30","31/30/31/30/30/30"]}
+	},
+"Psychic": {
+	"weaknesses": ["Bug", "Ghost", "Dark"],
+	"resistances": ["Fighting", "Psychic"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["30/1/31/31/31/30","31/0/31/31/31/30","31/1/30/31/31/30"], "min Spe": ["30/31/31/31/31/0","31/30/31/31/31/0","31/31/30/31/31/0"], "min Atk, min Spe": ["30/1/31/31/31/0","31/0/31/31/31/0","31/1/30/31/31/0"], "max all": ["30/31/31/31/31/30","31/30/31/31/31/30","31/31/30/31/31/30"]}
+	},
+"Bug": {
+	"weaknesses": ["Fire", "Flying", "Rock"],
+	"resistances": ["Grass", "Fighting", "Ground"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["31/0/30/31/30/31","31/1/31/31/30/30","31/0/31/31/30/30"], "min Spe": ["31/30/30/31/30/1","31/31/31/31/30/0","31/30/31/31/30/0"], "min Atk, min Spe": ["31/0/30/31/30/1","31/1/31/31/30/0","31/0/31/31/30/0"], "max all": ["31/30/30/31/30/31","31/31/31/31/30/30","31/30/31/31/30/30"]}
+	},
+"Rock": {
+	"weaknesses": ["Water", "Grass", "Fighting", "Ground", "Steel"],
+	"resistances": ["Normal", "Fire", "Poison", "Flying"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["30/0/31/31/30/30","31/1/30/31/30/30","31/0/30/31/30/30"], "min Spe": ["30/30/31/31/30/0","31/31/30/31/30/0","31/30/30/31/30/0"], "min Atk, min Spe": ["30/0/31/31/30/0","31/1/30/31/30/0","31/0/30/31/30/0"], "max all": ["30/30/31/31/30/30","31/31/30/31/30/30","31/30/30/31/30/30"]}
+	},
+"Ghost": {
+	"weaknesses": ["Ghost", "Dark"],
+	"resistances": ["Bug", "Poison"],
+	"immunities": ["Normal", "Fighting"],
+	"hp Sets": {"min Atk": ["31/0/31/31/30/31","31/1/30/31/30/31"], "min Spe": ["31/30/31/31/30/1","31/31/30/31/30/1"], "min Atk, min Spe": ["31/0/31/31/30/1","31/1/30/31/30/1"], "max all": ["31/30/31/31/30/31","31/31/30/31/30/31"]}
+	},
+"Dragon": {
+	"weaknesses": ["Ice", "Dragon", "Fairy"],
+	"resistances": ["Fire", "Water", "Electric", "Grass"],
+	"immunities": [""],
+	"hp Sets": {"min Atk": ["30/1/31/31/31/31","31/0/31/31/31/31","31/1/30/31/31/31"], "min Spe": ["30/31/31/31/31/1","31/30/31/31/31/1","31/31/30/31/31/1"], "min Atk, min Spe": ["30/1/31/31/31/1","31/0/31/31/31/1","31/1/30/31/31/1"], "max all": ["30/31/31/31/31/31","31/30/31/31/31/31","31/31/30/31/31/31"]}
+	},
+"Dark": {
+	"weaknesses": ["Fighting", "Bug", "Fairy"],
+	"resistances": ["Ghost", "Dark"],
+	"immunities": ["Psychic"],
+	"hp Sets": {"min Atk": ["31/1/31/31/31/31"], "min Spe": ["31/31/31/31/31/1"], "min Atk, min Spe": ["31/1/31/31/31/1"], "max all": ["31/31/31/31/31/31"]}
+	},
+"Steel": {
+	"weaknesses": ["Fire", "Fighting", "Ground"],
+	"resistances": ["Normal", "Grass", "Ice", "Flying", "Psychic", "Bug", "Rock", "Dragon", "Steel", "Fairy"],
+	"immunities": ["Poison"],
+	"hp Sets": {"min Atk": ["31/0/30/30/31/30","31/1/31/31/30/31"], "min Spe": ["31/30/30/30/31/0","31/31/31/31/30/1"], "min Atk, min Spe": ["31/0/30/30/31/0","31/1/31/31/30/1"], "max all": ["31/30/30/30/31/30","31/31/31/31/30/31"]}
+	},
+"Fairy": {
+	"weaknesses": ["Poison", "Steel"],
+	"resistances": ["Fighting", "Bug", "Dark"],
+	"immunities": ["Dragon"]
+	}
+}
