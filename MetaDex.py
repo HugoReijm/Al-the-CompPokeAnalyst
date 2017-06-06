@@ -51,7 +51,11 @@ def findPokemonTierAbilities(pokemon, tier):
 def findPokemonTierItems(pokemon, tier):
     data = findPokemonTierData(pokemon,tier)
     if data != None:
-        return data["Items"]
+        res = {}
+        for item in data["Items"]:
+            if item!="":
+                res[item] = data["Items"][item]
+        return res
     else:
         return None
 
@@ -143,5 +147,3 @@ def findPokemonTierViabilityCeiling(pokemon, tier):
 #for string in tiers:
 #    print(string)
 #    print(findTierInfo(string))
-
-print(sys.version)

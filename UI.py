@@ -194,19 +194,18 @@ for i in range(5):
             memberSelectGate = True
         except:
             print("Um...I don't understand your response...")
+            #TODO: implement ID checks for species clause
     for t in TeamBuilder.findTeamMetaMatches(teamMateNames, tierfile, teamSuggAmount):
         print("%s:\n\tPOP: %s" % (t[0], t[1]))
     print()
     teamAdder()
 
-print("Here is your team!")
-for t in teamMateNames:
-    print(t)
-print()
-
 #Switching Team Members If Needed
 confirmTeamGate=False
 while not confirmTeamGate:
+    print("Here is your team!")
+    for t in teamMateNames:
+        print(t)
     print("Are you happy with the selection?")
     res = input("Input: (Y/N) ")
     if res == "Y":
@@ -388,9 +387,15 @@ for poke in teamMatesDict:
         if "S" in abilities and TeamBuilder.compress(abilities["S"]) in metaAbilities:
             print("Additionally, %s also has a special ability." % spName)
             print("\t%s:\n\t\tDESC: %s\n\t\tPOP: %s" % (abilities["S"], Pokedex.findAbilityShortDesc(abilities["S"]),metaAbilities[Pokedex.findAbilityID(abilities["S"])]))
+            if TeamBuilder.compress(abilities["S"]) not in list(metaAbilities.keys()):
+                print("\tUnfortunately, this ability is not allowed in %s" % tier)
+            else:
+                print("HI")
         if "H" in abilities and TeamBuilder.compress(abilities["H"]) in metaAbilities:
             print("Additionally, %s also has the following hidden ability." % spName)
             print("\t%s:\n\t\tDESC: %s\n\t\tPOP: %s" % (abilities["H"], Pokedex.findAbilityShortDesc(abilities["H"]),metaAbilities[Pokedex.findAbilityID(abilities["H"])]))
+            if TeamBuilder.compress(abilities["H"]) not in list(metaAbilities.keys()):
+                print("\tUnfortunately, this ability is not allowed in %s" % tier)
         print()
         abilityGate = False
         while not abilityGate:
@@ -399,10 +404,11 @@ for poke in teamMatesDict:
             for s in ["0","1","S","H"]:
                 abName = Pokedex.findAbilityName(inp)
                 if s in abilities and abName == abilities[s]:
-                    teamMatesDict[poke]["ability"]=abName
-                    abilityGate = True
+                    if TeamBuilder.compress(abilities[s]) in metaAbilities:
+                        teamMatesDict[poke]["ability"]=abName
+                        abilityGate = True
             if not abilityGate:
-                print("I'm sorry, but %s is not an ability that %s can have." % (spName,inp))
+                print("I'm sorry, but %s is not an ability that %s can have in tier %s." % (spName,inp,tier))
     else:
         print("As you can see, %s only has one ability, so we don't have much choice here. I'll update your %s automatically, so you dont have to worry about that." % (spName,spName))
         teamMatesDict[poke]["ability"] = abilities["0"]
@@ -455,17 +461,17 @@ for poke in teamMatesDict:
                 else:
                     print("Um...I don't understand that response")
 
-            #Choosing EVs
+            #Choosing IVs
             print("What kind of IVs should %s have?" % spName)
             for string in ["hp","atk","def","spa","spd","spe"]:
-                ivGate = False
-                while not ivGate:
+                ivChoiceGate = False
+                while not ivChoiceGate:
                     iv = input("%s: " % string)
                     try:
                         iv = int(iv)
                         if 0 <= iv <= 31:
                             teamMatesDict[spName]["ivs"][string] = iv
-                            ivGate = True
+                            ivChoiceGate = True
                         else:
                             print("Oh, I'm sorry, but I can't give %s %s %s Ivs. Try again" % (spName, iv, string.capitalize()))
                     except:
@@ -514,9 +520,9 @@ for poke in teamMatesDict:
             print("I'll start you off with the most common EV spread for your chosen Nature. In this case, that would be %s." %topNatureSpread)
             break
     if topNatureSpread == None:
-        print("I couldn't immediately find any common EV spreads for your chosen Nature, but here is the most common EV spread currently in use: %s." %sortedSpreads[0][0].split(":")[1])
-    parts = sortedSpreads[0][0].split(":")
-    parts2 = parts[1].split("/")
+        topNatureSpread = sortedSpreads[0][0].split(":")[1]
+        print("I couldn't immediately find any common EV spreads for your chosen Nature, but here is the most common EV spread currently in use: %s." %topNatureSpread)
+    parts2 = topNatureSpread.split("/")
     teamMatesDict[spName]["evs"]["hp"] = int(parts2[0])
     teamMatesDict[spName]["evs"]["atk"] = int(parts2[1])
     teamMatesDict[spName]["evs"]["def"] = int(parts2[2])
@@ -535,8 +541,8 @@ for poke in teamMatesDict:
             print("What kind of EVs should %s have? \nRemember, each Stat can effectively only have a maximum of 252 EVs, and the total can not effectively be larger than 508." % spName)
             available = 508
             for string in ["hp","atk","def","spa","spd","spe"]:
-                evGate = False
-                while not evGate:
+                evChoiceGate = False
+                while not evChoiceGate:
                     print("Number of EVs available: %s" % available)
                     ev = input("%s: " % string)
                     try:
@@ -545,6 +551,7 @@ for poke in teamMatesDict:
                             if available - ev >= 0:
                                 available = available - ev
                                 teamMatesDict[spName]["evs"][string] = ev
+                                evChoiceGate = True
                             else:
                                 print("You exceeded the limit on your total EVs. Hey, I didn't make the rules...")
                         else:
@@ -598,6 +605,7 @@ for poke in teamMatesDict:
 
     #Show Popular Moves
     print("Alright, now hey comes the REALLY important part: selecting moves.\tI'll show you a few of the most common moves that %s can have." % spName)
+    moves = [teamMatesDict[spName]["moves"]["move1"], teamMatesDict[spName]["moves"]["move2"],teamMatesDict[spName]["moves"]["move3"], teamMatesDict[spName]["moves"]["move4"]]
     moveset = MetaDex.findPokemonTierMoves(spName,tierfile)
     if len(moveset)==1:
         print("Oh, this Pokemon species can only learn 1 move! I set whatever moves I can, k?")
@@ -635,53 +643,80 @@ for poke in teamMatesDict:
                 print("How can I show you that many Moves? Try again")
         for s in range(len(sortedMoves)):
             if sortedMoves[s][0] != "Nothing" and sortedMoves[s][0]!="":
-                print("\t%s:\n\t\tCAT: %s,\n\t\tTYPE: %s,\n\t\tPP: %s,\n\t\tBASEPOW: %s,\n\t\tPOP: %s,\n\t\tDESC: %s" % (Pokedex.findMoveName(sortedMoves[s][0]), Pokedex.findMoveCategory(sortedMoves[s][0]), Pokedex.findMoveType(sortedMoves[s][0]),Pokedex.findMovePP(sortedMoves[s][0]),Pokedex.findMoveBasePower(sortedMoves[s][0]),sortedMoves[s][1],Pokedex.findMoveShortDesc(sortedMoves[s][0])))
+                print("\t%s:\n\t\tCAT: %s,\n\t\tTYPE: %s,\n\t\tPP: %s,\n\t\tBASEPOW: %s,\n\t\tACC: %s,\n\t\tPOP: %s,\n\t\tDESC: %s" % (Pokedex.findMoveName(sortedMoves[s][0]), Pokedex.findMoveCategory(sortedMoves[s][0]), Pokedex.findMoveType(sortedMoves[s][0]),Pokedex.findMovePP(sortedMoves[s][0]),Pokedex.findMoveBasePower(sortedMoves[s][0]),Pokedex.findMoveAccuracy(sortedMoves[s][0]),sortedMoves[s][1],Pokedex.findMoveShortDesc(sortedMoves[s][0])))
             else:
-                print("\tNothing:\n\t\tCAT: Nothing,\n\t\tTYPE: Nothing,\n\t\tPP: 0,\n\t\tBASEPOW: 0,\n\t\tPOP: 0,\n\t\tDESC: Does nothing")
+                print("\tNothing:\n\t\tCAT: Nothing,\n\t\tTYPE: Nothing,\n\t\tPP: 0,\n\t\tACC: 0,\n\t\tBASEPOW: 0,\n\t\tPOP: 0,\n\t\tDESC: Does nothing")
         print()
 
         #Select All Moves
-        moves = [teamMatesDict[spName]["moves"]["move1"], teamMatesDict[spName]["moves"]["move2"],teamMatesDict[spName]["moves"]["move3"], teamMatesDict[spName]["moves"]["move4"]]
-        if teamMatesDict[spName]["moves"]["move1"] == None:
-            move1Gate = False
-            while not move1Gate:
-                print("Which move would you like %s to have in move slot #1?" % spName)
-                res = input("Input: (String) ")
-                resName = Pokedex.findMoveName(res)
-                if resName != None:
-                    if Pokedex.findMoveID(res) in MetaDex.findPokemonTierMoves(spName, tierfile):
-                        moves[0] = resName
-                        move1Gate = True
+        #moves = [teamMatesDict[spName]["moves"]["move1"], teamMatesDict[spName]["moves"]["move2"],teamMatesDict[spName]["moves"]["move3"], teamMatesDict[spName]["moves"]["move4"]]
+        #if teamMatesDict[spName]["moves"]["move1"] == None:
+        #    move1Gate = False
+        #    while not move1Gate:
+        #        print("Which move would you like %s to have in move slot #1?" % spName)
+        #        res = input("Input: (String) ")
+        #        resName = Pokedex.findMoveName(res)
+        #        if resName != None:
+        #            if Pokedex.findMoveID(res) in MetaDex.findPokemonTierMoves(spName, tierfile):
+        #                moves[0] = resName
+        #                move1Gate = True
+        #            else:
+        #                print("Oh, there seems to be a problem. Either %s can't learn this move, or it is used SO rarely that I couldn't find any useful data. In any case, try a different move." % spName)
+        #        else:
+        #            print("I'm sorry, but that is not a valid move. Try again")
+        #    print("Understood")
+        #else:
+        #    print("Due to meeting various requirements, this move for your %s has already been chosen. So that's already done!" % teamMatesDict[spName]["moves"]["move1"])
+        #for moveIndex in [2,3,4]:
+        #    moveGate = False
+        #    while not moveGate:
+        #        print("Which move would you like %s to have in move slot #%s?" % (spName,moveIndex))
+        #        res = input("Input: (String) ")
+        #        if res in ["None", "none", "Null", "null"]:
+        #            moves[moveIndex] = None
+        #            moveGate = True
+        #        else:
+        #            resName = Pokedex.findMoveName(res)
+        #            if resName != None:
+        #                if Pokedex.findMoveID(res) in MetaDex.findPokemonTierMoves(spName, tierfile):
+        #                    if resName not in moves:
+        #                        moves[moveIndex-1] = resName
+        #                        moveGate = True
+        #                    else:
+        #                        print("Oh, you already have %s as a move for your %s. Please select a different move." % (
+        #                        resName, spName))
+        #                else:
+        #                    print("Oh, there seems to be a problem. Either %s can't learn this move, or it is used SO rarely that I couldn't find any useful data. In any case, try a different move." % spName)
+        #            else:
+        #                print("I'm sorry, but that is not a valid move. Try again")
+        #    print("Understood")
+
+        for moveIndex in [1, 2, 3, 4]:
+            if moves[moveIndex-1] == None:
+                moveGate = False
+                while not moveGate:
+                    print("Which move would you like %s to have in move slot #%s?" % (spName, moveIndex))
+                    res = input("Input: (String) ")
+                    if moveIndex != 1 and res in ["None", "none", "Null", "null"]:
+                        moves[moveIndex-1] = None
+                        moveGate = True
                     else:
-                        print("Oh, there seems to be a problem. Either %s can't learn this move, or it is used SO rarely that I couldn't find any useful data. In any case, try a different move." % spName)
-                else:
-                    print("I'm sorry, but that is not a valid move. Try again")
-            print("Understood")
-        else:
-            print("Due to meeting various requirements, your first move for your %s has already been chosen. So that's already done!" % teamMatesDict[spName]["moves"]["move1"])
-        for moveIndex in [2,3,4]:
-            moveGate = False
-            while not moveGate:
-                print("Which move would you like %s to have in move slot #%s?" % (spName,moveIndex))
-                res = input("Input: (String) ")
-                if res in ["None", "none", "Null", "null"]:
-                    moves[moveIndex] = None
-                    moveGate = True
-                else:
-                    resName = Pokedex.findMoveName(res)
-                    if resName != None:
-                        if Pokedex.findMoveID(res) in MetaDex.findPokemonTierMoves(spName, tierfile):
-                            if resName not in moves:
-                                moves[moveIndex-1] = resName
-                                moveGate = True
+                        resName = Pokedex.findMoveName(res)
+                        if resName != None:
+                            if Pokedex.findMoveID(res) in MetaDex.findPokemonTierMoves(spName, tierfile):
+                                if resName not in moves:
+                                    moves[moveIndex - 1] = resName
+                                    moveGate = True
+                                else:
+                                    print("Oh, you already have %s as a move for your %s. Please select a different move." % (resName, spName))
                             else:
-                                print("Oh, you already have %s as a move for your %s. Please select a different move." % (
-                                resName, spName))
+                                print(
+                                    "Oh, there seems to be a problem. Either %s can't learn this move, or it is used SO rarely that I couldn't find any useful data. In any case, try a different move." % spName)
                         else:
-                            print("Oh, there seems to be a problem. Either %s can't learn this move, or it is used SO rarely that I couldn't find any useful data. In any case, try a different move." % spName)
-                    else:
-                        print("I'm sorry, but that is not a valid move. Try again")
-            print("Understood")
+                            print("I'm sorry, but that is not a valid move. Try again")
+                print("Understood")
+            else:
+                print("Due to meeting various requirements, this move for your %s has already been chosen to be %s. So that's already done!" % (spName,moves[moveIndex-1]))
 
     #Switching Moves Around
     movesCheckGate = False
@@ -720,6 +755,7 @@ for poke in teamMatesDict:
                 try:
                     swapAmount = int(input("Input: (Int) "))
                     if swapAmount >= 0:
+#TODO: Implement the inability to chose already chosen moves
                         sortedMoves = TeamBuilder.findPokemonMetaMovesExc(spName, tierfile, swapAmount, moves)
                         flipAmountGate = True
                     else:
@@ -727,7 +763,7 @@ for poke in teamMatesDict:
                 except:
                     print("Well that doesn't make any sense. Try again")
             for t in sortedMoves:
-                print("\t%s:\n\t\tCAT: %s,\n\t\tTYPE: %s,\n\t\tPP: %s,\n\t\tBASEPOW: %s,\n\t\tPOP: %s,\n\t\tDESC: %s" % (Pokedex.findMoveName(t[0]), Pokedex.findMoveCategory(t[0]),Pokedex.findMoveType(t[0]), Pokedex.findMovePP(t[0]),Pokedex.findMoveBasePower(t[0]), t[1],Pokedex.findMoveShortDesc(t[0])))
+                print("\t%s:\n\t\tCAT: %s,\n\t\tTYPE: %s,\n\t\tPP: %s,\n\t\tBASEPOW: %s,\n\t\tACC: %s,\n\t\tPOP: %s,\n\t\tDESC: %s" % (Pokedex.findMoveName(t[0]), Pokedex.findMoveCategory(t[0]),Pokedex.findMoveType(t[0]), Pokedex.findMovePP(t[0]),Pokedex.findMoveBasePower(t[0]), Pokedex.findMoveAccuracy(t[0]),t[1],Pokedex.findMoveShortDesc(t[0])))
             print()
 
             #Selecting Flop
@@ -851,7 +887,7 @@ for poke in teamMatesDict:
                 print("I'm sorry, but that's not a registered item. Did you maybe spell it wrong?")
     else:
         print("Ah, I see that %s can only have one item. I'll automatically update your %s to hold that item." % (spName,spName))
-        teamMatesDict[spName]["item"] = Pokedex.findItemName(list(MetaDex.findPokemonTierItems(spName, tierfile).keys())[1])
+        teamMatesDict[spName]["item"] = Pokedex.findItemName(list(MetaDex.findPokemonTierItems(spName, tierfile).keys())[0])
     print("Excellent! Your %s is now holding a %s!" % (spName, teamMatesDict[spName]["item"]))
     print()
 
@@ -878,22 +914,42 @@ for poke in teamMatesDict:
     print("Ok, almost there. Time to chose what level your %s should be at." % spName)
     if "vgc" in tier or "battlespot" in tier:
         print("Remember, Pokemon in this team must be at level of 50 or under.")
-        print("What level would like your Pokemon to be?")
-        levelGate = False
-        while not levelGate:
-            try:
-                res = int(input("Input: (Int) "))
-                if 0 < res <= 50:
-                    teamMatesDict[spName]["level"] = res
-                    levelGate = True
-                else:
-                    print("That's impossible to do, try again!")
-            except:
-                print("Um...I don't understand that response...")
+        evoLevel = Pokedex.findPokemonEvoLevel(spName)
+        if evoLevel != None and evoLevel<50:
+            print("Also, your %s evolves at level %s, so you must chose a level equal or greater than that" % (spName, evoLevel))
+            print("What level would like your Pokemon to be?")
+            levelGate = False
+            while not levelGate:
+                try:
+                    res = int(input("Input: (Int) "))
+                    if evoLevel < res <= 50:
+                        teamMatesDict[spName]["level"] = res
+                        levelGate = True
+                    else:
+                        print("That's impossible to do, try again!")
+                except:
+                    print("Um...I don't understand that response...")
+        elif evoLevel!=None and evoLevel<=50:
+            print("Oh, it seems that this Pokemon can oly be level 50. Not to worry, I'll autmatically update that for you!")
+            teamMatesDict[spName]["level"] = 50
+            levelGate = True
+        else:
+            print("What level would like your Pokemon to be?")
+            levelGate = False
+            while not levelGate:
+                try:
+                    res = int(input("Input: (Int) "))
+                    if 0 < res <= 50:
+                        teamMatesDict[spName]["level"] = res
+                        levelGate = True
+                    else:
+                        print("That's impossible to do, try again!")
+                except:
+                    print("Um...I don't understand that response...")
     else:
         evoLevel = Pokedex.findPokemonEvoLevel(spName)
         if evoLevel != None:
-            print("Remember, your % evolves at level %s, so you must chose a level equal or greater than that" % (spName, evoLevel))
+            print("Remember, your %s evolves at level %s, so you must chose a level equal or greater than that" % (spName, evoLevel))
             print("What level would like your Pokemon to be?")
             levelGate = False
             while not levelGate:
@@ -938,8 +994,9 @@ for poke in teamMatesDict:
             else:
                 print("Um...I don't understand that response...")
         else:
-            print("I see that your %s can not be legally shiny. Maybe one day...")
+            print("I see that your %s can not be legally shiny. Maybe one day..." % spName)
             teamMatesDict[spName]["shiny"] = "No"
+            shinyGate = True
     print()
 print()
 
@@ -954,31 +1011,31 @@ for poke in teamMatesDict:
     if teamMatesDict[poke]["gender"] != None:
         if teamMatesDict[poke]["item"]!=None:
             file.write(teamMatesDict[poke]["species"]+" ("+teamMatesDict[poke]["gender"]+") @ "+teamMatesDict[poke]["item"]+"\n")
-            print(teamMatesDict[poke]["species"]+" ("+teamMatesDict[poke]["gender"]+") @ "+teamMatesDict[poke]["item"])
+            #print(teamMatesDict[poke]["species"]+" ("+teamMatesDict[poke]["gender"]+") @ "+teamMatesDict[poke]["item"])
         else:
             file.write(teamMatesDict[poke]["species"]+" ("+teamMatesDict[poke]["gender"]+")\n")
-            print(teamMatesDict[poke]["species"]+" ("+teamMatesDict[poke]["gender"]+")")
+            #print(teamMatesDict[poke]["species"]+" ("+teamMatesDict[poke]["gender"]+")")
     else:
         if teamMatesDict[poke]["item"]!=None:
             file.write(teamMatesDict[poke]["species"]+" @ "+teamMatesDict[poke]["item"]+"\n")
-            print(teamMatesDict[poke]["species"]+" @ "+teamMatesDict[poke]["item"])
+            #print(teamMatesDict[poke]["species"]+" @ "+teamMatesDict[poke]["item"])
         else:
             file.write(teamMatesDict[poke]["species"]+"\n")
-            print(teamMatesDict[poke]["species"])
+            #print(teamMatesDict[poke]["species"])
 
     file.write("Ability: "+teamMatesDict[poke]["ability"]+"\n")
-    print("Ability: "+teamMatesDict[poke]["ability"])
+    #print("Ability: "+teamMatesDict[poke]["ability"])
 
     file.write("Level: "+str(teamMatesDict[poke]["level"])+"\n")
-    print("Level: "+str(teamMatesDict[poke]["level"]))
+    #print("Level: "+str(teamMatesDict[poke]["level"]))
 
     if teamMatesDict[poke]["happiness"]!=255:
         file.write("Happiness: "+str(teamMatesDict[poke]["happiness"])+"\n")
-        print("Happiness: " + str(teamMatesDict[poke]["happiness"]))
+        #print("Happiness: " + str(teamMatesDict[poke]["happiness"]))
 
     if teamMatesDict[poke]["shiny"]=="Yes":
         file.write("Shiny: Yes\n")
-        print("Shiny: Yes")
+        #print("Shiny: Yes")
 
     evStringNeeded = False
     evString = ""
@@ -1002,10 +1059,10 @@ for poke in teamMatesDict:
         evStringNeeded = True
     if evStringNeeded == True:
         file.write("EVs: "+evString+"\n")
-        print("EVs: "+evString)
+        #print("EVs: "+evString)
 
     file.write(teamMatesDict[poke]["nature"]+" Nature\n")
-    print(teamMatesDict[poke]["nature"]+" Nature")
+    #print(teamMatesDict[poke]["nature"]+" Nature")
 
     ivStringNeeded = False
     ivString = ""
@@ -1029,14 +1086,14 @@ for poke in teamMatesDict:
         ivStringNeeded = True
     if ivStringNeeded == True:
         file.write("IVs: "+ivString+"\n")
-        print("IVs: " + ivString)
+        #print("IVs: " + ivString)
 
     for move in ["move1","move2","move3","move4"]:
         if teamMatesDict[poke]["moves"][move]!=None:
             file.write("- " + teamMatesDict[poke]["moves"][move]+"\n")
-            print("- " + teamMatesDict[poke]["moves"][move])
+            #print("- " + teamMatesDict[poke]["moves"][move])
     file.write("\n")
-    print()
+    #print()
 file.close()
 print("Ok, your team can be found in %s" % fileName)
 print("So what you want to do is go to http://play.pokemonshowdown.com/")
