@@ -18,8 +18,10 @@ class AL:
         self.messages.config(state=NORMAL)
         self.messages.insert(END, 'Al: %s\n\n' % text)
         self.messages.config(state=DISABLED)
-        print()
-        return "break"
+        #return "break"
+
+    def setUI(self,UI):
+        self.ui = UI
 
     def showAnalyzer(self):
         pass
@@ -146,6 +148,9 @@ class AL:
             input_get = input_field.get()
             self.messages.config(state=NORMAL)
             self.messages.insert(END, 'You: %s\n\n' % input_get)
+            if self.ui!=None:
+                #TODO: fix
+                self.ui.entry()
             self.messages.config(state=DISABLED)
             input_user.set("")
             return "break"
@@ -943,6 +948,5 @@ class AL:
 root = Tk()
 root.resizable(width=False,height=False)
 Al = AL(root)
-Al.respond("hello?")
-tester.setGUI(Al)
+tester.UI(Al)
 root.mainloop()
