@@ -91,7 +91,7 @@ def teamAdder():
                 print("Either way, I suggest chosing another Pokemon. That way I have the data necessary to help you")
 
 print("Hello! I'm Al, here to help build your personal competitive Pokemon team!\nThe great thing is, after we have built your team, I'll automatically export your team so you can easily import it into Pokemon Showdown,\na Competitive Pokemon Battle Simulator used by hundreds of people every day!\n\nLet's get started!")
-
+#TODO: implement personal names and inout of user names
 #Display All Tiers Downloaded Tiers
 print("First, we need to decide which tier this team will be used in.")
 tiers = MetaDex.getTiers()
@@ -351,7 +351,6 @@ for member in teamMateNames:
     dict["evs"]={"hp":None,"atk":None,"def":None,"spa":None,"spd":None,"spe":None}
     dict["item"]=None
     dict["gender"]=None
-    dict["item"]=None
     if member == "Rayquaza-Mega":
         dict["moves"]={"move1":"Dragon Ascent","move2":None,"move3":None,"move4":None}
     else:
