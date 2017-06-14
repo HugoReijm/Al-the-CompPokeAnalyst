@@ -389,12 +389,16 @@ for poke in teamMatesDict:
             if TeamBuilder.compress(abilities["S"]) not in list(metaAbilities.keys()):
                 print("\tUnfortunately, this ability is not allowed in %s" % tier)
             else:
+                #TODO: fix this
                 print("HI")
         if "H" in abilities and TeamBuilder.compress(abilities["H"]) in metaAbilities:
             print("Additionally, %s also has the following hidden ability." % spName)
             print("\t%s:\n\t\tDESC: %s\n\t\tPOP: %s" % (abilities["H"], Pokedex.findAbilityShortDesc(abilities["H"]),metaAbilities[Pokedex.findAbilityID(abilities["H"])]))
             if TeamBuilder.compress(abilities["H"]) not in list(metaAbilities.keys()):
                 print("\tUnfortunately, this ability is not allowed in %s" % tier)
+            else:
+                #TODO: fix this
+                print("HI")
         print()
         abilityGate = False
         while not abilityGate:
