@@ -98,16 +98,6 @@ class AL:
             return math.floor(math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5)
 
     def respond(self,text):
-        # textlist = list(text)
-        # for i in range(math.floor((len(text)-53)/57)+1):
-        #    if textlist[53+57*i-1]!=" ":
-        #        print("a "+textlist[53+57*i-1])
-        #        for j in range(53+57*i-2,-1,-1):
-        #            if textlist[j]==" ":
-        #                print("b "+textlist[j])
-        #                textlist[j]="\n"
-        #                break
-        # text="".join(textlist)
         self.messages.config(state=NORMAL)
         self.messages.insert(END, 'Al: %s\n\n' % text)
         self.messages.see(END)
@@ -172,24 +162,12 @@ class AL:
             self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"], self.current["ivs"]["spe"],
                              self.current["level"], self.current["nature"]) / 4), 16)
         self.speStatCanvas.itemconfig(self.speStatBar, fill=self.speNatureColor(self.current["nature"]))
-        self.hpTotal.set(str(
-            self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
-                            self.current["level"])))
-        self.atkTotal.set(str(
-            self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"], self.current["ivs"]["atk"],
-                             self.current["level"], self.current["nature"])))
-        self.defTotal.set(str(
-            self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"], self.current["ivs"]["def"],
-                             self.current["level"], self.current["nature"])))
-        self.spaTotal.set(str(
-            self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"], self.current["ivs"]["spa"],
-                             self.current["level"], self.current["nature"])))
-        self.spdTotal.set(str(
-            self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"], self.current["ivs"]["spd"],
-                             self.current["level"], self.current["nature"])))
-        self.speTotal.set(str(
-            self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"], self.current["ivs"]["spe"],
-                             self.current["level"], self.current["nature"])))
+        self.hpTotal.set(str(self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],self.current["level"])))
+        self.atkTotal.set(str(self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"], self.current["ivs"]["atk"],self.current["level"], self.current["nature"])))
+        self.defTotal.set(str(self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"], self.current["ivs"]["def"],self.current["level"], self.current["nature"])))
+        self.spaTotal.set(str(self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"], self.current["ivs"]["spa"],self.current["level"], self.current["nature"])))
+        self.spdTotal.set(str(self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"], self.current["ivs"]["spd"],self.current["level"], self.current["nature"])))
+        self.speTotal.set(str(self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"], self.current["ivs"]["spe"],self.current["level"], self.current["nature"])))
         self.move1Name.set(self.current["moves"]["move1"])
         self.move2Name.set(self.current["moves"]["move2"])
         self.move3Name.set(self.current["moves"]["move3"])
@@ -301,8 +279,8 @@ class AL:
                 if MetaDex.findPokemonTierData(species, self.tierfile) != None:
                     if "anythinggoes" not in self.tier:
                         numList = []
-                        for str in self.teamMateNames:
-                            numList.append(Pokedex.findPokemonNum(str))
+                        for s in self.teamMateNames:
+                            numList.append(Pokedex.findPokemonNum(s))
                         if Pokedex.findPokemonNum(species) in numList:
                             self.respond("Oh, you can not have two or more Pokemon with the same National Pokedex number! You must select another Pokemon.")
                         else:
@@ -512,275 +490,305 @@ class AL:
         self.yes = ["Y","y","Yes","yes","YES"]
         self.no = ["N","n","No","no","NO"]
 
-        #self.respond("Hello! I'm Al, here to help build your personal competitive Pokemon team!")
-        #self.respond("The great thing is, after we have built your team, I'll automatically export your team so you can easily import it into Pokemon Showdown,\na Competitive Pokemon Battle Simulator used by hundreds of people every day!")
-        #self.respond("Let's get started!")
+        self.respond("Hello! I'm Al, here to help build your personal competitive Pokemon team!")
+        self.respond("The great thing is, after we have built your team, I'll automatically export your team so you can easily import it into Pokemon Showdown, a Competitive Pokemon Battle Simulator used by hundreds of people every day!")
+        self.respond("Let's get started!")
         # TODO: implement personal names and inout of user names
 
         # Display All Tiers Downloaded Tiers
-        #self.respond("First, we need to decide which tier this team will be used in.")
+        self.respond("First, we need to decide which tier this team will be used in.")
         tiers = MetaDex.getTiers()
-        #for t in range(len(tiers)):
-        #    tList = list(tiers[t])
-        #    cut = tList.index("-")
-        #    tiers[t] = "".join(tList)[:cut]
-        #isDone = False
-        #while not isDone:
-        #    isDone = True
-        #    for t in range(len(tiers)):
-        #        for s in range(len(tiers) - 1, t, -1):
-        #            if tiers[s] == tiers[t]:
-        #                del tiers[s]
-        #                isDone = False
+        for t in range(len(tiers)):
+            tList = list(tiers[t])
+            cut = tList.index("-")
+            tiers[t] = "".join(tList)[:cut]
+        isDone = False
+        while not isDone:
+            isDone = True
+            for t in range(len(tiers)):
+                for s in range(len(tiers) - 1, t, -1):
+                    if tiers[s] == tiers[t]:
+                        del tiers[s]
+                        isDone = False
 
         # Chosing a Tier
-        #self.respond("You have the following tiers to choose from:")
-        #tiersString = ""
-        #for t in tiers:
-        #    tiersString+=t+"\n    "
-        #self.respond(tiersString[:-5])
-        #chooseTierGate = False
-        #while not chooseTierGate:
-        #    self.respond("Which tier would you like to work in? (String)")
-        #    inputEvent.wait()
-        #    inputEvent.clear()
-        #    if self.input_get in tiers:
-        #        self.tier = self.input_get
-        self.tier="gen7vgc2017-1760"
-        #        confirmTierGate = False
-        #        while not confirmTierGate:
-        #            self.respond("You would like to build a team for %s? (Y/N)" % self.tier)
-        #            inputEvent.wait()
-        #            inputEvent.clear()
-        #            if self.input_get in self.yes:
-        #                chooseTierGate = True
-        #                confirmTierGate = True
-        #            elif self.input_get in self.no:
-        #                confirmTierGate = True
-        #            else:
-        #                self.respond("Um...I don't understand your response...")
-        #    else:
-        #        self.respond("Um...I don't understand your response...")
+        self.respond("You have the following tiers to choose from:")
+        tiersString = ""
+        for t in tiers:
+            tiersString+=t+"\n    "
+        self.respond(tiersString[:-5])
+        chooseTierGate = False
+        while not chooseTierGate:
+            self.respond("Which tier would you like to work in? (String)")
+            inputEvent.wait()
+            inputEvent.clear()
+            if self.input_get in tiers:
+                self.tier = self.input_get
+                confirmTierGate = False
+                while not confirmTierGate:
+                    self.respond("You would like to build a team for %s? (Y/N)" % self.tier)
+                    inputEvent.wait()
+                    inputEvent.clear()
+                    if self.input_get in self.yes:
+                        chooseTierGate = True
+                        confirmTierGate = True
+                    elif self.input_get in self.no:
+                        confirmTierGate = True
+                    else:
+                        self.respond("Um...I don't understand your response...")
+            else:
+                self.respond("Um...I don't understand your response...")
 
         # Select Level of Competitiveness
-        #self.respond("Ok, now how hard core do you want to make this team? You have 4 options.\n    Fun\n    Serious\n    Hard Core\n    Champion")
-        #tierSeverityGate = False
-        #while not tierSeverityGate:
-        #    self.respond("So, what will it be? (String)")
-        #    inputEvent.wait()
-        #    if self.input_get in ["fun", "Fun"]:
-        #        self.tier = self.tier + "-0"
-        #        tierSeverityGate = True
-        #    elif self.input_get in ["serious", "Serious"]:
-        #        self.tier = self.tier + "-1500"
-        #        tierSeverityGate = True
-        #    elif self.input_get in ["hard core", "hard Core", "Hard Core", "Hard Core", "hardcore", "hardCore", "Hardcore","HardCore"]:
-        #        if "ou" in self.tier:
-        #            self.tier = self.tier + "-1695"
-        #        else:
-        #            self.tier = self.tier + "-1630"
-        #        tierSeverityGate = True
-        #    elif self.input_get in ["champion", "Champion"]:
-        #        if "ou" in self.tier:
-        #            self.tier = self.tier + "-1825"
-        #        else:
-        #            self.tier = self.tier + "-1760"
-        #        tierSeverityGate = True
-        #    else:
-        #        self.respond("Um, I don't understand that response. You must pick one of the four options shown above.")
+        self.respond("Ok, now how hard core do you want to make this team? You have 4 options.\n    Fun\n    Serious\n    Hard Core\n    Champion")
+        tierSeverityGate = False
+        while not tierSeverityGate:
+            self.respond("So, what will it be? (String)")
+            inputEvent.wait()
+            if self.input_get in ["fun", "Fun"]:
+                self.tier = self.tier + "-0"
+                tierSeverityGate = True
+            elif self.input_get in ["serious", "Serious"]:
+                self.tier = self.tier + "-1500"
+                tierSeverityGate = True
+            elif self.input_get in ["hard core", "hard Core", "Hard Core", "Hard Core", "hardcore", "hardCore", "Hardcore","HardCore"]:
+                if "ou" in self.tier:
+                    self.tier = self.tier + "-1695"
+                else:
+                    self.tier = self.tier + "-1630"
+                tierSeverityGate = True
+            elif self.input_get in ["champion", "Champion"]:
+                if "ou" in self.tier:
+                    self.tier = self.tier + "-1825"
+                else:
+                    self.tier = self.tier + "-1760"
+                tierSeverityGate = True
+            else:
+                self.respond("Um, I don't understand that response. You must pick one of the four options shown above.")
         self.tierfile = self.tier + ".json"
-        #self.respond("Excellent! Let's get started with your team then!")
+        self.respond("Excellent! Let's get started with your team then!")
 
         # Helping the User Start a New Team and Selecting First Team Member
-        #firstMemberGate = False
-        #while not firstMemberGate:
-        #    self.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
-        #    inputEvent.wait()
-        #    inputEvent.clear()
-        #    if self.input_get in self.yes:
-        #        firstMemberGate = True
-        #        self.respond("Great! Innovation makes a great team!")
-        #    elif self.input_get in self.no:
-        #        firstMemberGate = True
-        #        self.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
-        #        text=""
-        #        for poke in TeamBuilder.rawCountTopFinds(self.tierfile, 20):
-        #            #self.respond("%s:\n\tPOP: %s" % (poke[0], poke[1]))
-        #            text+=poke[0]+":\n\tPOP: "+str(poke[1])+"\n\n    "
-        #        self.respond(text[:-5])
-        #    else:
-        #        self.respond("Um... I don't understand your response ")
-        #pokedex = Pokedex.loadPokedex()
-        #self.teamMateNames = []
-        self.teamMateNames=["Krookodile","Marowak-Alola","Tapu Fini","Kartana","Araquanid","Magnezone"]
-        #self.teamAdder(inputEvent)
+        firstMemberGate = False
+        while not firstMemberGate:
+            self.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
+            inputEvent.wait()
+            inputEvent.clear()
+            if self.input_get in self.yes:
+                firstMemberGate = True
+                self.respond("Great! Innovation makes a great team!")
+            elif self.input_get in self.no:
+                firstMemberGate = True
+                self.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
+                text=""
+                for poke in TeamBuilder.rawCountTopFinds(self.tierfile, 20):
+                    pokeData = Pokedex.findPokemonData(poke[0])
+                    if len(pokeData["types"])==1:
+                        text+=poke[0]+":\n\tTYPE: "+pokeData["types"][0]+"\n\tSTATS: "+str(pokeData["baseStats"]["hp"])+"/"+str(pokeData["baseStats"]["atk"])+"/"+str(pokeData["baseStats"]["def"])+"/"+str(pokeData["baseStats"]["spa"])+"/"+str(pokeData["baseStats"]["spd"])+"/"+str(pokeData["baseStats"]["spe"])+"\n\tPOP: "+str(poke[1])+"\n\n    "
+                    elif len(pokeData["types"])==2:
+                        text+=poke[0]+":\n\tTYPE: "+pokeData["types"][0]+", "+pokeData["types"][1]+"\n\tSTATS: "+str(pokeData["baseStats"]["hp"])+"/"+str(pokeData["baseStats"]["atk"])+"/"+str(pokeData["baseStats"]["def"])+"/"+str(pokeData["baseStats"]["spa"])+"/"+str(pokeData["baseStats"]["spd"])+"/"+str(pokeData["baseStats"]["spe"])+"\n\tPOP: "+str(poke[1])+"\n\n    "
+                self.respond(text[:-5])
+            else:
+                self.respond("Um... I don't understand your response ")
+        pokedex = Pokedex.loadPokedex()
+        self.teamMateNames = []
+        self.teamAdder(inputEvent)
 
         # Adding Other 5 Members
-        #for i in range(5):
-        #    #TODO: include the species clause when showing new pokes
-        #    self.respond("Ok, let me suggest some team-mates. How many suggestions would you like to see? (Int)")
-        #    memberSelectGate = False
-        #    while not memberSelectGate:
-        #        try:
-        #            inputEvent.wait()
-        #            inputEvent.clear()
-        #            teamSuggAmount = int(self.input_get)
-        #            memberSelectGate = True
-        #        except:
-        #            self.respond("Um...I don't understand your response...")
-        #            # TODO: implement ID checks for species clause
-        #    text = ""
-        #    for t in TeamBuilder.findTeamMetaMatches(self.teamMateNames, self.tierfile, teamSuggAmount):
-        #        #text+=t[0]+":\n\tPOP: "+str(t[1])+"\n\n    "
-        #        text += t[0] + ":\n\tPOP: \n\n    "
-        #    self.respond(text[:-5])
-        #    self.teamAdder(inputEvent)
+        for i in range(5):
+            #TODO: include the species clause when showing new pokes
+            self.respond("Ok, let me suggest some team-mates. How many suggestions would you like to see? (Int)")
+            memberSelectGate = False
+            while not memberSelectGate:
+                try:
+                    inputEvent.wait()
+                    inputEvent.clear()
+                    teamSuggAmount = int(self.input_get)
+                    memberSelectGate = True
+                except:
+                    self.respond("Um...I don't understand your response...")
+                    # TODO: implement ID checks for species clause
+            text = ""
+            for poke in TeamBuilder.findTeamMetaMatches(self.teamMateNames, self.tierfile, teamSuggAmount):
+                #TODO: fix this
+                pokeData = Pokedex.findPokemonData(poke[0])
+                if len(pokeData["types"]) == 1:
+                    text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
+                        pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
+                        pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
+                        pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
+                        poke[1]) + "\n\n    "
+                elif len(pokeData["types"]) == 2:
+                    text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
+                        1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
+                        pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
+                        pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
+                        pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
+
+                #text+=t[0]+":\n\tPOP: "+str(t[1])+"\n\n    "
+            self.respond(text[:-5])
+            self.teamAdder(inputEvent)
 
         # Switching Team Members If Needed
-        #confirmTeamGate = False
-        #while not confirmTeamGate:
-        #    self.respond("Here is your team!")
-        #    for t in self.teamMateNames:
-        #        self.respond(t)
-        #    self.respond("Are you happy with the selection? (Y/N)")
-        #    inputEvent.wait()
-        #    inputEvent.clear()
-        #    if self.input_get in self.yes:
-        #        confirmTeamGate = True
-        #    elif self.input_get not in self.yes and self.input_get not in self.no:
-        #        self.respond("Um...I don't understand that response...")
-        #    else:
+        confirmTeamGate = False
+        while not confirmTeamGate:
+            text = ""
+            text+="Here is your team!"
+            for t in self.teamMateNames:
+                text+="\n    "+t
+            self.respond(text)
+            self.respond("Are you happy with the selection? (Y/N)")
+            inputEvent.wait()
+            inputEvent.clear()
+            if self.input_get in self.yes:
+                confirmTeamGate = True
+            elif self.input_get not in self.yes and self.input_get not in self.no:
+                self.respond("Um...I don't understand that response...")
+            else:
                 # Finding Flip
-        #        flipMemberGate = False
-        #        while not flipMemberGate:
-        #            self.respond("Which Pokemon in your team would you like to swap? (String)")
-        #            inputEvent.wait()
-        #            inputEvent.clear()
-        #            flip = self.input_get
-        #            flipName = Pokedex.findPokemonSpecies(flip)
-        #            if flipName in self.teamMateNames:
-        #                flipMemberGate = True
-        #            else:
-        #                self.respond("Pokemon %s isn't part of your team" % flip)
-        #        # Showing Team Mate Options
-        #        self.respond("Ok, let me suggest some team-mates. How many suggestions would you like to see? (Int)")
-        #        swapAmountGate = False
-        #        while not swapAmountGate:
-        #            try:
-        #                inputEvent.wait()
-        #                inputEvent.clear()
-        #                swapAmount = int(self.input_get)
-        #                teamMateNamesprime = []
-        #                for i in range(len(self.teamMateNames)):
-        #                    teamMateNamesprime.append(self.teamMateNames[i])
-        #                del teamMateNamesprime[teamMateNamesprime.index(flipName)]
-        #                swapAmountGate = True
-        #            except:
-        #                self.respond("Um...unfortunately I can't understand your request. Try again")
-        #        text = ""
-        #        for t in TeamBuilder.findTeamMetaMatches(teamMateNamesprime, self.tierfile, swapAmount):
-        #            text+=t[0]+": "+str(t[1])+"\n\n    "
-        #        self.respond(text)
-        #        # Finding Flop and Checking if it's another Mega
-        #        flopMemberGate = False
-        #        while not flopMemberGate:
-        #            if "anythinggoes" not in self.tier:
-        #                self.respond("Which Pokemon in your team would you like to swap %s with? Note that your team can not have two or more Pokemon with the same National Pokedex number!" % flipName)
-        #                inputEvent.wait()
-        #                inputEvent.clear()
-        #                flop = self.input_get
-        #            else:
-        #                self.respond("Which Pokemon in your team would you like to swap %s with?" % flipName)
-        #                inputEvent.wait()
-        #                inputEvent.clear()
-        #                flop = self.input_get
-        #            flopName = Pokedex.findPokemonSpecies(flop)
-        #            if flopName != None:
-        #                data = MetaDex.findPokemonTierData(flopName, self.tierfile)
-        #                if data != None:
-        #                    if "anythinggoes" not in self.tier:
-        #                        numList = []
-        #                        for str in self.teamMateNames:
-        #                            numList.append(Pokedex.findPokemonNum(str))
-        #                        if Pokedex.findPokemonNum(flopName) in numList:
-        #                            self.respond("Oh, you can not have two or more Pokemon with the same National Pokedex number! You must select another Pokemon.")
-        #                        else:
-        #                            forme = Pokedex.findPokemonForme(flopName)
-        #                            if forme == "Mega":
-        #                                megaChecks = []
-        #                                for teamMate in self.teamMateNames:
-        #                                    if Pokedex.findPokemonForme(teamMate) == "Mega":
-        #                                        megaChecks.append(False)
-        #                                    else:
-        #                                        megaChecks.append(True)
-        #                                if all(megaChecks):
-        #                                    self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
-        #                                    self.respond("Done! I switched %s with %s." % (flipName, flopName))
-        #                                    flopMemberGate = True
-        #                                else:
-        #                                    self.respond("Oh, I see that you're trying to add another mega to your team. I mean, this is techniaclly allowed, but I wouldn't suggest it. You can only use one mega per battle.")
-        #                                    multiMegaGate = False
-        #                                    while not multiMegaGate:
-        #                                        self.respond("Are you sure you want multiple megas in your team?")
-        #                                        inputEvent.wait()
-        #                                        inputEvent.clear()
-        #                                        if self.input_get in self.yes:
-        #                                            self.respond("Alright, I'll add another mega then!")
-        #                                            self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
-        #                                            self.respond("Done! I switched %s with %s." % (flipName, flopName))
-        #                                            flopMemberGate = True
-        #                                            multiMegaGate = True
-        #                                        elif self.input_get in self.no:
-        #                                            multiMegaGate = True
-        #                                        else:
-        #                                            self.respond("Um...I don't understand your response...")
-        #                            else:
-        #                                self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
-        #                                self.respond("Done! I switched %s with %s." % (flipName, flopName))
-        #                                flopMemberGate = True
-        #                    else:
-        #                        forme = Pokedex.findPokemonForme(flopName)
-        #                        if forme == "Mega":
-        #                            megaChecks = []
-        #                            for teamMate in self.teamMateNames:
-        #                                if Pokedex.findPokemonForme(teamMate) == "Mega":
-        #                                    megaChecks.append(False)
-        #                                else:
-        #                                    megaChecks.append(True)
-        #                            if all(megaChecks):
-        #                                self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
-        #                                self.respond("Done! I switched %s with %s." % (flipName, flopName))
-        #                                flopMemberGate = True
-        #                            else:
-        #                                self.respond(
-        #                                    "Oh, I see that you're trying to add another mega to your team. I mean, this is techniaclly allowed, but I wouldn't suggest it. You can only use one mega per battle.")
-        #                                multiMegaGate = False
-        #                                while not multiMegaGate:
-        #                                    self.respond("Are you sure you want multiple megas in your team?")
-        #                                    inputEvent.wait()
-        #                                    inputEvent.clear()
-        #                                    if self.input_get in self.yes:
-        #                                        self.respond("Alright, I'll add another mega then!")
-        #                                        self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
-        #                                        self.respond("Done! I switched %s with %s." % (flipName, flopName))
-        #                                        flopMemberGate = True
-        #                                        multiMegaGate = True
-        #                                    elif self.input_get in self.no:
-        #                                        multiMegaGate = True
-        #                                    else:
-        #                                        self.respond("Um...I don't understand your response...")
-        #                        else:
-        #                            self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
-        #                            self.respond("Done! I switched %s with %s." % (flipName, flopName))
-        #                            flopMemberGate = True
-        #                else:
-        #                    self.respond("Oh, I'm sorry. There seems to be a problem.")
-        #                    self.respond("Either Pokemon %s is not allowed in tier %s." % (flop, self.tier))
-        #                    self.respond("Or it might be that Pokemon %s is SO rare in tier %s that there isn't enough data on it" % (flop, self.tier))
-        #                    self.respond("Either way, I suggest chosing another Pokemon. That way I have the data necessary to help you")
-        #            else:
-        #                self.respond("The inputted Pokemon is not an actual Pokemon! Try again")
-        #self.respond("Your team is coming along great. Let's move on to the individual team members.")
+                flipMemberGate = False
+                while not flipMemberGate:
+                    self.respond("Which Pokemon in your team would you like to swap? (String)")
+                    inputEvent.wait()
+                    inputEvent.clear()
+                    flip = self.input_get
+                    flipName = Pokedex.findPokemonSpecies(flip)
+                    if flipName in self.teamMateNames:
+                        flipMemberGate = True
+                    else:
+                        self.respond("Pokemon %s isn't part of your team" % flip)
+                # Showing Team Mate Options
+                self.respond("Ok, let me suggest some team-mates. How many suggestions would you like to see? (Int)")
+                swapAmountGate = False
+                while not swapAmountGate:
+                    try:
+                        inputEvent.wait()
+                        inputEvent.clear()
+                        swapAmount = int(self.input_get)
+                        teamMateNamesprime = []
+                        for i in range(len(self.teamMateNames)):
+                            teamMateNamesprime.append(self.teamMateNames[i])
+                        del teamMateNamesprime[teamMateNamesprime.index(flipName)]
+                        swapAmountGate = True
+                    except:
+                        self.respond("Um...unfortunately I can't understand your request. Try again")
+                text = ""
+                for poke in TeamBuilder.findTeamMetaMatches(teamMateNamesprime, self.tierfile, swapAmount):
+                    pokeData = Pokedex.findPokemonData(poke[0])
+                    if len(pokeData["types"]) == 1:
+                        text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
+                            pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
+                            pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
+                            pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
+                            poke[1]) + "\n\n    "
+                    elif len(pokeData["types"]) == 2:
+                        text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
+                            1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
+                            pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
+                            pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
+                            pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
+                    #text+=t[0]+": "+str(t[1])+"\n\n    "
+                self.respond(text)
+                # Finding Flop and Checking if it's another Mega
+                flopMemberGate = False
+                while not flopMemberGate:
+                    if "anythinggoes" not in self.tier:
+                        self.respond("Which Pokemon in your team would you like to swap %s with? Note that your team can not have two or more Pokemon with the same National Pokedex number!" % flipName)
+                        inputEvent.wait()
+                        inputEvent.clear()
+                        flop = self.input_get
+                    else:
+                        self.respond("Which Pokemon in your team would you like to swap %s with?" % flipName)
+                        inputEvent.wait()
+                        inputEvent.clear()
+                        flop = self.input_get
+                    flopName = Pokedex.findPokemonSpecies(flop)
+                    if flopName != None:
+                        data = MetaDex.findPokemonTierData(flopName, self.tierfile)
+                        if data != None:
+                            if "anythinggoes" not in self.tier:
+                                numList = []
+                                for s in self.teamMateNames:
+                                    numList.append(Pokedex.findPokemonNum(s))
+                                if Pokedex.findPokemonNum(flopName) in numList:
+                                    self.respond("Oh, you can not have two or more Pokemon with the same National Pokedex number! You must select another Pokemon.")
+                                else:
+                                    forme = Pokedex.findPokemonForme(flopName)
+                                    if forme == "Mega":
+                                        megaChecks = []
+                                        for teamMate in self.teamMateNames:
+                                            if Pokedex.findPokemonForme(teamMate) == "Mega":
+                                                megaChecks.append(False)
+                                            else:
+                                                megaChecks.append(True)
+                                        if all(megaChecks):
+                                            self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
+                                            self.respond("Done! I switched %s with %s." % (flipName, flopName))
+                                            flopMemberGate = True
+                                        else:
+                                            self.respond("Oh, I see that you're trying to add another mega to your team. I mean, this is techniaclly allowed, but I wouldn't suggest it. You can only use one mega per battle.")
+                                            multiMegaGate = False
+                                            while not multiMegaGate:
+                                                self.respond("Are you sure you want multiple megas in your team?")
+                                                inputEvent.wait()
+                                                inputEvent.clear()
+                                                if self.input_get in self.yes:
+                                                    self.respond("Alright, I'll add another mega then!")
+                                                    self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
+                                                    self.respond("Done! I switched %s with %s." % (flipName, flopName))
+                                                    flopMemberGate = True
+                                                    multiMegaGate = True
+                                                elif self.input_get in self.no:
+                                                    multiMegaGate = True
+                                                else:
+                                                    self.respond("Um...I don't understand your response...")
+                                    else:
+                                        self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
+                                        self.respond("Done! I switched %s with %s." % (flipName, flopName))
+                                        flopMemberGate = True
+                            else:
+                                forme = Pokedex.findPokemonForme(flopName)
+                                if forme == "Mega":
+                                    megaChecks = []
+                                    for teamMate in self.teamMateNames:
+                                        if Pokedex.findPokemonForme(teamMate) == "Mega":
+                                            megaChecks.append(False)
+                                        else:
+                                            megaChecks.append(True)
+                                    if all(megaChecks):
+                                        self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
+                                        self.respond("Done! I switched %s with %s." % (flipName, flopName))
+                                        flopMemberGate = True
+                                    else:
+                                        self.respond(
+                                            "Oh, I see that you're trying to add another mega to your team. I mean, this is techniaclly allowed, but I wouldn't suggest it. You can only use one mega per battle.")
+                                        multiMegaGate = False
+                                        while not multiMegaGate:
+                                            self.respond("Are you sure you want multiple megas in your team?")
+                                            inputEvent.wait()
+                                            inputEvent.clear()
+                                            if self.input_get in self.yes:
+                                                self.respond("Alright, I'll add another mega then!")
+                                                self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
+                                                self.respond("Done! I switched %s with %s." % (flipName, flopName))
+                                                flopMemberGate = True
+                                                multiMegaGate = True
+                                            elif self.input_get in self.no:
+                                                multiMegaGate = True
+                                            else:
+                                                self.respond("Um...I don't understand your response...")
+                                else:
+                                    self.teamMateNames[self.teamMateNames.index(flipName)] = flopName
+                                    self.respond("Done! I switched %s with %s." % (flipName, flopName))
+                                    flopMemberGate = True
+                        else:
+                            self.respond("Oh, I'm sorry. There seems to be a problem.")
+                            self.respond("Either Pokemon %s is not allowed in tier %s." % (flop, self.tier))
+                            self.respond("Or it might be that Pokemon %s is SO rare in tier %s that there isn't enough data on it" % (flop, self.tier))
+                            self.respond("Either way, I suggest chosing another Pokemon. That way I have the data necessary to help you")
+                    else:
+                        self.respond("The inputted Pokemon is not an actual Pokemon! Try again")
+        self.respond("Your team is coming along great. Let's move on to the individual team members.")
 
         # Make Dictionary with All Necessary Info
         for member in self.teamMateNames:
@@ -1558,7 +1566,7 @@ class AL:
         input_field = Entry(textframe, text=input_user)
         input_field.place(x=0,y=textframe.winfo_reqheight()-input_field.winfo_reqheight()-2*borderwidth,width=int(self.width/2)-2*borderwidth)
         input_user.set("")
-        self.messages = Text(textframe)
+        self.messages = Text(textframe,wrap=WORD)
         self.messages.place(x=0,y=0,width=textframe.winfo_reqwidth()-2*borderwidth-17,height=self.height-2*borderwidth-input_field.winfo_reqheight())
         self.messages.config(state=DISABLED)
         scrollbar = Scrollbar(textframe,command=self.messages.yview)
