@@ -456,35 +456,82 @@ class AL:
         self.respond("Copy the entire text from the file I just sent you and paste it in the large input field.")
         self.respond("Click on the 'Import/Export' button on top.")
         self.respond("Your team will have been imported into the website!")
-        self.respond(
-            "For extra measure, do you see that bar on the top left of your screen? It should read something like 'Untitled #'? This is where you can name your team!")
+        self.respond("For extra measure, do you see that bar on the top left of your screen? It should read something like 'Untitled #'? This is where you can name your team!")
         self.respond("Under that, you should find the 'Format' option. Click it. A large window should appear.")
-        self.respond(
-            "Select the format that most looks like %s (this is the tier/format you decided to build this team for)." % self.tier)
-        self.respond(
-            "To check if everything went perfectingly in the team building process, click the 'Validate' button. A window should pop up.")
-        self.respond("\tIf your team gets validated for your chosen format/tier, your all set.")
-        self.respond(
-            "\tIf you do get an error, just follow the instructions given by the error message to correvct this. Revalidate your team and you should be ready to go!")
-        self.respond(
-            "NOTE: Your imported team will be preserved on the website via cookies. Therefore, you can come back later to Pokemon Showdown, and your team will still be there!")
-        self.respond(
-            "However, if you delete the cookies stored on your computer, you team will disappear. Don't worry. All you have to dude is just import your team from the file we just made today.")
+        self.respond("Select the format that most looks like %s (this is the tier/format you decided to build this team for)." % self.tier)
+        self.respond("To check if everything went perfectingly in the team building process, click the 'Validate' button. A window should pop up.")
+        self.respond("If your team gets validated for your chosen format/tier, your all set.")
+        self.respond("If you do get an error, just follow the instructions given by the error message to correvct this. Revalidate your team and you should be ready to go!")
+        self.respond("NOTE: Your imported team will be preserved on the website via cookies. Therefore, you can come back later to Pokemon Showdown, and your team will still be there!")
+        self.respond("However, if you delete the cookies stored on your computer, you team will disappear. Don't worry. All you have to dude is just import your team from the file we just made today.")
         self.respond("If you want to test your team in an actual battle, click on the Home tab")
-        self.respond(
-            "Before you can participate in an actual battle, you will need a Pokemon Showdown account.\n\tIf you don't have one already, making one is very easy and takes two seconds: all it requires is a username and a password.\n\tIf you already have an account, make sure you are signed in")
-        self.respond(
-            "Now that you are signed in, click on the 'Format' option on the left of the screen. A large window will appear.")
-        self.respond(
-            "Select the format that most looks like %s (this is the tier/format you decided to build this team for)." % self.tier)
-        self.respond(
-            "Now that the website knows which type of battle you want to participate in, it will show you your teams (or one of them if you have multiple.)")
+        self.respond("Before you can participate in an actual battle, you will need a Pokemon Showdown account.If you don't have one already, making one is very easy and takes two seconds: all it requires is a username and a password. If you already have an account, make sure you are signed in")
+        self.respond("Now that you are signed in, click on the 'Format' option on the left of the screen. A large window will appear.")
+        self.respond("Select the format that most looks like %s (this is the tier/format you decided to build this team for)." % self.tier)
+        self.respond("Now that the website knows which type of battle you want to participate in, it will show you your teams (or one of them if you have multiple.)")
         self.respond("Select the team you wish to battle with.")
-        self.respond(
-            "\tIf the website doesn't show the team you wish to battle with, it means that your team hasn't been validated for that format.\n\tYou must then go back to the Teambuilder, select your team, and validate it for the format/tier you wish to battle in.")
-        self.respond(
-            "Alright, your all set! Just press the 'Battle!' button and have fun!\n\tNote, it may take a few moments for the servers to find you an opponent. Please be patient.")
+        self.respond("If the website doesn't show the team you wish to battle with, it means that your team hasn't been validated for that format. You must then go back to the Teambuilder, select your team, and validate it for the format/tier you wish to battle in.")
+        self.respond("Alright, your all set! Just press the 'Battle!' button and have fun! Note, it may take a few moments for the servers to find you an opponent. Please be patient.")
         self.respond("glhf! Good luck and have fun!")
+
+    def cut(self,text):
+        textlines = []
+        stop = 0
+        text = text.replace("\t", "        ")
+        begin = ""
+        for i in range(len(text)):
+            if text[i] not in ["\n", " "]:
+                begin = text[0:i]
+                break
+        #t = ""
+        #for char in begin:
+        #    if char == "\n":
+        #        t += "n "
+        #    elif char == " ":
+        #        t += "_ "
+        #    else:
+        #        t += "E "
+        #print(t)
+        isDone = False
+        while not isDone:
+            if stop == 0:
+                if len(text) > 57:
+                    if text[56] != " ":
+                        if text[57] != " ":
+                            for j in range(55, 0, -1):
+                                if text[j] == " ":
+                                    # print(text[stop:j])
+                                    textlines.append(text[stop:j])
+                                    stop = j + 1
+                                    break
+                        else:
+                            textlines.append(text[:57])
+                            stop = 58
+                    else:
+                        textlines.append(text[:57])
+                        stop = 57
+                else:
+                    isDone = True
+                    return text
+            else:
+                if len(text) - stop > 57 - len(begin) + 1-4:
+                    if text[stop + 56 - len(begin) + 1-4] != " ":
+                        if text[stop + 57 - len(begin) + 1-4] != " ":
+                            for j in range(stop + 55 - len(begin) + 1-4, stop, -1):
+                                if text[j] == " ":
+                                    textlines.append("    "+text[stop:j])
+                                    stop = j + 1
+                                    break
+                        else:
+                            textlines.append("    "+text[stop:stop + 57 - len(begin) + 1-4])
+                            stop = stop + 58 - len(begin) + 1-4
+                    else:
+                        textlines.append("    "+text[stop:stop + 57 - len(begin) + 1-4])
+                        stop = stop + 57 - len(begin) + 1-4
+                else:
+                    textlines.append("    "+text[stop:])
+                    isDone = True
+        return begin.join(textlines)
 
     def AI(self,inputEvent):
         self.yes = ["Y","y","Yes","yes","YES"]
@@ -866,24 +913,24 @@ class AL:
             abilities = Pokedex.findPokemonAbilities(spName)
             metaAbilities = MetaDex.findPokemonTierAbilities(spName, self.tierfile)
             text = ""
-            text+=spName+" can have the following abilities:"
-            text+="\n\t"+abilities["0"]+":\n\t    POP: "+str(metaAbilities[Pokedex.findAbilityID(abilities["0"])])
+            text+=self.cut(spName+" can have the following abilities:")
+            text+="\n\t"+abilities["0"]+":"+self.cut("\n\t    DESC: "+Pokedex.findAbilityShortDesc(abilities["0"]))+"\n\t    POP: "+str(metaAbilities[Pokedex.findAbilityID(abilities["0"])])
             if len(metaAbilities) > 1:
                 if "1" in abilities:
-                    text+="\n\t"+abilities["1"]+":\n\t    POP: "+str(metaAbilities[Pokedex.findAbilityID(abilities["1"])])
+                    text+="\n\t"+abilities["1"]+":"+self.cut("\n\t    DESC: "+Pokedex.findAbilityShortDesc(abilities["1"]))+"\n\t    POP: "+str(metaAbilities[Pokedex.findAbilityID(abilities["1"])])
                 if "S" in abilities and TeamBuilder.compress(abilities["S"]) in metaAbilities:
-                    text+="\n\tAdditionally, "+spName+" also has a special ability:"
-                    text+="\n\t"+abilities["S"]+":\n\t    POP: "+str(metaAbilities[Pokedex.findAbilityID(abilities["S"])])
+                    text+=self.cut("\n\tAdditionally, "+spName+" also has a special ability:")
+                    text+="\n\t"+abilities["S"]+":"+self.cut("\n\t    DESC: "+Pokedex.findAbilityShortDesc(abilities["S"]))+"\n\t    POP: "+str(metaAbilities[Pokedex.findAbilityID(abilities["S"])])
                     if TeamBuilder.compress(abilities["S"]) not in list(metaAbilities.keys()):
-                        text+="\n    Unfortunately, this ability is not allowed in "+self.tier
+                        text+=self.cut("\n    Unfortunately, this ability is not allowed in "+self.tier)
                     else:
                         #TODO fix this
                         pass
                 if "H" in abilities and TeamBuilder.compress(abilities["H"]) in metaAbilities:
-                    text+="\n    Additionally, "+spName+" also has a Hidden ability:"
-                    text+="\n\t"+abilities["H"]+":\n\t    POP: "+str(metaAbilities[Pokedex.findAbilityID(abilities["H"])])
+                    text+=self.cut("\n    Additionally, "+spName+" also has a Hidden ability:")
+                    text+="\n\t"+abilities["H"]+":"+self.cut("\n\t    DESC: "+Pokedex.findAbilityShortDesc(abilities["H"]))+"\n\t    POP: "+str(metaAbilities[Pokedex.findAbilityID(abilities["H"])])
                     if TeamBuilder.compress(abilities["H"]) not in list(metaAbilities.keys()):
-                        text+="\n    Unfortunately, this ability is not allowed in "+self.tier
+                        text+=self.cut("\n    Unfortunately, this ability is not allowed in "+self.tier)
                     else:
                         #TODO fix this
                         pass
@@ -994,6 +1041,7 @@ class AL:
             self.switch(spName)
 
             # Choosing Natures
+            #TODO: what nature is what? fix
             self.respond("Alright, it's time for Natures and EVs")
             self.respond("%s has a few common Nature/EV spreads. How many would you like to see? (Int)" % spName)
             gate8 = False
@@ -1134,8 +1182,7 @@ class AL:
 
             # Show Popular Moves
             self.respond("Alright, now hey comes the REALLY important part: selecting moves.\tI'll show you a few of the most common moves that %s can have." % spName)
-            moves = [self.teamMatesDict[spName]["moves"]["move1"], self.teamMatesDict[spName]["moves"]["move2"],
-                     self.teamMatesDict[spName]["moves"]["move3"], self.teamMatesDict[spName]["moves"]["move4"]]
+            moves = [self.teamMatesDict[spName]["moves"]["move1"], self.teamMatesDict[spName]["moves"]["move2"],self.teamMatesDict[spName]["moves"]["move3"], self.teamMatesDict[spName]["moves"]["move4"]]
             moveset = MetaDex.findPokemonTierMoves(spName, self.tierfile)
             #TODO: implement hidden powers
             if len(moveset) == 1:
@@ -1177,9 +1224,10 @@ class AL:
                 text=""
                 for s in range(len(sortedMoves)):
                     if sortedMoves[s][0] != "Nothing" and sortedMoves[s][0] != "":
-                        text+=Pokedex.findMoveName(sortedMoves[s][0])+":\n\tCAT: "+Pokedex.findMoveCategory(sortedMoves[s][0])+",\n\tTYPE: "+Pokedex.findMoveType(sortedMoves[s][0])+",\n\tPP: "+str(Pokedex.findMovePP(sortedMoves[s][0]))+",\n\tBASEPOW: "+str(Pokedex.findMoveBasePower(sortedMoves[s][0]))+",\n\tACC: "+str(Pokedex.findMoveAccuracy(sortedMoves[s][0]))+",\n\tPOP: "+str(sortedMoves[s][1])+"\n    "
+                        moveData = Pokedex.findMoveData(sortedMoves[s][0])
+                        text+=moveData["name"]+":\n\tCAT: "+moveData["category"]+",\n\tTYPE: "+moveData["type"]+",\n\tPP: "+str(moveData["pp"])+",\n\tACC: "+str(moveData["accuracy"])+",\n\tBASEPOW: "+str(moveData["basePower"])+","+self.cut("\n\tDESC: "+moveData["shortDesc"])+"\n\tPOP: "+str(sortedMoves[s][1])+"\n    "
                     else:
-                        text+="Nothing:\n\tCAT: Nothing,\n\tTYPE: Nothing,\n\tPP: 0,\n\tACC: 0,\n\tBASEPOW: 0,\n\tPOP: 0\n    "
+                        text+="Nothing:\n\tCAT: Nothing,\n\tTYPE: Nothing,\n\tPP: 0,\n\tACC: 0,\n\tBASEPOW: 0,\n\tDESC: Does nothing.\n\tPOP: 0\n    "
                 self.respond(text)
 
             for moveIndex in [1, 2, 3, 4]:
@@ -1263,9 +1311,10 @@ class AL:
                     text = ""
                     for t in sortedMoves:
                         if t[0] != "Nothing" and t[0] != "":
-                            text +=Pokedex.findMoveName(t[0])+":\n\tCAT: "+Pokedex.findMoveCategory(t[0])+",\n\tTYPE: "+Pokedex.findMoveType(t[0])+",\n\tPP: "+str(Pokedex.findMovePP(t[0]))+",\n\tBASEPOW: "+str(Pokedex.findMoveBasePower(t[0]))+",\n\tACC: "+str(Pokedex.findMoveAccuracy(t[0]))+",\n\tPOP: "+str(t[1])+"\n    "
+                            moveData=Pokedex.findMoveData(t[0])
+                            text +=moveData["name"]+":\n\tCAT: "+moveData["category"]+",\n\tTYPE: "+moveData["type"]+",\n\tPP: "+str(moveData["pp"])+",\n\tACC: "+str(moveData["accuracy"])+",\n\tBASEPOW: "+str(moveData["basePower"])+","+self.cut("\n\tDESC: "+moveData["shortDesc"])+"\n\tPOP: "+str(t[1])+"\n    "
                         else:
-                            text += "Nothing:\n\tCAT: Nothing,\n\tTYPE: Nothing,\n\tPP: 0,\n\tACC: 0,\n\tBASEPOW: 0,\n\tPOP: 0\n    "
+                            text += "Nothing:\n\tCAT: Nothing,\n\tTYPE: Nothing,\n\tPP: 0,\n\tACC: 0,\n\tBASEPOW: 0,\n\tDESC: Does nothing.\n\tPOP: 0\n    "
                     self.respond(text)
 
                     # Selecting Flop
@@ -1337,8 +1386,8 @@ class AL:
                     text+="\n    Light Ball:\n\tFLING'S POWER: "+str(Pokedex.findItemFlingBasePower("light ball"))+"\n\tFLING'S EFFECT: Paralyses opponent"
                     text+="\n    Toxic Orb:\n\tFLING'S POWER: "+str(Pokedex.findItemFlingBasePower("toxic orb"))+"\n\tFLING'S EFFECT: Badly poisons opponent"
                     text+="\n    King's Rock:\n\tFLING'S POWER: "+str(Pokedex.findItemFlingBasePower("king's rock"))+"\n\tFLING'S EFFECT: Flinches opponent"
-                    text+="\n    White Herb:\n\tFLING'S POWER: "+str(Pokedex.findItemFlingBasePower("white herb"))+"\n\tFLING'S EFFECT: Restores Stat Changes on opponent"
-                    text+="\n    Lum Berry:\n\tFLING'S POWER: "+str(Pokedex.findItemFlingBasePower("lum berry"))+"\n\tFLING'S EFFECT: Opponent recovers from any status problem"
+                    text+="\n    White Herb:\n\tFLING'S POWER: "+str(Pokedex.findItemFlingBasePower("white herb"))+self.cut("\n\tFLING'S EFFECT: Restores Stat Changes on opponent")
+                    text+="\n    Lum Berry:\n\tFLING'S POWER: "+str(Pokedex.findItemFlingBasePower("lum berry"))+self.cut("\n\tFLING'S EFFECT: Opponent recovers from any status problem")
                     self.respond(text)
 
                 if "Natural Gift" in [self.teamMatesDict[spName]["moves"]["move1"], self.teamMatesDict[spName]["moves"]["move2"],
@@ -1353,7 +1402,7 @@ class AL:
                     text+="\n    Watmel Berry:\n\tNATURAL GIFT'S POWER: "+str(Pokedex.findItemNaturalGiftBasePower("watmelberry"))+"\n\tNATURAL GIFT'S Type: "+Pokedex.findItemNaturalGiftType("watmelberry")
                     self.respond(text)
 
-                self.respond("I'm going to show the most popular items. How many should I suggest? ")
+                self.respond("I'm going to show the most popular items. How many should I suggest? (Int)")
                 itemAmountGate = False
                 while not itemAmountGate:
                     try:
@@ -1366,7 +1415,8 @@ class AL:
                 sortedItems = TeamBuilder.findPokemonMetaItems(spName, self.tierfile, itemAmount)
                 text=""
                 for s in sortedItems:
-                    text+=Pokedex.findItemName(s[0])+":\n\tDESC: "+Pokedex.findItemDesc(s[0])+"\n\tPOP: "+str(s[1])+"\n    "
+                    itemData=Pokedex.findItemData(s[0])
+                    text+=itemData["name"]+":"+self.cut("\n\tDESC: "+itemData["desc"])+"\n\tPOP: "+str(s[1])+"\n    "
                 self.respond(text)
                 itemGate = False
                 while not itemGate:
