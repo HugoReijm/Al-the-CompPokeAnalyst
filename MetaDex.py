@@ -1,7 +1,7 @@
-import json, sys
+import json,sys,os
 
 def getTiers():
-    with open("data/tiers/tiers.txt","r") as data:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/tiers.txt","r") as data:
         python_list = data.readlines()
     data.close()
     for i in range(len(python_list)):
@@ -9,13 +9,13 @@ def getTiers():
     return python_list
 
 def setTiers(tier):
-    with open("data/tiers/tiers.txt", "a") as file:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/tiers.txt", "a") as file:
         file.write(tier+"\n")
     file.close()
 
 def loadTier(tier):
     if isinstance(tier, str)==True and ".json" in tier:
-        with open("data/tiers/"+tier,"r") as data:
+        with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/"+tier,"r") as data:
             python_obj = json.load(data)
         data.close()
         return python_obj

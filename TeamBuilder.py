@@ -1,4 +1,4 @@
-import MetaDex,Pokedex,json,urllib.request
+import MetaDex,Pokedex,json,urllib.request,os
 
 def findTeamMetaMatches(names,tier,size):
     if isinstance(names,list):
@@ -157,7 +157,7 @@ def downloadTier(url):
                 with urllib.request.urlopen(url) as file:
                     python_obj = json.loads(file.read().decode())
                 file.close
-                with open("data/tiers/"+tier,"w") as file:
+                with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/"+tier,"w") as file:
                     json.dump(python_obj,file)
                 file.close
                 tier = tier[:-5]

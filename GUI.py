@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
-import math,Pokedex,MetaDex,TeamBuilder,threading,random,datetime
+import math,Pokedex,MetaDex,TeamBuilder,threading,random,datetime,os,glob
+import urllib.request
 
 class AL:
     @staticmethod
@@ -97,6 +98,78 @@ class AL:
         else:
             return math.floor(math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5)
 
+    @staticmethod
+    def get_picture_name(icon, species):
+        pokemonData = Pokedex.findPokemonData(species)
+        num = str(pokemonData['num'])
+        while len(num) < 3:
+            num = '0' + num
+        if 'forme' in pokemonData:
+            num += '-'
+            forme = TeamBuilder.compress(pokemonData['forme'])
+
+            if forme in ['alola', 'ash', 'black', 'mega', 'midnight', 'pompom', 'school', 'sensu', 'unbound']:
+                forme = forme[0]
+
+            elif forme in ['megax', 'megay']:
+                forme = 'm' + forme[-1]
+
+            elif forme in ['heat', 'wash']:
+                forme = forme[0]
+                if icon:
+                    num = num[:-1]
+
+            elif forme in ['therian', 'trash']:
+                forme = 's'
+
+            elif num in ['773-'] and icon:
+                num = num[:-1]
+                forme = ''
+
+            elif num in ['778-']:
+                if icon:
+                    num = num[:-1]
+                    forme = ''
+                else:
+                    forme = forme[0]
+
+            num += forme
+        return num
+
+    def download_picture(self, name, icon):
+        if icon:
+            print('Downloading icon', name)
+            url = 'http://www.serebii.net/pokedex-sm/icon/'
+        else:
+            print('Downloading picture', name)
+            url = 'http://www.serebii.net/sunmoon/pokemon/'
+        url += name + '.png'
+        print(url)
+        try:
+            urllib.request.urlretrieve(url, name + '.png')
+            return True
+        except:
+            print('failed to download', name)
+            return False
+
+    def request_picture(self,name,icon=False):
+        if icon:
+            os.chdir(os.path.dirname(os.path.realpath(__file__))+'/data/images/Icons')
+        else:
+            os.chdir(os.path.dirname(os.path.realpath(__file__))+'/data/images/Larges')
+
+        pkmn_list = []
+        for file in glob.glob("*.png"):
+            pkmn_list.append(file[:-4])
+
+        picture_available = True
+        if name not in pkmn_list:
+            picture_available = self.download_picture(name, icon)
+
+        os.chdir('../..')
+
+        return picture_available
+
     def respond(self,text):
         self.messages.config(state=NORMAL)
         self.messages.insert(END, 'Al: %s\n\n' % text)
@@ -109,6 +182,12 @@ class AL:
     
     def switch(self,name):
         self.current = self.teamMatesDict[name]
+        filename = self.get_picture_name(True,name)
+        self.request_picture(filename,True)
+        self.spriteCanvas.spriteFile = PhotoImage(file=os.path.dirname(os.path.realpath(__file__))+"/data/images/icons/"+filename+".png")
+        self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
+        self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
+        self.spriteCanvas.create_image(2,2, anchor=NW, image=self.spriteCanvas.spriteFile)
         self.speciesLabelText.set(self.current["species"])
         types = Pokedex.findPokemonTypes(self.current["species"])
         if len(types) == 2:
@@ -240,9 +319,276 @@ class AL:
             self.move4PP.set("N/A")
             self.move4Acc.set("N/A")
 
+    def update(self,name,option):
+        if option=="types":
+            types = Pokedex.findPokemonTypes(self.current["species"])
+            if len(types) == 2:
+                self.typeLabelText.set(types[0] + ", " + types[1])
+            else:
+                self.typeLabelText.set(types[0])
+        elif option == "ability":
+            self.abilityLabelText.set(self.current["ability"])
+        elif option == "item":
+            self.itemLabelText.set(self.current["item"])
+        elif option == "level":
+            self.levelLabelText.set(self.current["level"])
+            self.hpStatCanvas.coords(self.hpStatBar, 0, 5, int(
+                self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
+                                self.current["level"]) / 4), 16)
+            self.atkStatCanvas.coords(self.atkStatBar, 0, 5, int(
+                self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"],
+                                 self.current["ivs"]["atk"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.atkStatCanvas.itemconfig(self.atkStatBar, fill=self.atkNatureColor(self.current["nature"]))
+            self.defStatCanvas.coords(self.defStatBar, 0, 5, int(
+                self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"],
+                                 self.current["ivs"]["def"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.defStatCanvas.itemconfig(self.defStatBar, fill=self.defNatureColor(self.current["nature"]))
+            self.spaStatCanvas.coords(self.spaStatBar, 0, 5, int(
+                self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"],
+                                 self.current["ivs"]["spa"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.spaStatCanvas.itemconfig(self.spaStatBar, fill=self.spaNatureColor(self.current["nature"]))
+            self.spdStatCanvas.coords(self.spdStatBar, 0, 5, int(
+                self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"],
+                                 self.current["ivs"]["spd"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.spdStatCanvas.itemconfig(self.spdStatBar, fill=self.spdNatureColor(self.current["nature"]))
+            self.speStatCanvas.coords(self.speStatBar, 0, 5, int(
+                self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"],
+                                 self.current["ivs"]["spe"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.speStatCanvas.itemconfig(self.speStatBar, fill=self.speNatureColor(self.current["nature"]))
+            self.hpTotal.set(str(
+                self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
+                                self.current["level"])))
+            self.atkTotal.set(str(
+                self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"],
+                                 self.current["ivs"]["atk"],
+                                 self.current["level"], self.current["nature"])))
+            self.defTotal.set(str(
+                self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"],
+                                 self.current["ivs"]["def"],
+                                 self.current["level"], self.current["nature"])))
+            self.spaTotal.set(str(
+                self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"],
+                                 self.current["ivs"]["spa"],
+                                 self.current["level"], self.current["nature"])))
+            self.spdTotal.set(str(
+                self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"],
+                                 self.current["ivs"]["spd"],
+                                 self.current["level"], self.current["nature"])))
+            self.speTotal.set(str(
+                self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"],
+                                 self.current["ivs"]["spe"],
+                                 self.current["level"], self.current["nature"])))
+        elif option == "gender":
+            self.genderLabelText.set(self.current["gender"])
+        elif option == "happiness":
+            self.happinessLabelText.set(self.current["happiness"])
+        elif option == "shiny":
+            self.shinyLabelText.set(self.current["shiny"])
+        elif option == "ivs":
+            self.hpIV.set(str(self.current["ivs"]["hp"]))
+            self.atkIV.set(str(self.current["ivs"]["atk"]))
+            self.defIV.set(str(self.current["ivs"]["def"]))
+            self.spaIV.set(str(self.current["ivs"]["spa"]))
+            self.spdIV.set(str(self.current["ivs"]["spd"]))
+            self.speIV.set(str(self.current["ivs"]["spe"]))
+            self.hpStatCanvas.coords(self.hpStatBar, 0, 5, int(
+                self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
+                                self.current["level"]) / 4), 16)
+            self.atkStatCanvas.coords(self.atkStatBar, 0, 5, int(
+                self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"],
+                                 self.current["ivs"]["atk"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.atkStatCanvas.itemconfig(self.atkStatBar, fill=self.atkNatureColor(self.current["nature"]))
+            self.defStatCanvas.coords(self.defStatBar, 0, 5, int(
+                self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"],
+                                 self.current["ivs"]["def"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.defStatCanvas.itemconfig(self.defStatBar, fill=self.defNatureColor(self.current["nature"]))
+            self.spaStatCanvas.coords(self.spaStatBar, 0, 5, int(
+                self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"],
+                                 self.current["ivs"]["spa"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.spaStatCanvas.itemconfig(self.spaStatBar, fill=self.spaNatureColor(self.current["nature"]))
+            self.spdStatCanvas.coords(self.spdStatBar, 0, 5, int(
+                self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"],
+                                 self.current["ivs"]["spd"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.spdStatCanvas.itemconfig(self.spdStatBar, fill=self.spdNatureColor(self.current["nature"]))
+            self.speStatCanvas.coords(self.speStatBar, 0, 5, int(
+                self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"],
+                                 self.current["ivs"]["spe"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.speStatCanvas.itemconfig(self.speStatBar, fill=self.speNatureColor(self.current["nature"]))
+            self.hpTotal.set(str(
+                self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
+                                self.current["level"])))
+            self.atkTotal.set(str(
+                self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"],
+                                 self.current["ivs"]["atk"],
+                                 self.current["level"], self.current["nature"])))
+            self.defTotal.set(str(
+                self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"],
+                                 self.current["ivs"]["def"],
+                                 self.current["level"], self.current["nature"])))
+            self.spaTotal.set(str(
+                self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"],
+                                 self.current["ivs"]["spa"],
+                                 self.current["level"], self.current["nature"])))
+            self.spdTotal.set(str(
+                self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"],
+                                 self.current["ivs"]["spd"],
+                                 self.current["level"], self.current["nature"])))
+            self.speTotal.set(str(
+                self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"],
+                                 self.current["ivs"]["spe"],
+                                 self.current["level"], self.current["nature"])))
+        elif option == "nature":
+            self.atkStatCanvas.itemconfig(self.atkStatBar, fill=self.atkNatureColor(self.current["nature"]))
+            self.defStatCanvas.itemconfig(self.defStatBar, fill=self.defNatureColor(self.current["nature"]))
+            self.spaStatCanvas.itemconfig(self.spaStatBar, fill=self.spaNatureColor(self.current["nature"]))
+            self.spdStatCanvas.itemconfig(self.spdStatBar, fill=self.spdNatureColor(self.current["nature"]))
+            self.speStatCanvas.itemconfig(self.speStatBar, fill=self.speNatureColor(self.current["nature"]))
+        elif option == "evs":
+            self.hpEV.set(str(self.current["evs"]["hp"]))
+            self.atkEV.set(str(self.current["evs"]["atk"]))
+            self.defEV.set(str(self.current["evs"]["def"]))
+            self.spaEV.set(str(self.current["evs"]["spa"]))
+            self.spdEV.set(str(self.current["evs"]["spd"]))
+            self.speEV.set(str(self.current["evs"]["spe"]))
+            self.hpStatCanvas.coords(self.hpStatBar, 0, 5, int(
+                self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
+                                self.current["level"]) / 4), 16)
+            self.atkStatCanvas.coords(self.atkStatBar, 0, 5, int(
+                self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"],
+                                 self.current["ivs"]["atk"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.atkStatCanvas.itemconfig(self.atkStatBar, fill=self.atkNatureColor(self.current["nature"]))
+            self.defStatCanvas.coords(self.defStatBar, 0, 5, int(
+                self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"],
+                                 self.current["ivs"]["def"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.defStatCanvas.itemconfig(self.defStatBar, fill=self.defNatureColor(self.current["nature"]))
+            self.spaStatCanvas.coords(self.spaStatBar, 0, 5, int(
+                self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"],
+                                 self.current["ivs"]["spa"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.spaStatCanvas.itemconfig(self.spaStatBar, fill=self.spaNatureColor(self.current["nature"]))
+            self.spdStatCanvas.coords(self.spdStatBar, 0, 5, int(
+                self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"],
+                                 self.current["ivs"]["spd"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.spdStatCanvas.itemconfig(self.spdStatBar, fill=self.spdNatureColor(self.current["nature"]))
+            self.speStatCanvas.coords(self.speStatBar, 0, 5, int(
+                self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"],
+                                 self.current["ivs"]["spe"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.speStatCanvas.itemconfig(self.speStatBar, fill=self.speNatureColor(self.current["nature"]))
+            self.hpTotal.set(str(
+                self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
+                                self.current["level"])))
+            self.atkTotal.set(str(
+                self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"],
+                                 self.current["ivs"]["atk"],
+                                 self.current["level"], self.current["nature"])))
+            self.defTotal.set(str(
+                self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"],
+                                 self.current["ivs"]["def"],
+                                 self.current["level"], self.current["nature"])))
+            self.spaTotal.set(str(
+                self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"],
+                                 self.current["ivs"]["spa"],
+                                 self.current["level"], self.current["nature"])))
+            self.spdTotal.set(str(
+                self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"],
+                                 self.current["ivs"]["spd"],
+                                 self.current["level"], self.current["nature"])))
+            self.speTotal.set(str(
+                self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"],
+                                 self.current["ivs"]["spe"],
+                                 self.current["level"], self.current["nature"])))
+        elif option == "moves":
+            self.move1Name.set(self.current["moves"]["move1"])
+            self.move2Name.set(self.current["moves"]["move2"])
+            self.move3Name.set(self.current["moves"]["move3"])
+            self.move4Name.set(self.current["moves"]["move4"])
+            move1Data = Pokedex.findMoveData(self.current["moves"]["move1"])
+            move2Data = Pokedex.findMoveData(self.current["moves"]["move2"])
+            move3Data = Pokedex.findMoveData(self.current["moves"]["move3"])
+            move4Data = Pokedex.findMoveData(self.current["moves"]["move4"])
+            if move1Data != None:
+                self.move1Cat.set(move1Data["category"])
+                self.move1Type.set(move1Data["type"])
+                self.move1BasePower.set(str(move1Data["basePower"]))
+                self.move1PP.set(str(move1Data["pp"]))
+                if move1Data["accuracy"] != True:
+                    self.move1Acc.set(str(move1Data["accuracy"]) + "%")
+                else:
+                    self.move1Acc.set("100%")
+            else:
+                self.move1Cat.set("N/A")
+                self.move1Type.set("N/A")
+                self.move1BasePower.set("N/A")
+                self.move1PP.set("N/A")
+                self.move1Acc.set("N/A")
+
+            if move2Data != None:
+                self.move2Cat.set(move2Data["category"])
+                self.move2Type.set(move2Data["type"])
+                self.move2BasePower.set(str(move2Data["basePower"]))
+                self.move2PP.set(str(move2Data["pp"]))
+                if move2Data["accuracy"] != True:
+                    self.move2Acc.set(str(move2Data["accuracy"]) + "%")
+                else:
+                    self.move2Acc.set("100%")
+            else:
+                self.move2Cat.set("N/A")
+                self.move2Type.set("N/A")
+                self.move2BasePower.set("N/A")
+                self.move2PP.set("N/A")
+                self.move2Acc.set("N/A")
+
+            if move3Data != None:
+                self.move3Cat.set(move3Data["category"])
+                self.move3Type.set(move3Data["type"])
+                self.move3BasePower.set(str(move3Data["basePower"]))
+                self.move3PP.set(str(move3Data["pp"]))
+                if move3Data["accuracy"] != True:
+                    self.move3Acc.set(str(move3Data["accuracy"]) + "%")
+                else:
+                    self.move3Acc.set("100%")
+            else:
+                self.move3Cat.set("N/A")
+                self.move3Type.set("N/A")
+                self.move3BasePower.set("N/A")
+                self.move3PP.set("N/A")
+                self.move3Acc.set("N/A")
+
+            if move4Data != None:
+                self.move4Cat.set(move4Data["category"])
+                self.move4Type.set(move4Data["type"])
+                self.move4BasePower.set(str(move4Data["basePower"]))
+                self.move4PP.set(str(move4Data["pp"]))
+                if move4Data["accuracy"] != True:
+                    self.move4Acc.set(str(move4Data["accuracy"]) + "%")
+                else:
+                    self.move4Acc.set("100%")
+            else:
+                self.move4Cat.set("N/A")
+                self.move4Type.set("N/A")
+                self.move4BasePower.set("N/A")
+                self.move4PP.set("N/A")
+                self.move4Acc.set("N/A")
+        else:
+            print("whoops, you should fix "+option)
+
     def delete(self,name):
         self.teamMatesDict[name]["species"] = None
-        self.teamMatesDict[name]["types"] = [None]
+        self.teamMatesDict[name]["types"] = [None,None]
         self.teamMatesDict[name]["ability"] = None
         self.teamMatesDict[name]["nature"] = None
         self.teamMatesDict[name]["baseStats"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
@@ -252,9 +598,8 @@ class AL:
         self.teamMatesDict[name]["gender"] = None
         self.teamMatesDict[name]["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
         self.teamMatesDict[name]["happiness"] = None
-        self.teamMatesDict[name]["level"] = 0
+        self.teamMatesDict[name]["level"] = 100
         self.teamMatesDict[name]["shiny"] = None
-        self.current = self.teamMatesDict[name]
         self.switch(name)
         self.the_menu.entryconfigure(name, label="None")
     
@@ -359,7 +704,7 @@ class AL:
         now = datetime.datetime.now()
         fileName = self.tier + "_" + str(now.day) + "-" + str(now.month) + "-" + str(now.year) + "_" + str(
             now.hour) + "-" + str(now.minute) + ".txt"
-        file = open(fileName, "w")
+        file = open(os.path.dirname(os.path.realpath(__file__))+"/"+fileName, "w")
         for poke in self.teamMatesDict:
             if self.teamMatesDict[poke]["gender"] != None:
                 if self.teamMatesDict[poke]["item"] != None:
@@ -889,8 +1234,7 @@ class AL:
         pokemon6_menu.add_command(label="Delete", command=lambda:self.delete(self.teamMateNames[5]))
         self.the_menu.add_cascade(label=self.teamMateNames[5], menu=pokemon6_menu)
 
-        self.switch(self.teamMateNames[0])
-        self.respond("I have added uploaded your team members into the panel to your left. Have a look around!")
+        self.respond("I have uploaded your team members into the panel to your left. Have a look around!")
 
         # Iterate Over Every Team Member
         for poke in self.teamMatesDict:
@@ -954,7 +1298,7 @@ class AL:
                     spName, spName))
                 self.teamMatesDict[poke]["ability"] = abilities["0"]
             self.respond("Done! Your %s now has the ability %s" % (spName, self.teamMatesDict[poke]["ability"]))
-            self.switch(spName)
+            self.update(spName,"ability")
 
             self.respond("Now that we have that decided, let's move on to IV and Nature/EV spreads")
 
@@ -1038,7 +1382,7 @@ class AL:
             spName, self.teamMatesDict[spName]["ivs"]["hp"], self.teamMatesDict[spName]["ivs"]["atk"],
             self.teamMatesDict[spName]["ivs"]["def"], self.teamMatesDict[spName]["ivs"]["spa"],
             self.teamMatesDict[spName]["ivs"]["spd"], self.teamMatesDict[spName]["ivs"]["spe"]))
-            self.switch(spName)
+            self.update(spName,"ivs")
 
             # Choosing Natures
             #TODO: what nature is what? fix
@@ -1075,7 +1419,7 @@ class AL:
                 else:
                     self.respond("Um...that's not a defined nature, so I can't assign that to %s. Try again." % spName)
             self.respond("Excellent, now your %s has a %s nature!" % (spName, self.teamMatesDict[spName]["nature"]))
-            self.switch(spName)
+            self.update(spName,"nature")
 
             # Choosing EVs
             self.respond("And now it's time for EVs.")
@@ -1136,7 +1480,7 @@ class AL:
             spName, self.teamMatesDict[spName]["evs"]["hp"], self.teamMatesDict[spName]["evs"]["atk"],
             self.teamMatesDict[spName]["evs"]["def"], self.teamMatesDict[spName]["evs"]["spa"],
             self.teamMatesDict[spName]["evs"]["spd"], self.teamMatesDict[spName]["evs"]["spe"]))
-            self.switch(spName)
+            self.update(spName,"evs")
 
             # Selecting Gender
             self.respond("Ok, now we have to change gears a little. Time to talk about your Pokemon's gender")
@@ -1178,7 +1522,7 @@ class AL:
                     else:
                         self.respond("Um, I don't understand that response...")
             self.respond("Done! Your %s is now has of the %s gender!" % (spName, self.teamMatesDict[spName]["gender"]))
-            self.switch(spName)
+            self.update(spName,"gender")
 
             # Show Popular Moves
             self.respond("Alright, now hey comes the REALLY important part: selecting moves.\tI'll show you a few of the most common moves that %s can have." % spName)
@@ -1372,7 +1716,7 @@ class AL:
             self.teamMatesDict[spName]["moves"]["move3"] = moves[2]
             self.teamMatesDict[spName]["moves"]["move4"] = moves[3]
             self.respond("Excellent! Your %s now has moves!" % spName)
-            self.switch(spName)
+            self.update(spName,"moves")
 
             # Selecting Items
             self.respond("Alright, it's time to look at items.")
@@ -1454,7 +1798,7 @@ class AL:
                 self.teamMatesDict[spName]["item"] = Pokedex.findItemName(
                     list(MetaDex.findPokemonTierItems(spName, self.tierfile).keys())[0])
             self.respond("Excellent! Your %s is now holding a %s!" % (spName, self.teamMatesDict[spName]["item"]))
-            self.switch(spName)
+            self.update(spName,"item")
 
             self.respond("We are almost done with your %s. Just a few simple things to take care of." % spName)
 
@@ -1474,7 +1818,7 @@ class AL:
             else:
                 self.respond("In your case, happiness does not affect your Pokemon at all. So I'll just set it to max, as this is it's default value.")
                 self.teamMatesDict[spName]["happiness"] = 255
-            self.switch(spName)
+            self.update(spName,"happiness")
 
             # Selecting Level
             self.respond("Ok, almost there. Time to chose what level your %s should be at." % spName)
@@ -1550,7 +1894,7 @@ class AL:
                         except:
                             self.respond("Um...I don't understand that response...")
             self.respond("Excellent! Your %s is now at Level %s" % (spName, self.teamMatesDict[spName]["level"]))
-            self.switch(spName)
+            self.update(spName,"level")
 
             # Selecting Shininess
             self.respond("And last but probably the most important, shininess!")
@@ -1576,7 +1920,7 @@ class AL:
                     self.respond("I see that your %s can not be legally shiny. Maybe one day..." % spName)
                     self.teamMatesDict[spName]["shiny"] = "No"
                     shinyGate = True
-            self.switch(spName)
+            self.update(spName,"shiny")
 
             if self.teamMateNames.index(spName)<5:
                 finalGate=False
@@ -1656,9 +2000,11 @@ class AL:
         teamframe.config(relief=RAISED, borderwidth=borderwidth)
         teamframe.pack(side=LEFT, fill=Y)
 
-        image=Canvas(teamframe,width=80,height=80)
-        image.config(relief=RAISED,borderwidth=1)
-        image.place(x=9,y=9)
+        #Make Images
+        self.spriteCanvas=Canvas(teamframe,width=80,height=80)
+        self.spriteCanvas.config(relief=RAISED,borderwidth=1)
+        self.spriteCanvas.place(x=9,y=9)
+
         # Individual Team Member Species Label
         speciesTitleLabel = Label(teamframe,text="Species:",anchor=W)
         speciesTitleLabel.place(x=100,y=0,width=50)
@@ -2220,5 +2566,5 @@ class AL:
 
 root = Tk()
 root.resizable(width=False,height=False)
-Al = AL(root)
+AL(root)
 root.mainloop()

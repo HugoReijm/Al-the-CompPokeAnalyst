@@ -1009,7 +1009,7 @@ print("I'm going to put your team in the same location you put this program. If 
 print()
 now = datetime.datetime.now()
 fileName = tier+"_"+str(now.day)+"-"+str(now.month)+"-"+str(now.year)+"_"+str(now.hour)+"-"+str(now.minute)+".txt"
-file = open(fileName,"w")
+file = open(os.path.dirname(os.path.realpath(__file__))+"/"+fileName,"w")
 for poke in teamMatesDict:
     if teamMatesDict[poke]["gender"] != None:
         if teamMatesDict[poke]["item"]!=None:

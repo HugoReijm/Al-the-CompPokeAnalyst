@@ -1,37 +1,38 @@
-import json
+import json,os
 
 def loadPokedex():
-    with open("data/pokedex.json","r") as data:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/data/pokedex.json","r") as data:
         python_obj = json.load(data)
     data.close()
     return python_obj
 
 def loadLearnSets():
-    with open("data/learnsets.json","r") as data:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/data/learnsets.json","r") as data:
         python_obj = json.load(data)
     data.close()
     return python_obj
 
 def loadTypes():
-    with open("data/types.json", "r") as data:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/data/types.json", "r") as data:
         python_obj = json.load(data)
     data.close()
     return python_obj
 
 def loadMoves():
-    with open("data/moves.json","r") as data:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/data/moves.json","r") as data:
         python_obj = json.load(data)
     data.close()
     return python_obj
 
 def loadItems():
-    with open("data/items.json","r") as data:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/data/items.json","r") as data:
         python_obj = json.load(data)
     data.close()
     return python_obj
 
 def loadAbilities():
-    with open("data/abilities.json","r") as data:
+    os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.dirname(os.path.realpath(__file__))+"/data/abilities.json","r") as data:
         python_obj = json.load(data)
     data.close()
     return python_obj
