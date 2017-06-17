@@ -745,13 +745,15 @@ class AL:
                     file.write(self.teamMatesDict[poke]["species"] + "\n")
                     # self.respond(teamMatesDict[poke]["species"])
 
-            file.write("Ability: " + self.teamMatesDict[poke]["ability"] + "\n")
+            if self.teamMatesDict[poke]["ability"] != None:
+                file.write("Ability: " + self.teamMatesDict[poke]["ability"] + "\n")
             # self.respond("Ability: "+teamMatesDict[poke]["ability"])
 
-            file.write("Level: " + str(self.teamMatesDict[poke]["level"]) + "\n")
+            if self.teamMatesDict[poke]["level"] != None:
+                file.write("Level: " + str(self.teamMatesDict[poke]["level"]) + "\n")
             # self.respond("Level: "+str(teamMatesDict[poke]["level"]))
 
-            if self.teamMatesDict[poke]["happiness"] != 255:
+            if self.teamMatesDict[poke]["happiness"] != 255 and self.teamMatesDict[poke]["happiness"] != None:
                 file.write("Happiness: " + str(self.teamMatesDict[poke]["happiness"]) + "\n")
                 # self.respond("Happiness: " + str(teamMatesDict[poke]["happiness"]))
 
