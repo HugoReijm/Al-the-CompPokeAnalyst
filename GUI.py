@@ -182,18 +182,23 @@ class AL:
     
     def switch(self,name):
         self.current = self.teamMatesDict[name]
-        filename = self.get_picture_name(True,name)
-        self.request_picture(filename,True)
-        self.spriteCanvas.spriteFile = PhotoImage(file=os.path.dirname(os.path.realpath(__file__))+"/data/images/icons/"+filename+".png")
-        self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
-        self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
-        self.spriteCanvas.create_image(2,2, anchor=NW, image=self.spriteCanvas.spriteFile)
+        self.spriteCanvas.delete("all")
+        if self.current["species"] != None:
+            filename = self.get_picture_name(True,name)
+            self.request_picture(filename,True)
+            self.spriteCanvas.spriteFile = PhotoImage(file=os.path.dirname(os.path.realpath(__file__))+"/data/images/icons/"+filename+".png")
+            self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
+            self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
+            self.spriteCanvas.create_image(2,2, anchor=NW, image=self.spriteCanvas.spriteFile)
         self.speciesLabelText.set(self.current["species"])
-        types = Pokedex.findPokemonTypes(self.current["species"])
-        if len(types) == 2:
-            self.typeLabelText.set(types[0] + ", " + types[1])
+        if self.current["species"] != None:
+            types = Pokedex.findPokemonTypes(self.current["species"])
+            if len(types) == 2:
+                self.typeLabelText.set(types[0] + ", " + types[1])
+            else:
+                self.typeLabelText.set(types[0])
         else:
-            self.typeLabelText.set(types[0])
+            self.typeLabelText.set(None)
         self.abilityLabelText.set(self.current["ability"])
         self.itemLabelText.set(self.current["item"])
         self.levelLabelText.set(self.current["level"])
@@ -218,35 +223,54 @@ class AL:
         self.spaEV.set(str(self.current["evs"]["spa"]))
         self.spdEV.set(str(self.current["evs"]["spd"]))
         self.speEV.set(str(self.current["evs"]["spe"]))
-        self.hpStatCanvas.coords(self.hpStatBar, 0, 5, int(
-            self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
-                            self.current["level"]) / 4), 16)
-        self.atkStatCanvas.coords(self.atkStatBar, 0, 5, int(
-            self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"], self.current["ivs"]["atk"],
-                             self.current["level"], self.current["nature"]) / 4), 16)
-        self.atkStatCanvas.itemconfig(self.atkStatBar, fill=self.atkNatureColor(self.current["nature"]))
-        self.defStatCanvas.coords(self.defStatBar, 0, 5, int(
-            self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"], self.current["ivs"]["def"],
-                             self.current["level"], self.current["nature"]) / 4), 16)
-        self.defStatCanvas.itemconfig(self.defStatBar, fill=self.defNatureColor(self.current["nature"]))
-        self.spaStatCanvas.coords(self.spaStatBar, 0, 5, int(
-            self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"], self.current["ivs"]["spa"],
-                             self.current["level"], self.current["nature"]) / 4), 16)
-        self.spaStatCanvas.itemconfig(self.spaStatBar, fill=self.spaNatureColor(self.current["nature"]))
-        self.spdStatCanvas.coords(self.spdStatBar, 0, 5, int(
-            self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"], self.current["ivs"]["spd"],
-                             self.current["level"], self.current["nature"]) / 4), 16)
-        self.spdStatCanvas.itemconfig(self.spdStatBar, fill=self.spdNatureColor(self.current["nature"]))
-        self.speStatCanvas.coords(self.speStatBar, 0, 5, int(
-            self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"], self.current["ivs"]["spe"],
-                             self.current["level"], self.current["nature"]) / 4), 16)
-        self.speStatCanvas.itemconfig(self.speStatBar, fill=self.speNatureColor(self.current["nature"]))
-        self.hpTotal.set(str(self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],self.current["level"])))
-        self.atkTotal.set(str(self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"], self.current["ivs"]["atk"],self.current["level"], self.current["nature"])))
-        self.defTotal.set(str(self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"], self.current["ivs"]["def"],self.current["level"], self.current["nature"])))
-        self.spaTotal.set(str(self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"], self.current["ivs"]["spa"],self.current["level"], self.current["nature"])))
-        self.spdTotal.set(str(self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"], self.current["ivs"]["spd"],self.current["level"], self.current["nature"])))
-        self.speTotal.set(str(self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"], self.current["ivs"]["spe"],self.current["level"], self.current["nature"])))
+        if self.current["species"]!=None:
+            self.hpStatCanvas.coords(self.hpStatBar, 0, 5, int(
+                self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
+                                self.current["level"]) / 4), 16)
+            self.atkStatCanvas.coords(self.atkStatBar, 0, 5, int(
+                self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"], self.current["ivs"]["atk"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.atkStatCanvas.itemconfig(self.atkStatBar, fill=self.atkNatureColor(self.current["nature"]))
+            self.defStatCanvas.coords(self.defStatBar, 0, 5, int(
+                self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"], self.current["ivs"]["def"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.defStatCanvas.itemconfig(self.defStatBar, fill=self.defNatureColor(self.current["nature"]))
+            self.spaStatCanvas.coords(self.spaStatBar, 0, 5, int(
+                self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"], self.current["ivs"]["spa"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.spaStatCanvas.itemconfig(self.spaStatBar, fill=self.spaNatureColor(self.current["nature"]))
+            self.spdStatCanvas.coords(self.spdStatBar, 0, 5, int(
+                self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"], self.current["ivs"]["spd"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.spdStatCanvas.itemconfig(self.spdStatBar, fill=self.spdNatureColor(self.current["nature"]))
+            self.speStatCanvas.coords(self.speStatBar, 0, 5, int(
+                self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"], self.current["ivs"]["spe"],
+                                 self.current["level"], self.current["nature"]) / 4), 16)
+            self.speStatCanvas.itemconfig(self.speStatBar, fill=self.speNatureColor(self.current["nature"]))
+            self.hpTotal.set(str(self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],self.current["level"])))
+            self.atkTotal.set(str(self.atkStatCalc(self.current["baseStats"]["atk"], self.current["evs"]["atk"], self.current["ivs"]["atk"],self.current["level"], self.current["nature"])))
+            self.defTotal.set(str(self.defStatCalc(self.current["baseStats"]["def"], self.current["evs"]["def"], self.current["ivs"]["def"],self.current["level"], self.current["nature"])))
+            self.spaTotal.set(str(self.spaStatCalc(self.current["baseStats"]["spa"], self.current["evs"]["spa"], self.current["ivs"]["spa"],self.current["level"], self.current["nature"])))
+            self.spdTotal.set(str(self.spdStatCalc(self.current["baseStats"]["spd"], self.current["evs"]["spd"], self.current["ivs"]["spd"],self.current["level"], self.current["nature"])))
+            self.speTotal.set(str(self.speStatCalc(self.current["baseStats"]["spe"], self.current["evs"]["spe"], self.current["ivs"]["spe"],self.current["level"], self.current["nature"])))
+        else:
+            self.hpStatCanvas.coords(self.hpStatBar, 0, 5, 0, 16)
+            self.atkStatCanvas.coords(self.atkStatBar, 0, 5, 0, 16)
+            self.atkStatCanvas.itemconfig(self.atkStatBar, fill="lawn green")
+            self.defStatCanvas.coords(self.defStatBar, 0, 5, 0, 16)
+            self.defStatCanvas.itemconfig(self.defStatBar, fill="lawn green")
+            self.spaStatCanvas.coords(self.spaStatBar, 0, 5, 0, 16)
+            self.spaStatCanvas.itemconfig(self.spaStatBar, fill="lawn green")
+            self.spdStatCanvas.coords(self.spdStatBar, 0, 5, 0, 16)
+            self.spdStatCanvas.itemconfig(self.spdStatBar, fill="lawn green")
+            self.speStatCanvas.coords(self.speStatBar, 0, 5, 0, 16)
+            self.speStatCanvas.itemconfig(self.speStatBar, fill="lawn green")
+            self.hpTotal.set(str(0))
+            self.atkTotal.set(str(0))
+            self.defTotal.set(str(0))
+            self.spaTotal.set(str(0))
+            self.spdTotal.set(str(0))
+            self.speTotal.set(str(0))
         self.move1Name.set(self.current["moves"]["move1"])
         self.move2Name.set(self.current["moves"]["move2"])
         self.move3Name.set(self.current["moves"]["move3"])
@@ -588,7 +612,6 @@ class AL:
 
     def delete(self,name):
         self.teamMatesDict[name]["species"] = None
-        self.teamMatesDict[name]["types"] = [None,None]
         self.teamMatesDict[name]["ability"] = None
         self.teamMatesDict[name]["nature"] = None
         self.teamMatesDict[name]["baseStats"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
