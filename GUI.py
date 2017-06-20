@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-import math,Pokedex,MetaDex,TeamBuilder,threading,datetime,os,glob,GUIScript
+import math,Pokedex,MetaDex,TeamBuilder,threading,os,glob,GUIScript
 import urllib.request
 
 class AL:
@@ -625,6 +625,7 @@ class AL:
         topNoButton.pack(side=RIGHT)
 
     def delete(self,name):
+        del self.teamMateNames[self.teamMateNames.index(name)]
         self.teamMatesDict[name]["species"] = None
         self.teamMatesDict[name]["ability"] = None
         self.teamMatesDict[name]["nature"] = None
@@ -634,229 +635,12 @@ class AL:
         self.teamMatesDict[name]["item"] = None
         self.teamMatesDict[name]["gender"] = None
         self.teamMatesDict[name]["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
-        self.teamMatesDict[name]["happiness"] = None
+        self.teamMatesDict[name]["happiness"] = 255
         self.teamMatesDict[name]["level"] = 100
         self.teamMatesDict[name]["shiny"] = None
         self.switch(name)
+        self.the_menu.entryconfigure(name, state="disabled")
         self.the_menu.entryconfigure(name, label="None")
-    
-    def teamAdder(self,inputEvent):
-        teamAdderGate = False
-        while not teamAdderGate:
-            if len(self.teamMateNames) == 0:
-                self.respond("Which Pokemon would you like to start your team with?")
-                inputEvent.wait()
-                inputEvent.clear()
-            else:
-                if "anythinggoes" not in self.tier:
-                    self.respond("Which Pokemon would you like to add to your team? Note that your team can not have two or more Pokemon with the same National Pokedex number!")
-                    inputEvent.wait()
-                    inputEvent.clear()
-                else:
-                    self.respond("Which Pokemon would you like to add to your team?")
-                    inputEvent.wait()
-                    inputEvent.clear()
-            species = Pokedex.findPokemonSpecies(self.input_get)
-            if species != None:
-                if MetaDex.findPokemonTierData(species, self.tierfile) != None:
-                    if "anythinggoes" not in self.tier:
-                        numList = []
-                        for s in self.teamMateNames:
-                            numList.append(Pokedex.findPokemonNum(s))
-                        if Pokedex.findPokemonNum(species) in numList:
-                            self.respond("Oh, you can not have two or more Pokemon with the same National Pokedex number! You must select another Pokemon.")
-                        else:
-                            forme = Pokedex.findPokemonForme(species)
-                            if forme == "Mega":
-                                megaChecks = []
-                                for teamMate in self.teamMateNames:
-                                    if Pokedex.findPokemonForme(teamMate) == "Mega":
-                                        megaChecks.append(False)
-                                    else:
-                                        megaChecks.append(True)
-                                if all(megaChecks):
-                                    self.teamMateNames.append(species)
-                                    teamAdderGate = True
-                                else:
-                                    self.respond("Oh, I see that you're trying to add another mega to your team. I mean, this is technically allowed, but I wouldn't suggest it. You can only use one mega per battle.")
-                                    multiMegaGate = False
-                                    while not multiMegaGate:
-                                        self.respond("Are you sure you want multiple megas in your team?")
-                                        inputEvent.wait()
-                                        inputEvent.clear()
-                                        if self.input_get in self.yes:
-                                            self.respond("Alright, I'll add another mega then!")
-                                            self.teamMateNames.append(species)
-                                            multiMegaGate = True
-                                            teamAdderGate = True
-                                        elif self.input_get in self.no:
-                                            multiMegaGate = True
-                                        else:
-                                            self.respond("Um...I don't understand your response...")
-                            else:
-                                self.teamMateNames.append(species)
-                                teamAdderGate = True
-                    else:
-                        forme = Pokedex.findPokemonForme(species)
-                        if forme == "Mega":
-                            megaChecks = []
-                            for teamMate in self.teamMateNames:
-                                if Pokedex.findPokemonForme(teamMate) == "Mega":
-                                    megaChecks.append(False)
-                                else:
-                                    megaChecks.append(True)
-                            if all(megaChecks):
-                                self.teamMateNames.append(species)
-                                teamAdderGate = True
-                            else:
-                                self.respond(
-                                    "Oh, I see that you're trying to add another mega to your team. I mean, this is technically allowed, but I wouldn't suggest it. You can only use one mega per battle.")
-                                multiMegaGate = False
-                                while not multiMegaGate:
-                                    self.respond("Are you sure you want multiple megas in your team?")
-                                    inputEvent.wait()
-                                    inputEvent.clear()
-                                    if self.input_get in self.yes:
-                                        self.respond("Alright, I'll add another mega then!")
-                                        self.teamMateNames.append(species)
-                                        multiMegaGate = True
-                                        teamAdderGate = True
-                                    elif self.input_get in self.no:
-                                        multiMegaGate = True
-                                    else:
-                                        self.respond("Um...I don't understand your response...")
-                        else:
-                            self.teamMateNames.append(species)
-                            teamAdderGate = True
-                else:
-                    self.respond("Oh, I'm sorry. There seems to be a problem.")
-                    self.respond("Either Pokemon %s is not allowed in tier %s." % (species, self.tier))
-                    self.respond("Or it might be that Pokemon %s is SO rare in tier %s that there isn't enough data on it" % (species, self.tier))
-                    self.respond("Either way, I suggest chosing another Pokemon. That way I have the data necessary to help you")
-            else:
-                self.respond("Um...I don't understand your response...")
-
-    def export(self):
-        self.respond("I'm going to put your team in the same location you put this program. If you can't find it, just search for it on your computer's search bar. I promise it's there.")
-        now = datetime.datetime.now()
-        fileName = self.tier + "_" + str(now.day) + "-" + str(now.month) + "-" + str(now.year) + "_" + str(
-            now.hour) + "-" + str(now.minute) + ".txt"
-        file = open(os.path.dirname(os.path.realpath(__file__))+"/"+fileName, "w")
-        for poke in self.teamMatesDict:
-            if self.teamMatesDict[poke]["gender"] != None:
-                if self.teamMatesDict[poke]["item"] != None:
-                    file.write(self.teamMatesDict[poke]["species"] + " (" + self.teamMatesDict[poke]["gender"] + ") @ " +
-                               self.teamMatesDict[poke]["item"] + "\n")
-                    # self.respond(teamMatesDict[poke]["species"]+" ("+teamMatesDict[poke]["gender"]+") @ "+teamMatesDict[poke]["item"])
-                else:
-                    file.write(self.teamMatesDict[poke]["species"] + " (" + self.teamMatesDict[poke]["gender"] + ")\n")
-                    # self.respond(teamMatesDict[poke]["species"]+" ("+teamMatesDict[poke]["gender"]+")")
-            else:
-                if self.teamMatesDict[poke]["item"] != None:
-                    file.write(self.teamMatesDict[poke]["species"] + " @ " + self.teamMatesDict[poke]["item"] + "\n")
-                    # self.respond(teamMatesDict[poke]["species"]+" @ "+teamMatesDict[poke]["item"])
-                else:
-                    file.write(self.teamMatesDict[poke]["species"] + "\n")
-                    # self.respond(teamMatesDict[poke]["species"])
-
-            if self.teamMatesDict[poke]["ability"] != None:
-                file.write("Ability: " + self.teamMatesDict[poke]["ability"] + "\n")
-            # self.respond("Ability: "+teamMatesDict[poke]["ability"])
-
-            if self.teamMatesDict[poke]["level"] != None:
-                file.write("Level: " + str(self.teamMatesDict[poke]["level"]) + "\n")
-            # self.respond("Level: "+str(teamMatesDict[poke]["level"]))
-
-            if self.teamMatesDict[poke]["happiness"] != 255 and self.teamMatesDict[poke]["happiness"] != None:
-                file.write("Happiness: " + str(self.teamMatesDict[poke]["happiness"]) + "\n")
-                # self.respond("Happiness: " + str(teamMatesDict[poke]["happiness"]))
-
-            if self.teamMatesDict[poke]["shiny"] == "Yes":
-                file.write("Shiny: Yes\n")
-                # self.respond("Shiny: Yes")
-
-            evStringNeeded = False
-            evString = ""
-            if self.teamMatesDict[poke]["evs"]["hp"] != 0:
-                evString = evString + str(self.teamMatesDict[poke]["evs"]["hp"]) + " HP"
-                evStringNeeded = True
-            if self.teamMatesDict[poke]["evs"]["atk"] != 0:
-                evString = evString + " / " + str(self.teamMatesDict[poke]["evs"]["atk"]) + " Atk"
-                evStringNeeded = True
-            if self.teamMatesDict[poke]["evs"]["def"] != 0:
-                evString = evString + " / " + str(self.teamMatesDict[poke]["evs"]["def"]) + " Def"
-                evStringNeeded = True
-            if self.teamMatesDict[poke]["evs"]["spa"] != 0:
-                evString = evString + " / " + str(self.teamMatesDict[poke]["evs"]["spa"]) + " SpA"
-                evStringNeeded = True
-            if self.teamMatesDict[poke]["evs"]["spd"] != 0:
-                evString = evString + " / " + str(self.teamMatesDict[poke]["evs"]["spd"]) + " SpD"
-                evStringNeeded = True
-            if self.teamMatesDict[poke]["evs"]["spe"] != 0:
-                evString = evString + " / " + str(self.teamMatesDict[poke]["evs"]["spe"]) + " Spe"
-                evStringNeeded = True
-            if evStringNeeded == True:
-                file.write("EVs: " + evString + "\n")
-                # self.respond("EVs: "+evString)
-
-            file.write(self.teamMatesDict[poke]["nature"] + " Nature\n")
-            # self.respond(teamMatesDict[poke]["nature"]+" Nature")
-
-            ivStringNeeded = False
-            ivString = ""
-            if self.teamMatesDict[poke]["ivs"]["hp"] != 31:
-                ivString = ivString + str(self.teamMatesDict[poke]["ivs"]["hp"]) + " HP"
-                ivStringNeeded = True
-            if self.teamMatesDict[poke]["ivs"]["atk"] != 31:
-                ivString = ivString + " / " + str(self.teamMatesDict[poke]["ivs"]["atk"]) + " Atk"
-                ivStringNeeded = True
-            if self.teamMatesDict[poke]["ivs"]["def"] != 31:
-                ivString = ivString + " / " + str(self.teamMatesDict[poke]["ivs"]["def"]) + " Def"
-                ivStringNeeded = True
-            if self.teamMatesDict[poke]["ivs"]["spa"] != 31:
-                ivString = ivString + " / " + str(self.teamMatesDict[poke]["ivs"]["spa"]) + " SpA"
-                ivStringNeeded = True
-            if self.teamMatesDict[poke]["ivs"]["spd"] != 31:
-                ivString = ivString + " / " + str(self.teamMatesDict[poke]["ivs"]["spd"]) + " SpD"
-                ivStringNeeded = True
-            if self.teamMatesDict[poke]["ivs"]["spe"] != 31:
-                ivString = ivString + " / " + str(self.teamMatesDict[poke]["ivs"]["spe"]) + " Spe"
-                ivStringNeeded = True
-            if ivStringNeeded == True:
-                file.write("IVs: " + ivString + "\n")
-                # self.respond("IVs: " + ivString)
-
-            for move in ["move1", "move2", "move3", "move4"]:
-                if self.teamMatesDict[poke]["moves"][move] != None:
-                    file.write("- " + self.teamMatesDict[poke]["moves"][move] + "\n")
-                    # self.respond("- " + teamMatesDict[poke]["moves"][move])
-            file.write("\n")
-        file.close()
-        self.respond("Ok, your team can be found in %s" % fileName)
-        self.respond("So what you want to do is go to http://play.pokemonshowdown.com/")
-        self.respond("Click on the 'Teambuilder' button.")
-        self.respond("Click on the 'New Team' button.")
-        self.respond("Click on the 'Import from text' button.")
-        self.respond("Copy the entire text from the file I just sent you and paste it in the large input field.")
-        self.respond("Click on the 'Import/Export' button on top.")
-        self.respond("Your team will have been imported into the website!")
-        self.respond("For extra measure, do you see that bar on the top left of your screen? It should read something like 'Untitled #'? This is where you can name your team!")
-        self.respond("Under that, you should find the 'Format' option. Click it. A large window should appear.")
-        self.respond("Select the format that most looks like %s (this is the tier/format you decided to build this team for)." % self.tier)
-        self.respond("To check if everything went perfectingly in the team building process, click the 'Validate' button. A window should pop up.")
-        self.respond("If your team gets validated for your chosen format/tier, your all set.")
-        self.respond("If you do get an error, just follow the instructions given by the error message to correvct this. Revalidate your team and you should be ready to go!")
-        self.respond("NOTE: Your imported team will be preserved on the website via cookies. Therefore, you can come back later to Pokemon Showdown, and your team will still be there!")
-        self.respond("However, if you delete the cookies stored on your computer, you team will disappear. Don't worry. All you have to dude is just import your team from the file we just made today.")
-        self.respond("If you want to test your team in an actual battle, click on the Home tab")
-        self.respond("Before you can participate in an actual battle, you will need a Pokemon Showdown account.If you don't have one already, making one is very easy and takes two seconds: all it requires is a username and a password. If you already have an account, make sure you are signed in")
-        self.respond("Now that you are signed in, click on the 'Format' option on the left of the screen. A large window will appear.")
-        self.respond("Select the format that most looks like %s (this is the tier/format you decided to build this team for)." % self.tier)
-        self.respond("Now that the website knows which type of battle you want to participate in, it will show you your teams (or one of them if you have multiple.)")
-        self.respond("Select the team you wish to battle with.")
-        self.respond("If the website doesn't show the team you wish to battle with, it means that your team hasn't been validated for that format. You must then go back to the Teambuilder, select your team, and validate it for the format/tier you wish to battle in.")
-        self.respond("Alright, your all set! Just press the 'Battle!' button and have fun! Note, it may take a few moments for the servers to find you an opponent. Please be patient.")
-        self.respond("glhf! Good luck and have fun!")
 
     def cut(self,text):
         textlines = []
@@ -944,15 +728,14 @@ class AL:
         self.messages["yscrollcommand"]=scrollbar.set
         def Enter_pressed(event):
             self.input_get = input_field.get()
-            inputEvent.set()
+            self.inputEvent.set()
+            self.inputEvent.clear()
             self.messages.config(state=NORMAL)
             self.messages.insert(END, 'You: %s\n\n' % self.input_get)
             self.messages.see(END)
             #self.messages.edit_modified(0)
             self.messages.config(state=DISABLED)
             input_user.set("")
-            if inputEvent.is_set():
-                inputEvent.clear()
             #return "break"
         input_field.bind("<Return>", Enter_pressed)
 
@@ -967,7 +750,7 @@ class AL:
         self.current["item"] = None
         self.current["gender"] = None
         self.current["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
-        self.current["happiness"] = None
+        self.current["happiness"] = 255
         self.current["level"] = 100
         self.current["shiny"] = None
 
@@ -1535,8 +1318,8 @@ class AL:
 
         root.config(menu=self.the_menu)
 
-        inputEvent = threading.Event()
-        self.aiThrd = threading.Thread(target=GUIScript.AI, args=(self,inputEvent))
+        self.inputEvent = threading.Event()
+        self.aiThrd = threading.Thread(target=GUIScript.AI, args=(self,))
         self.aiThrd.setDaemon(True)
         self.aiThrd.start()
 
