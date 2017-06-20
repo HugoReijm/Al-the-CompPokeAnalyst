@@ -5,51 +5,57 @@ def AI(shell):
     shell.yes = ["Y", "y", "Yes", "yes", "YES"]
     shell.no = ["N", "n", "No", "no", "NO"]
 
-    shell.respond("Hello! I'm Al, here to help build your personal competitive Pokemon team!")
-    shell.respond("The great thing is, after we have built your team, I'll automatically export your team so you can easily import it into Pokemon Showdown, a Competitive Pokemon Battle Simulator used by hundreds of people every day!")
-    shell.respond("Let's get started!")
+    #shell.respond("Hello! I'm Al, here to help build your personal competitive Pokemon team!")
+    #shell.respond("The great thing is, after we have built your team, I'll automatically export your team so you can easily import it into Pokemon Showdown, a Competitive Pokemon Battle Simulator used by hundreds of people every day!")
+    #shell.respond("Let's get started!")
     # TODO: implement personal names and inout of user names
 
-    chooseTier(shell)
+    #chooseTier(shell)
+    #CLEAR THIS
+    shell.tier = "gen7doublesou-1695"
+    shell.tierfile = shell.tier+".json"
 
     # Helping the User Start a New Team and Selecting First Team Member
-    firstMemberGate = False
-    while not firstMemberGate:
-        shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
-        shell.inputEvent.wait()
-        if shell.input_get in shell.yes:
-            firstMemberGate = True
-            shell.respond("Great! Innovation makes a great team!")
-        elif shell.input_get in shell.no:
-            firstMemberGate = True
-            shell.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
-            text = ""
-            for poke in Tools.rawCountTopFinds(shell.tierfile, 20):
-                pokeData = Pokedex.findPokemonData(poke[0])
-                if len(pokeData["types"]) == 1:
-                    text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
-                        pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
-                        pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
-                        pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
-                        poke[1]) + "\n\n    "
-                elif len(pokeData["types"]) == 2:
-                    text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
-                        1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
-                        pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
-                        pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
-                        pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
-            shell.respond(text[:-5])
-        else:
-            shell.respond("Um... I don't understand your response ")
-    shell.teamMateNames = []
-    teamAdder(shell)
+    #firstMemberGate = False
+    #while not firstMemberGate:
+    #    shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
+    #    shell.inputEvent.wait()
+    #    if shell.input_get in shell.yes:
+    #        firstMemberGate = True
+    #        shell.respond("Great! Innovation makes a great team!")
+    #    elif shell.input_get in shell.no:
+    #        firstMemberGate = True
+    #        shell.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
+    #        text = ""
+    #        for poke in Tools.rawCountTopFinds(shell.tierfile, 20):
+    #            pokeData = Pokedex.findPokemonData(poke[0])
+    #            if len(pokeData["types"]) == 1:
+    #                text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
+    #                    pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
+    #                    pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
+    #                    pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
+    #                    poke[1]) + "\n\n    "
+    #            elif len(pokeData["types"]) == 2:
+    #                text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
+    #                    1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
+    #                    pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
+    #                    pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
+    #                    pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
+    #        shell.respond(text[:-5])
+    #    else:
+    #        shell.respond("Um... I don't understand your response ")
+    #shell.teamMateNames = []
+    #teamAdder(shell)
 
     # Adding Other 5 Members
-    for i in range(5):
-        showMemberOptions(shell)
-        teamAdder(shell)
+    #for i in range(5):
+    #    showMemberOptions(shell)
+    #    teamAdder(shell)
 
-    switchMembers(shell)
+    #switchMembers(shell)
+
+    # CLEAR THIS
+    shell.teamMateNames = ["Zapdos","Landorus-Therian", "Heatran", "Ninetales-Alola", "Sandslash-Alola", "Tapu Fini"]
 
     # Make Dictionary with All Necessary Info
     for member in shell.teamMateNames:
@@ -69,7 +75,10 @@ def AI(shell):
         else:
             dict["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
         dict["happiness"] = 255
-        dict["level"] = 100
+        if "battlespot" in shell.tier or "vgc" in shell.tier:
+            dict["level"] = 50
+        else:
+            dict["level"] = 100
         dict["shiny"] = None
         shell.teamMatesDict[member] = dict
 
@@ -124,7 +133,7 @@ def AI(shell):
 
         chooseAbility(shell,poke)
 
-        shell.respond("Now that we have that decided, let's move on to IV spreads. Remember that if you want %s to have a certain Hidden Power, you can do that here." % spName)
+        shell.respond("Now that we have that decided, let's move on to IV spreads. Remember that if you want %s to have a certain Hidden Power, you can do that here or when selecting moves." % spName)
 
         # Choosing IVs
         chooseIVs(shell,poke)
@@ -988,10 +997,12 @@ def chooseMoves(shell,poke):
                                         shell.teamMatesDict[spName]["ivs"]["spd"] = int(maxIVList[4])
                                         shell.teamMatesDict[spName]["ivs"]["spe"] = int(maxIVList[5])
                                         moves[moveIndex-1] = resName
+                                        shell.update(spName,"ivs")
                                         shell.respond("I've set your IVs to be the maximum they can be and still compatible with %s.\nIf you don't like this selection, you can always change it later when you import your team into Pokemon Showdown." % resName)
                                         moveGate = True
                                     except:
                                         shell.respond("An error has occurred with the data. Huh, how did that escape me? Don't worry, its not your fault, but this is unexpected and could potentially be serious.\nI'm going to exit this program. Please contact my programmer immediately.")
+                                        #TODO: this doesnt work. fix that
                                         sys.exit()
                                 else:
                                     moves[moveIndex - 1] = resName
@@ -1005,7 +1016,7 @@ def chooseMoves(shell,poke):
                                 "Oh, there seems to be a problem. Either %s can't learn this move, or it is used SO rarely that I couldn't find any useful data. In any case, try a different move." % spName)
                     else:
                         shell.respond("I'm sorry, but that is not a valid move. Try again")
-            shell.respond("Understood")
+            shell.respond("Registered")
         else:
             shell.respond(
                 "Due to meeting various requirements, this move for your %s has already been chosen to be %s. So that's already done!" % (
@@ -1112,12 +1123,14 @@ def chooseMoves(shell,poke):
                                         shell.teamMatesDict[spName]["ivs"]["spd"] = int(maxIVList[4])
                                         shell.teamMatesDict[spName]["ivs"]["spe"] = int(maxIVList[5])
                                         moves[moves.index(flipName)] = flopName
+                                        shell.update(spName,"ivs")
                                         shell.respond(
                                             "I've set your IVs to be the maximum they can be and still compatible with %s.\nIf you don't like this selection, you can always change it later when you import your team into Pokemon Showdown." % flopName)
                                         flopMoveGate = True
                                     except:
                                         shell.respond(
                                             "An error has occurred with the data. Huh, how did that escape me? Don't worry, its not your fault, but this is unexpected and could potentially be serious.\nI'm going to exit this program. Please contact my programmer immediately.")
+                                        #TODO: this doesnt work. fix this
                                         sys.exit()
                                 else:
                                     moves[moves.index(flipName)] = flopName
@@ -1410,7 +1423,10 @@ def checkMember(shell,poke):
                     else:
                         shell.teamMatesDict[member]["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
                     shell.teamMatesDict[member]["happiness"] = 255
-                    shell.teamMatesDict[member]["level"] = 100
+                    if "battlespot" in shell.tier or "vgc" in shell.tier:
+                        shell.teamMatesDict[member]["level"] = 50
+                    else:
+                        shell.teamMatesDict[member]["level"] = 100
                     shell.teamMatesDict[member]["shiny"] = None
 
                     spName = shell.teamMatesDict[member]["species"]
@@ -1529,7 +1545,10 @@ def checkMember(shell,poke):
                     shell.update(spName, "happiness")
                     finalMemberChangeGate = True
                 elif Tools.compress(shell.input_get) == "level":
-                    shell.teamMatesDict[poke]["level"] = 100
+                    if "battlespot" in shell.tier and "vgc" in shell.tier:
+                        shell.teamMatesDict[poke]["level"] = 50
+                    else:
+                        shell.teamMatesDict[poke]["level"] = 100
                     chooseLevel(shell, poke)
                     finalMemberChangeGate = True
                 elif Tools.compress(shell.input_get) == "shininess":

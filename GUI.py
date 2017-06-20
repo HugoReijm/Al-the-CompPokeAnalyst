@@ -636,7 +636,10 @@ class AL:
         self.teamMatesDict[name]["gender"] = None
         self.teamMatesDict[name]["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
         self.teamMatesDict[name]["happiness"] = 255
-        self.teamMatesDict[name]["level"] = 100
+        if "battlespot" in self.tier and "vgc" in self.tier:
+            self.teamMatesDict[name]["level"] = 50
+        else:
+            self.teamMatesDict[name]["level"] = 100
         self.teamMatesDict[name]["shiny"] = None
         self.switch(name)
         self.the_menu.entryconfigure(name, state="disabled")
