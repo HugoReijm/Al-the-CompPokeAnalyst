@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-import math,Pokedex,MetaDex,TeamBuilder,threading,os,glob,GUIScript
+import math,Pokedex,Tools,threading,os,glob,GUIScript
 import urllib.request
 
 class AL:
@@ -106,7 +106,7 @@ class AL:
             num = '0' + num
         if 'forme' in pokemonData:
             num += '-'
-            forme = TeamBuilder.compress(pokemonData['forme'])
+            forme = Tools.compress(pokemonData['forme'])
 
             if forme in ['alola', 'ash', 'black', 'mega', 'midnight', 'pompom', 'school', 'sensu', 'unbound']:
                 forme = forme[0]
@@ -185,11 +185,11 @@ class AL:
         self.spriteCanvas.delete("all")
         if self.current["species"] != None:
             filename = self.get_picture_name(True,name)
-            self.request_picture(filename,True)
-            self.spriteCanvas.spriteFile = PhotoImage(file=os.path.dirname(os.path.realpath(__file__))+"/data/images/icons/"+filename+".png")
-            self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
-            self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
-            self.spriteCanvas.create_image(2,2, anchor=NW, image=self.spriteCanvas.spriteFile)
+            if self.request_picture(filename,True):
+                self.spriteCanvas.spriteFile = PhotoImage(file=os.path.dirname(os.path.realpath(__file__))+"/data/images/icons/"+filename+".png")
+                self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
+                self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
+                self.spriteCanvas.create_image(2,2, anchor=NW, image=self.spriteCanvas.spriteFile)
         self.speciesLabelText.set(self.current["species"])
         if self.current["species"] != None:
             types = Pokedex.findPokemonTypes(self.current["species"])
@@ -625,7 +625,7 @@ class AL:
         topNoButton.pack(side=RIGHT)
 
     def delete(self,name):
-        del self.teamMateNames[self.teamMateNames.index(name)]
+        #del self.teamMateNames[self.teamMateNames.index(name)]
         self.teamMatesDict[name]["species"] = None
         self.teamMatesDict[name]["ability"] = None
         self.teamMatesDict[name]["nature"] = None

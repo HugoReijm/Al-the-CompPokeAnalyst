@@ -1,5 +1,5 @@
 from tkinter import *
-import Pokedex, MetaDex, TeamBuilder, random, datetime, os
+import Pokedex, MetaDex, Tools, random, datetime, os
 
 def AI(shell):
     shell.yes = ["Y", "y", "Yes", "yes", "YES"]
@@ -10,49 +10,46 @@ def AI(shell):
     shell.respond("Let's get started!")
     # TODO: implement personal names and inout of user names
 
-    #chooseTier(shell)
-    shell.tier = "gen7vgc2017-1760"
-    shell.tierfile = shell.tier+".json"
+    chooseTier(shell)
 
     # Helping the User Start a New Team and Selecting First Team Member
-    #firstMemberGate = False
-    #while not firstMemberGate:
-    #    shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
-    #    shell.inputEvent.wait()
-    #    if shell.input_get in shell.yes:
-    #        firstMemberGate = True
-    #        shell.respond("Great! Innovation makes a great team!")
-    #    elif shell.input_get in shell.no:
-    #        firstMemberGate = True
-    #        shell.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
-    #        text = ""
-    #        for poke in TeamBuilder.rawCountTopFinds(shell.tierfile, 20):
-    #            pokeData = Pokedex.findPokemonData(poke[0])
-    #            if len(pokeData["types"]) == 1:
-    #                text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
-    #                    pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
-    #                    pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
-    #                    pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
-    #                    poke[1]) + "\n\n    "
-    #            elif len(pokeData["types"]) == 2:
-    #                text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
-    #                    1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
-    #                    pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
-    #                    pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
-    #                    pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
-    #        shell.respond(text[:-5])
-    #    else:
-    #        shell.respond("Um... I don't understand your response ")
-    #shell.teamMateNames = []
-    #teamAdder(shell)
+    firstMemberGate = False
+    while not firstMemberGate:
+        shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
+        shell.inputEvent.wait()
+        if shell.input_get in shell.yes:
+            firstMemberGate = True
+            shell.respond("Great! Innovation makes a great team!")
+        elif shell.input_get in shell.no:
+            firstMemberGate = True
+            shell.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
+            text = ""
+            for poke in Tools.rawCountTopFinds(shell.tierfile, 20):
+                pokeData = Pokedex.findPokemonData(poke[0])
+                if len(pokeData["types"]) == 1:
+                    text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
+                        pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
+                        pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
+                        pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
+                        poke[1]) + "\n\n    "
+                elif len(pokeData["types"]) == 2:
+                    text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
+                        1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
+                        pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
+                        pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
+                        pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
+            shell.respond(text[:-5])
+        else:
+            shell.respond("Um... I don't understand your response ")
+    shell.teamMateNames = []
+    teamAdder(shell)
 
     # Adding Other 5 Members
-    #for i in range(5):
-    #    chooseMembers(shell)
+    for i in range(5):
+        showMemberOptions(shell)
+        teamAdder(shell)
 
-    #switchMembers(shell)
-
-    shell.teamMateNames=["Krookodile","Marowak-Alola","Tapu Fini","Kartana","Araquanid","Magnezone"]
+    switchMembers(shell)
 
     # Make Dictionary with All Necessary Info
     for member in shell.teamMateNames:
@@ -75,8 +72,6 @@ def AI(shell):
         dict["level"] = 100
         dict["shiny"] = None
         shell.teamMatesDict[member] = dict
-
-    #pokemon_menus = []
 
     pokemon1_menu = Menu(shell.the_menu, tearoff=0)
     pokemon1_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[0]))
@@ -114,54 +109,54 @@ def AI(shell):
     for poke in shell.teamMatesDict:
         spName = shell.teamMatesDict[poke]["species"]
         shell.switch(spName)
-        #if shell.teamMateNames.index(poke) == 0:
-        #    shell.respond("Let's start with %s." % spName)
-        #else:
-        #    shell.respond("Now let's take a look at %s." % spName)
-        #text = ""
-        #text += spName + " has the following base stats.\n    "
-        #for stat in shell.teamMatesDict[poke]["baseStats"]:
-        #    if stat == "hp":
-        #        text += stat + " : " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
-        #    else:
-        #        text += stat + ": " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
-        #shell.respond(text[:-5])
+        if shell.teamMateNames.index(poke) == 0:
+            shell.respond("Let's start with %s." % spName)
+        else:
+            shell.respond("Now let's take a look at %s." % spName)
+        text = ""
+        text += spName + " has the following base stats.\n    "
+        for stat in shell.teamMatesDict[poke]["baseStats"]:
+            if stat == "hp":
+                text += stat + " : " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
+            else:
+                text += stat + ": " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
+        shell.respond(text[:-5])
 
-        #chooseAbility(shell,poke)
+        chooseAbility(shell,poke)
 
-        #shell.respond("Now that we have that decided, let's move on to IV and Nature/EV spreads")
+        shell.respond("Now that we have that decided, let's move on to IV spreads. Remember that if you want %s to have a certain Hidden Power, you can do that here." % spName)
 
         # Choosing IVs
-        #chooseIVs(shell,poke)
+        chooseIVs(shell,poke)
 
         # Choosing Natures and EVs
-        #chooseNatureEVs(shell,poke)
+        chooseNatureEVs(shell,poke)
 
         # Selecting Gender
-        #shell.respond("Ok, now we have to change gears a little. Time to talk about your Pokemon's gender")
-        #chooseGender(shell,poke)
+        shell.respond("Ok, now we have to change gears a little. Time to talk about your Pokemon's gender")
+        chooseGender(shell,poke)
 
         # Show Popular Moves
-        #shell.respond("Alright, now hey comes the REALLY important part: selecting moves.\tI'll show you a few of the most common moves that %s can have." % spName)
-        #chooseMoves(shell,poke)
+        shell.respond("Alright, now hey comes the REALLY important part: selecting moves.\tI'll show you a few of the most common moves that %s can have." % spName)
+        chooseMoves(shell,poke)
 
         # Selecting Items
-        #shell.respond("Alright, it's time to look at items.")
-        #chooseItem(shell,poke)
+        shell.respond("Alright, it's time to look at items.")
+        chooseItem(shell,poke)
 
-        #shell.respond("We are almost done with your %s. Just a few simple things to take care of." % spName)
+        shell.respond("We are almost done with your %s. Just a few simple things to take care of." % spName)
 
         # Selecting Happiness
-        #shell.respond("Alright, let's move on to Happiness.")
-        #chooseHappiness(shell,poke)
+        shell.respond("Alright, let's move on to Happiness.")
+        chooseHappiness(shell,poke)
 
         # Selecting Level
-        #shell.respond("Ok, almost there. Time to chose what level your %s should be at." % spName)
-        #chooseLevel(shell,poke)
+        shell.respond("Ok, almost there. Time to chose what level your %s should be at." % spName)
+        chooseLevel(shell,poke)
 
         # Selecting Shininess
-        #shell.respond("And last but probably the most important, shininess!")
-        #chooseShiny(shell,poke)
+        shell.respond("And last but probably the most important, shininess!")
+        chooseShiny(shell,poke)
 
         if shell.teamMateNames.index(spName) < 5:
             checkMember(shell,poke)
@@ -277,13 +272,12 @@ def teamAdder(shell):
                     else:
                         forme = Pokedex.findPokemonForme(species)
                         if forme == "Mega":
-                            megaChecks = []
+                            megaCheck=True
                             for teamMate in shell.teamMateNames:
                                 if Pokedex.findPokemonForme(teamMate) == "Mega":
-                                    megaChecks.append(False)
-                                else:
-                                    megaChecks.append(True)
-                            if all(megaChecks):
+                                    megaCheck=False
+                                    break
+                            if megaCheck:
                                 shell.teamMateNames.append(species)
                                 teamAdderGate = True
                             else:
@@ -307,13 +301,12 @@ def teamAdder(shell):
                 else:
                     forme = Pokedex.findPokemonForme(species)
                     if forme == "Mega":
-                        megaChecks = []
+                        megaCheck=True
                         for teamMate in shell.teamMateNames:
                             if Pokedex.findPokemonForme(teamMate) == "Mega":
-                                megaChecks.append(False)
-                            else:
-                                megaChecks.append(True)
-                        if all(megaChecks):
+                                megaCheck=False
+                                break
+                        if megaCheck:
                             shell.teamMateNames.append(species)
                             teamAdderGate = True
                         else:
@@ -343,7 +336,92 @@ def teamAdder(shell):
         else:
             shell.respond("Um...I don't understand your response...")
 
-def chooseMembers(shell):
+def teamAdjuster(shell,index):
+    teamAdderGate = False
+    while not teamAdderGate:
+        if "anythinggoes" not in shell.tier:
+            shell.respond("Which Pokemon would you like to add to your team? Note that your team can not have two or more Pokemon with the same National Pokedex number!")
+            shell.inputEvent.wait()
+        else:
+            shell.respond("Which Pokemon would you like to add to your team?")
+            shell.inputEvent.wait()
+        species = Pokedex.findPokemonSpecies(shell.input_get)
+        if species != None:
+            if MetaDex.findPokemonTierData(species, shell.tierfile) != None:
+                if "anythinggoes" not in shell.tier:
+                    numList = []
+                    for s in shell.teamMateNames:
+                        numList.append(Pokedex.findPokemonNum(s))
+                    if Pokedex.findPokemonNum(species) in numList:
+                        shell.respond("Oh, you can not have two or more Pokemon with the same National Pokedex number! You must select another Pokemon.")
+                    else:
+                        forme = Pokedex.findPokemonForme(species)
+                        if forme == "Mega":
+                            megaCheck = True
+                            for teamMate in shell.teamMateNames:
+                                if Pokedex.findPokemonForme(teamMate) == "Mega":
+                                    megaCheck=False
+                                    break
+                            if megaCheck:
+                                shell.teamMateNames[index]=species
+                                teamAdderGate = True
+                            else:
+                                shell.respond("Oh, I see that you're trying to add another mega to your team. I mean, this is technically allowed, but I wouldn't suggest it. You can only use one mega per battle.")
+                                multiMegaGate = False
+                                while not multiMegaGate:
+                                    shell.respond("Are you sure you want multiple megas in your team?")
+                                    shell.inputEvent.wait()
+                                    if shell.input_get in shell.yes:
+                                        shell.respond("Alright, I'll add another mega then!")
+                                        shell.teamMateNames[index]=species
+                                        multiMegaGate = True
+                                        teamAdderGate = True
+                                    elif shell.input_get in shell.no:
+                                        multiMegaGate = True
+                                    else:
+                                        shell.respond("Um...I don't understand your response...")
+                        else:
+                            shell.teamMateNames[index]=species
+                            teamAdderGate = True
+                else:
+                    forme = Pokedex.findPokemonForme(species)
+                    if forme == "Mega":
+                        megaCheck=True
+                        for teamMate in shell.teamMateNames:
+                            if Pokedex.findPokemonForme(teamMate) == "Mega":
+                                megaCheck=False
+                                break
+                        if megaCheck:
+                            shell.teamMateNames[index]=species
+                            teamAdderGate = True
+                        else:
+                            shell.respond(
+                                "Oh, I see that you're trying to add another mega to your team. I mean, this is technically allowed, but I wouldn't suggest it. You can only use one mega per battle.")
+                            multiMegaGate = False
+                            while not multiMegaGate:
+                                shell.respond("Are you sure you want multiple megas in your team?")
+                                shell.inputEvent.wait()
+                                if shell.input_get in shell.yes:
+                                    shell.respond("Alright, I'll add another mega then!")
+                                    shell.teamMateNames[index]=species
+                                    multiMegaGate = True
+                                    teamAdderGate = True
+                                elif shell.input_get in shell.no:
+                                    multiMegaGate = True
+                                else:
+                                    shell.respond("Um...I don't understand your response...")
+                    else:
+                        shell.teamMateNames[index]=species
+                        teamAdderGate = True
+            else:
+                shell.respond("Oh, I'm sorry. There seems to be a problem.")
+                shell.respond("Either Pokemon %s is not allowed in tier %s." % (species, shell.tier))
+                shell.respond("Or it might be that Pokemon %s is SO rare in tier %s that there isn't enough data on it" % (species, shell.tier))
+                shell.respond("Either way, I suggest chosing another Pokemon. That way I have the data necessary to help you")
+        else:
+            shell.respond("Um...I don't understand your response...")
+
+def showMemberOptions(shell):
     # TODO: include the species clause when showing new pokes
     shell.respond("Ok, let me suggest some team-mates. How many suggestions would you like to see? (Int)")
     memberSelectGate = False
@@ -356,7 +434,7 @@ def chooseMembers(shell):
             shell.respond("Um...I don't understand your response...")
             # TODO: implement ID checks for species clause
     text = ""
-    for poke in TeamBuilder.findTeamMetaMatches(shell.teamMateNames, shell.tierfile, teamSuggAmount):
+    for poke in Tools.findTeamMetaMatches(shell.teamMateNames, shell.tierfile, teamSuggAmount):
         # TODO: fix this
         pokeData = Pokedex.findPokemonData(poke[0])
         if len(pokeData["types"]) == 1:
@@ -374,7 +452,6 @@ def chooseMembers(shell):
 
             # text+=t[0]+":\n\tPOP: "+str(t[1])+"\n\n    "
     shell.respond(text[:-5])
-    teamAdder(shell)
 
 def switchMembers(shell):
     # Switching Team Members If Needed
@@ -418,7 +495,7 @@ def switchMembers(shell):
                 except:
                     shell.respond("Um...unfortunately I can't understand your request. Try again")
             text = ""
-            for poke in TeamBuilder.findTeamMetaMatches(teamMateNamesprime, shell.tierfile, swapAmount):
+            for poke in Tools.findTeamMetaMatches(teamMateNamesprime, shell.tierfile, swapAmount):
                 pokeData = Pokedex.findPokemonData(poke[0])
                 if len(pokeData["types"]) == 1:
                     text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
@@ -544,48 +621,55 @@ def chooseAbility(shell,poke):
     metaAbilities = MetaDex.findPokemonTierAbilities(spName, shell.tierfile)
     text = ""
     text += shell.cut(spName + " can have the following abilities:")
-    text += "\n\t" + abilities["0"] + ":" + shell.cut(
-        "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["0"])) + "\n\t    POP: " + str(
-        metaAbilities[Pokedex.findAbilityID(abilities["0"])])
-    if len(metaAbilities) > 1:
+    #TODO: it is possible to have an ability that isnt found in the metadex (example: snowcloak for alolan ninetales in gen7doublesou-1695)
+    if Tools.compress(abilities["0"]) in metaAbilities:
+        text += "\n\t" + abilities["0"] + ":" + shell.cut(
+            "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["0"])) + "\n\t    POP: " + str(
+            metaAbilities[Pokedex.findAbilityID(abilities["0"])])
+    else:
+        text += "\n\t" + abilities["0"] + ":" + shell.cut(
+            "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["0"])) + "\n\t    POP: 0.0"
+    if len(abilities) > 1:
         if "1" in abilities:
-            text += "\n\t" + abilities["1"] + ":" + shell.cut(
-                "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["1"])) + "\n\t    POP: " + str(
-                metaAbilities[Pokedex.findAbilityID(abilities["1"])])
-        if "S" in abilities and TeamBuilder.compress(abilities["S"]) in metaAbilities:
+            if Tools.compress(abilities["1"]) in metaAbilities:
+                text += "\n\t" + abilities["1"] + ":" + shell.cut(
+                    "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["1"])) + "\n\t    POP: " + str(
+                    metaAbilities[Pokedex.findAbilityID(abilities["1"])])
+            else:
+                text += "\n\t" + abilities["1"] + ":" + shell.cut(
+                    "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["1"])) + "\n\t    POP: 0.0"
+        if "S" in abilities:
             text += shell.cut("\n\tAdditionally, " + spName + " also has a special ability:")
-            text += "\n\t" + abilities["S"] + ":" + shell.cut(
-                "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["S"])) + "\n\t    POP: " + str(
-                metaAbilities[Pokedex.findAbilityID(abilities["S"])])
-            if TeamBuilder.compress(abilities["S"]) not in list(metaAbilities.keys()):
-                text += shell.cut("\n    Unfortunately, this ability is not allowed in " + shell.tier)
+            if Tools.compress(abilities["S"]) in metaAbilities:
+                text += "\n\t" + abilities["S"] + ":" + shell.cut(
+                    "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["S"])) + "\n\t    POP: " + str(
+                    metaAbilities[Pokedex.findAbilityID(abilities["S"])])
             else:
-                # TODO fix this
-                pass
-        if "H" in abilities and TeamBuilder.compress(abilities["H"]) in metaAbilities:
+                text += "\n\t" + abilities["S"] + ":" + shell.cut(
+                    "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["S"])) + "\n\t    POP: 0.0"
+        if "H" in abilities:
             text += shell.cut("\n    Additionally, " + spName + " also has a Hidden ability:")
-            text += "\n\t" + abilities["H"] + ":" + shell.cut(
-                "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["H"])) + "\n\t    POP: " + str(
-                metaAbilities[Pokedex.findAbilityID(abilities["H"])])
-            if TeamBuilder.compress(abilities["H"]) not in list(metaAbilities.keys()):
-                text += shell.cut("\n    Unfortunately, this ability is not allowed in " + shell.tier)
+            if Tools.compress(abilities["H"]) in metaAbilities:
+                text += "\n\t" + abilities["H"] + ":" + shell.cut(
+                    "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["H"])) + "\n\t    POP: " + str(
+                    metaAbilities[Pokedex.findAbilityID(abilities["H"])])
             else:
-                # TODO fix this
-                pass
+                text += "\n\t" + abilities["H"] + ":" + shell.cut(
+                    "\n\t    DESC: " + Pokedex.findAbilityShortDesc(abilities["H"])) + "\n\t    POP: 0.0"
         shell.respond(text)
         abilityGate = False
         while not abilityGate:
             shell.respond("What ability would you like %s to have?" % spName)
             shell.inputEvent.wait()
+            abName = Pokedex.findAbilityName(shell.input_get)
             for s in ["0", "1", "S", "H"]:
-                abName = Pokedex.findAbilityName(shell.input_get)
                 if s in abilities and abName == abilities[s]:
-                    if TeamBuilder.compress(abilities[s]) in metaAbilities:
+                    if Tools.compress(abilities[s]) in metaAbilities:
                         shell.teamMatesDict[poke]["ability"] = abName
                         abilityGate = True
+                        break
             if not abilityGate:
-                shell.respond("I'm sorry, but %s is not an ability that %s can have in tier %s." % (
-                    spName, shell.input_get, shell.tier))
+                shell.respond("Oh, something interesting has occurred: either %s can't have the ability %s in tier %s OR its so rare that I can't find ANY data on it. Since I can't tell, its best that you just choose a different ability." % (spName,abName,shell.tier))
     else:
         shell.respond(text)
         shell.respond(
@@ -687,7 +771,7 @@ def chooseNatureEVs(shell,poke):
         try:
             shell.inputEvent.wait()
             evAmount = int(shell.input_get)
-            sortedSpreads = TeamBuilder.findPokemonMetaSpreads(spName, shell.tierfile, evAmount)
+            sortedSpreads = Tools.findPokemonMetaSpreads(spName, shell.tierfile, evAmount)
             gate8 = True
         except:
             shell.respond("How can I show you that many Nature/EV spreads? Try again")
@@ -813,7 +897,12 @@ def chooseGender(shell,poke):
                         shell.respond("Um...I don't understand that response")
             else:
                 shell.respond("Um, I don't understand that response...")
-    shell.respond("Done! Your %s is now has of the %s gender!" % (spName, shell.teamMatesDict[spName]["gender"]))
+    if shell.teamMatesDict[spName]["gender"] == "M":
+        shell.respond("Done! Your %s is now a Male!" % spName)
+    elif shell.teamMatesDict[spName]["gender"] == "F":
+        shell.respond("Done! Your %s is now a Female!" % spName)
+    else:
+        shell.respond("Done! Your %s has no gender at all!" % spName)
     shell.update(spName, "gender")
 
 def chooseMoves(shell,poke):
@@ -853,7 +942,7 @@ def chooseMoves(shell,poke):
             try:
                 shell.inputEvent.wait()
                 moveAmount = int(shell.input_get)
-                sortedMoves = TeamBuilder.findPokemonMetaMoves(spName, shell.tierfile, moveAmount)
+                sortedMoves = Tools.findPokemonMetaMoves(spName, shell.tierfile, moveAmount)
                 showMovesGate = True
             except:
                 shell.respond("How can I show you that many Moves? Try again")
@@ -882,11 +971,31 @@ def chooseMoves(shell,poke):
                 else:
                     resName = Pokedex.findMoveName(shell.input_get)
                     if resName != None:
-                        if Pokedex.findMoveID(shell.input_get) in MetaDex.findPokemonTierMoves(spName,
-                                                                                               shell.tierfile):
+                        id = Pokedex.findMoveID(resName)
+                        if "hiddenpower" in id:
+                            id = Tools.compress(resName)
+                        if id in MetaDex.findPokemonTierMoves(spName,shell.tierfile):
                             if resName not in moves:
-                                moves[moveIndex - 1] = resName
-                                moveGate = True
+                                if "Hidden Power" in resName:
+                                    shell.respond("Oh, I see you want to add Hidden Power to your arsenal. That's fine, but we will then need to change your IV's then.")
+                                    maxIVs = Pokedex.findTypeHPSpreads(resName[13:])["max all"][0]
+                                    maxIVList = maxIVs.split("/")
+                                    try:
+                                        shell.teamMatesDict[spName]["ivs"]["hp"] = int(maxIVList[0])
+                                        shell.teamMatesDict[spName]["ivs"]["atk"] = int(maxIVList[1])
+                                        shell.teamMatesDict[spName]["ivs"]["def"] = int(maxIVList[2])
+                                        shell.teamMatesDict[spName]["ivs"]["spa"] = int(maxIVList[3])
+                                        shell.teamMatesDict[spName]["ivs"]["spd"] = int(maxIVList[4])
+                                        shell.teamMatesDict[spName]["ivs"]["spe"] = int(maxIVList[5])
+                                        moves[moveIndex-1] = resName
+                                        shell.respond("I've set your IVs to be the maximum they can be and still compatible with %s.\nIf you don't like this selection, you can always change it later when you import your team into Pokemon Showdown." % resName)
+                                        moveGate = True
+                                    except:
+                                        shell.respond("An error has occurred with the data. Huh, how did that escape me? Don't worry, its not your fault, but this is unexpected and could potentially be serious.\nI'm going to exit this program. Please contact my programmer immediately.")
+                                        sys.exit()
+                                else:
+                                    moves[moveIndex - 1] = resName
+                                    moveGate = True
                             else:
                                 shell.respond(
                                     "Oh, you already have %s as a move for your %s. Please select a different move." % (
@@ -945,7 +1054,7 @@ def chooseMoves(shell,poke):
                     swapAmount = int(shell.input_get)
                     if swapAmount >= 0:
                         # TODO: Implement the inability to chose already chosen moves
-                        sortedMoves = TeamBuilder.findPokemonMetaMovesExc(spName, shell.tierfile, swapAmount, moves)
+                        sortedMoves = Tools.findPokemonMetaMovesExc(spName, shell.tierfile, swapAmount, moves)
                         flipAmountGate = True
                     else:
                         shell.respond("Well I can't suggest that many suggestions, now can I?")
@@ -985,12 +1094,15 @@ def chooseMoves(shell,poke):
                 else:
                     flopName = Pokedex.findMoveName(flop)
                     if flopName != None:
-                        if Pokedex.findMoveID(flop) in MetaDex.findPokemonTierMoves(spName, shell.tierfile):
+                        id = Pokedex.findMoveID(flop)
+                        if "hiddenpower" in id:
+                            id = Tools.compress(flopName)
+                        if id in MetaDex.findPokemonTierMoves(spName, shell.tierfile):
                             if flopName not in moves:
                                 if "Hidden Power" in flopName:
                                     shell.respond(
                                         "Oh, I see you want to add Hidden Power to your arsenal. That's fine, but we will then need to change your IV's then.")
-                                    maxIVs = Pokedex.findTypeHPSpreads(flopName[13])["max all"][0]
+                                    maxIVs = Pokedex.findTypeHPSpreads(flopName[13:])["max all"][0]
                                     maxIVList = maxIVs.split("/")
                                     try:
                                         shell.teamMatesDict[spName]["ivs"]["hp"] = int(maxIVList[0])
@@ -1005,7 +1117,7 @@ def chooseMoves(shell,poke):
                                         flopMoveGate = True
                                     except:
                                         shell.respond(
-                                            "An error has occurred with the data. Huh, how did that escape me? Don't worry, its not your fault, but this is unexpected and could potentially be serious.\nI'm going to exist this program. Please contact my programmer immediately.")
+                                            "An error has occurred with the data. Huh, how did that escape me? Don't worry, its not your fault, but this is unexpected and could potentially be serious.\nI'm going to exit this program. Please contact my programmer immediately.")
                                         sys.exit()
                                 else:
                                     moves[moves.index(flipName)] = flopName
@@ -1079,7 +1191,7 @@ def chooseItem(shell,poke):
                 itemAmountGate = True
             except:
                 shell.respond("Um...how can I show that many items? Try again")
-        sortedItems = TeamBuilder.findPokemonMetaItems(spName, shell.tierfile, itemAmount)
+        sortedItems = Tools.findPokemonMetaItems(spName, shell.tierfile, itemAmount)
         text = ""
         for s in sortedItems:
             itemData = Pokedex.findItemData(s[0])
@@ -1270,12 +1382,16 @@ def checkMember(shell,poke):
                 text += "\n    Nothing"
                 shell.respond(text)
                 shell.inputEvent.wait()
-                if TeamBuilder.compress(shell.input_get) == "species":
+                if Tools.compress(shell.input_get) == "species":
                     #TODO: rename tab and switch CORRECTLY. encountering a problem because your deleting the teamMatesDict entry
+                    index = shell.teamMateNames.index(poke)
                     shell.delete(poke)
                     del shell.teamMatesDict[poke]
-                    chooseMembers(shell)
-                    member = shell.teamMateNames[5]
+
+                    showMemberOptions(shell)
+                    teamAdjuster(shell,index)
+
+                    member = shell.teamMateNames[index]
                     shell.the_menu.entryconfigure("None", label=member)
                     shell.the_menu.entryconfigure(member, state="normal")
                     shell.teamMatesDict[member] = {}
@@ -1346,35 +1462,35 @@ def checkMember(shell,poke):
                     chooseShiny(shell, member)
 
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "ability":
+                elif Tools.compress(shell.input_get) == "ability":
                     shell.teamMatesDict[poke]["ability"] = None
                     chooseAbility(shell,poke)
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "ivs":
+                elif Tools.compress(shell.input_get) == "ivs":
                     shell.teamMatesDict[poke]["ivs"] = {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
                     chooseIVs(shell,poke)
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "natureandevs":
+                elif Tools.compress(shell.input_get) == "natureandevs":
                     shell.teamMatesDict[poke]["nature"] = None
                     shell.teamMatesDict[poke]["evs"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
                     chooseNatureEVs(shell,poke)
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "moves":
+                elif Tools.compress(shell.input_get) == "moves":
                     if poke == "Rayquaza-Mega":
                         shell.teamMatesDict[poke]["moves"] = {"move1": "Dragon Ascent", "move2": None, "move3": None, "move4": None}
                     else:
                         shell.teamMatesDict[poke]["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
                     chooseMoves(shell,poke)
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "item":
+                elif Tools.compress(shell.input_get) == "item":
                     shell.teamMatesDict[poke]["item"] = None
                     chooseItem(shell,poke)
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "gender":
+                elif Tools.compress(shell.input_get) == "gender":
                     shell.teamMatesDict[poke]["gender"] = None
                     chooseGender(shell,poke)
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "happiness":
+                elif Tools.compress(shell.input_get) == "happiness":
                     shell.teamMatesDict[poke]["happiness"] = 255
                     spName = shell.teamMatesDict[poke]["species"]
                     moves = [shell.teamMatesDict[spName]["moves"]["move1"],
@@ -1412,15 +1528,15 @@ def checkMember(shell,poke):
                                 shell.respond("Um...I don't understand your response")
                     shell.update(spName, "happiness")
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "level":
+                elif Tools.compress(shell.input_get) == "level":
                     shell.teamMatesDict[poke]["level"] = 100
                     chooseLevel(shell, poke)
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "shininess":
+                elif Tools.compress(shell.input_get) == "shininess":
                     shell.teamMatesDict[poke]["shiny"] = None
                     chooseShiny(shell,poke)
                     finalMemberChangeGate = True
-                elif TeamBuilder.compress(shell.input_get) == "nothing":
+                elif Tools.compress(shell.input_get) == "nothing":
                     finalMemberChangeGate = True
                     finalMemberGate = True
                 else:
@@ -1442,10 +1558,10 @@ def finalCheck(shell):
                 shell.inputEvent.wait()
                 compressedNames = []
                 for name in shell.teamMateNames:
-                    compressedNames.append(TeamBuilder.compress(name))
-                if TeamBuilder.compress(shell.input_get) in compressedNames:
-                    pokeData = shell.teamMatesDict[shell.teamMateNames[compressedNames.index(TeamBuilder.compress(shell.input_get))]]
-                    checkMember(shell,pokeData)
+                    compressedNames.append(Tools.compress(name))
+                if Tools.compress(shell.input_get) in compressedNames:
+                    poke = shell.teamMateNames[compressedNames.index(Tools.compress(shell.input_get))]
+                    checkMember(shell,poke)
                     memberChangeGate=True
                 else:
                     shell.respond("Um...I don't understand your response")

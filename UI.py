@@ -1,4 +1,4 @@
-import TeamBuilder,MetaDex,Pokedex,datetime,random,sys
+import Tools,MetaDex,Pokedex,datetime,random,sys,os
 
 #Function to Add Another TeamMember
 def teamAdder():
@@ -176,7 +176,7 @@ while not firstMemberGate:
     elif res == "N":
         firstMemberGate = True
         print("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
-        for poke in TeamBuilder.rawCountTopFinds(tierfile,20):
+        for poke in Tools.rawCountTopFinds(tierfile,20):
             print("%s:\n\tPOP: %s" %(poke[0],poke[1]))
     else:
         print("Um... I don't understand your response ")
@@ -195,7 +195,7 @@ for i in range(5):
         except:
             print("Um...I don't understand your response...")
             #TODO: implement ID checks for species clause
-    for t in TeamBuilder.findTeamMetaMatches(teamMateNames, tierfile, teamSuggAmount):
+    for t in Tools.findTeamMetaMatches(teamMateNames, tierfile, teamSuggAmount):
         print("%s:\n\tPOP: %s" % (t[0], t[1]))
     print()
     teamAdder()
@@ -236,7 +236,7 @@ while not confirmTeamGate:
                 swapAmountGate = True
             except:
                 print("Um...unfortunately I can't understand your request. Try again")
-        for t in TeamBuilder.findTeamMetaMatches(teamMateNamesprime, tierfile, swapAmount):
+        for t in Tools.findTeamMetaMatches(teamMateNamesprime, tierfile, swapAmount):
             print("%s: %s" % (t[0], t[1]))
         print()
         #Finding Flop and Checking if it's another Mega
@@ -383,18 +383,18 @@ for poke in teamMatesDict:
     if len(metaAbilities) > 1:
         if "1" in abilities:
             print("\t%s:\n\t\tDESC: %s\n\t\tPOP: %s" % (abilities["1"], Pokedex.findAbilityShortDesc(abilities["1"]),metaAbilities[Pokedex.findAbilityID(abilities["1"])]))
-        if "S" in abilities and TeamBuilder.compress(abilities["S"]) in metaAbilities:
+        if "S" in abilities and Tools.compress(abilities["S"]) in metaAbilities:
             print("Additionally, %s also has a special ability." % spName)
             print("\t%s:\n\t\tDESC: %s\n\t\tPOP: %s" % (abilities["S"], Pokedex.findAbilityShortDesc(abilities["S"]),metaAbilities[Pokedex.findAbilityID(abilities["S"])]))
-            if TeamBuilder.compress(abilities["S"]) not in list(metaAbilities.keys()):
+            if Tools.compress(abilities["S"]) not in list(metaAbilities.keys()):
                 print("\tUnfortunately, this ability is not allowed in %s" % tier)
             else:
                 #TODO: fix this
                 print("HI")
-        if "H" in abilities and TeamBuilder.compress(abilities["H"]) in metaAbilities:
+        if "H" in abilities and Tools.compress(abilities["H"]) in metaAbilities:
             print("Additionally, %s also has the following hidden ability." % spName)
             print("\t%s:\n\t\tDESC: %s\n\t\tPOP: %s" % (abilities["H"], Pokedex.findAbilityShortDesc(abilities["H"]),metaAbilities[Pokedex.findAbilityID(abilities["H"])]))
-            if TeamBuilder.compress(abilities["H"]) not in list(metaAbilities.keys()):
+            if Tools.compress(abilities["H"]) not in list(metaAbilities.keys()):
                 print("\tUnfortunately, this ability is not allowed in %s" % tier)
             else:
                 #TODO: fix this
@@ -407,7 +407,7 @@ for poke in teamMatesDict:
             for s in ["0","1","S","H"]:
                 abName = Pokedex.findAbilityName(inp)
                 if s in abilities and abName == abilities[s]:
-                    if TeamBuilder.compress(abilities[s]) in metaAbilities:
+                    if Tools.compress(abilities[s]) in metaAbilities:
                         teamMatesDict[poke]["ability"]=abName
                         abilityGate = True
             if not abilityGate:
@@ -492,7 +492,7 @@ for poke in teamMatesDict:
     while not gate8:
         try:
             evAmount = int(input("Input: (Int) "))
-            sortedSpreads = TeamBuilder.findPokemonMetaSpreads(spName, tierfile, evAmount)
+            sortedSpreads = Tools.findPokemonMetaSpreads(spName, tierfile, evAmount)
             gate8 = True
         except:
             print("How can I show you that many Nature/EV spreads? Try again")
@@ -640,7 +640,7 @@ for poke in teamMatesDict:
         while not showMovesGate:
             try:
                 moveAmount = int(input("Input: (Int) "))
-                sortedMoves = TeamBuilder.findPokemonMetaMoves(spName, tierfile, moveAmount)
+                sortedMoves = Tools.findPokemonMetaMoves(spName, tierfile, moveAmount)
                 showMovesGate = True
             except:
                 print("How can I show you that many Moves? Try again")
@@ -759,7 +759,7 @@ for poke in teamMatesDict:
                     swapAmount = int(input("Input: (Int) "))
                     if swapAmount >= 0:
 #TODO: Implement the inability to chose already chosen moves
-                        sortedMoves = TeamBuilder.findPokemonMetaMovesExc(spName, tierfile, swapAmount, moves)
+                        sortedMoves = Tools.findPokemonMetaMovesExc(spName, tierfile, swapAmount, moves)
                         flipAmountGate = True
                     else:
                         print("Well I can't suggest that many suggestions, now can I?")
@@ -857,7 +857,7 @@ for poke in teamMatesDict:
                 itemAmountGate = True
             except:
                 print("Um...how can I show that many items? Try again")
-        sortedItems = TeamBuilder.findPokemonMetaItems(spName, tierfile, itemAmount)
+        sortedItems = Tools.findPokemonMetaItems(spName, tierfile, itemAmount)
         for s in sortedItems:
             print("\t%s:\n\t\tDESC: %s\n\t\tPOP: %s" % (Pokedex.findItemName(s[0]), Pokedex.findItemDesc(s[0]),s[1]))
             print()
