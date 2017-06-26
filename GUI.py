@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-import math,Pokedex,Tools,threading,os,glob,GUIScript
+import math,Pokedex,Tools,threading,os,glob,GUIScript, TeamAnalyzer
 import urllib.request
 
 class AL:
@@ -178,6 +178,8 @@ class AL:
         #return "break"
 
     def showAnalyzer(self):
+        #toplevel=Toplevel()
+        #self.analyzer = TeamAnalyzer.TeamAnalyzer(self,toplevel)
         pass
     
     def switch(self,name):
@@ -536,6 +538,8 @@ class AL:
                                  self.current["ivs"]["spe"],
                                  self.current["level"], self.current["nature"])))
         elif option == "moves":
+            self.analyzer.update(self,"moves")
+            #self.toplevel.iconify()
             self.move1Name.set(self.current["moves"]["move1"])
             self.move2Name.set(self.current["moves"]["move2"])
             self.move3Name.set(self.current["moves"]["move3"])
@@ -1318,6 +1322,10 @@ class AL:
         file_menu.add_command(label="Team Analyzer",command=self.showAnalyzer)
         file_menu.add_command(label="Quit",command=root.quit)
         self.the_menu.add_cascade(label="File",menu=file_menu)
+
+        self.toplevel = Toplevel()
+        self.analyzer = TeamAnalyzer.TeamAnalyzer(self, self.toplevel)
+        #self.toplevel.withdraw()
 
         root.config(menu=self.the_menu)
 

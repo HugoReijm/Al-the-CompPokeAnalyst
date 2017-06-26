@@ -114,6 +114,9 @@ def AI(shell):
 
     shell.respond("I have uploaded your team members into the panel to your left. Have a look around!")
 
+    shell.analyzer.update(shell, "species")
+    #shell.toplevel.iconify()
+
     # Iterate Over Every Team Member
     for poke in shell.teamMatesDict:
         spName = shell.teamMatesDict[poke]["species"]
@@ -1027,10 +1030,22 @@ def chooseMoves(shell,poke):
     while not movesCheckGate:
         text = ""
         text += "Your " + spName + " will have the following moves."
-        text += "\n\tMove 1: " + moves[0]
-        text += "\n\tMove 2: " + moves[1]
-        text += "\n\tMove 3: " + moves[2]
-        text += "\n\tMove 4: " + moves[3]
+        if moves[0] != None:
+            text += "\n\tMove 1: " + moves[0]
+        else:
+            text += "\n\tMove 1: None"
+        if moves[1] != None:
+            text += "\n\tMove 2: " + moves[1]
+        else:
+            text += "\n\tMove 2: None"
+        if moves[2] != None:
+            text += "\n\tMove 3: " + moves[2]
+        else:
+            text += "\n\tMove 3: None"
+        if moves[3] != None:
+            text += "\n\tMove 4: " + moves[3]
+        else:
+            text += "\n\tMove 4: None"
         text += "\n    Do you want to keep this moveset? Y/N"
         shell.respond(text)
         shell.inputEvent.wait()
