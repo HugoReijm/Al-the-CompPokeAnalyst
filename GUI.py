@@ -347,6 +347,8 @@ class AL:
 
     def update(self,name,option):
         if option=="types":
+            self.analyzer.update(self, "species")
+            #self.toplevel.deiconify()
             types = Pokedex.findPokemonTypes(self.current["species"])
             if len(types) == 2:
                 self.typeLabelText.set(types[0] + ", " + types[1])
@@ -357,6 +359,10 @@ class AL:
         elif option == "item":
             self.itemLabelText.set(self.current["item"])
         elif option == "level":
+            self.analyzer.update(self, "stats")
+            self.analyzer.update(self, "physpec Offense")
+            self.analyzer.update(self, "physpec Defense")
+            self.toplevel.deiconify
             self.levelLabelText.set(self.current["level"])
             self.hpStatCanvas.coords(self.hpStatBar, 0, 5, int(
                 self.hpStatCalc(self.current["baseStats"]["hp"], self.current["evs"]["hp"], self.current["ivs"]["hp"],
@@ -416,6 +422,10 @@ class AL:
         elif option == "shiny":
             self.shinyLabelText.set(self.current["shiny"])
         elif option == "ivs":
+            self.analyzer.update(self, "stats")
+            self.analyzer.update(self, "physpec Offense")
+            self.analyzer.update(self, "physpec Defense")
+            #self.toplevel.deiconify()
             self.hpIV.set(str(self.current["ivs"]["hp"]))
             self.atkIV.set(str(self.current["ivs"]["atk"]))
             self.defIV.set(str(self.current["ivs"]["def"]))
@@ -474,12 +484,20 @@ class AL:
                                  self.current["ivs"]["spe"],
                                  self.current["level"], self.current["nature"])))
         elif option == "nature":
+            self.analyzer.update(self, "stats")
+            self.analyzer.update(self, "physpec Offense")
+            self.analyzer.update(self, "physpec Defense")
+            #self.toplevel.deiconify()
             self.atkStatCanvas.itemconfig(self.atkStatBar, fill=self.atkNatureColor(self.current["nature"]))
             self.defStatCanvas.itemconfig(self.defStatBar, fill=self.defNatureColor(self.current["nature"]))
             self.spaStatCanvas.itemconfig(self.spaStatBar, fill=self.spaNatureColor(self.current["nature"]))
             self.spdStatCanvas.itemconfig(self.spdStatBar, fill=self.spdNatureColor(self.current["nature"]))
             self.speStatCanvas.itemconfig(self.speStatBar, fill=self.speNatureColor(self.current["nature"]))
         elif option == "evs":
+            self.analyzer.update(self, "stats")
+            self.analyzer.update(self, "physpec Offense")
+            self.analyzer.update(self, "physpec Defense")
+            #self.toplevel.deiconify()
             self.hpEV.set(str(self.current["evs"]["hp"]))
             self.atkEV.set(str(self.current["evs"]["atk"]))
             self.defEV.set(str(self.current["evs"]["def"]))
@@ -539,6 +557,8 @@ class AL:
                                  self.current["level"], self.current["nature"])))
         elif option == "moves":
             self.analyzer.update(self,"moves")
+            self.analyzer.update(self, "physpec Offense")
+            #self.toplevel.deiconify()
             #self.toplevel.iconify()
             self.move1Name.set(self.current["moves"]["move1"])
             self.move2Name.set(self.current["moves"]["move2"])
@@ -1325,7 +1345,8 @@ class AL:
 
         self.toplevel = Toplevel()
         self.analyzer = TeamAnalyzer.TeamAnalyzer(self, self.toplevel)
-        #self.toplevel.withdraw()
+        self.toplevel.resizable(width=False,height=False)
+        self.toplevel.withdraw()
 
         root.config(menu=self.the_menu)
 

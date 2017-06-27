@@ -57,6 +57,9 @@ def AI(shell):
     # CLEAR THIS
     shell.teamMateNames = ["Zapdos","Landorus-Therian", "Heatran", "Ninetales-Alola", "Sandslash-Alola", "Tapu Fini"]
 
+    #TODO: oh, something interesting...apparently having multiple of the same species messes with the program, cause it then works on all individuals simultaneously
+    #shell.teamMateNames = ["Blissey","Blissey","Blissey","Blissey","Blissey","Blissey"]
+
     # Make Dictionary with All Necessary Info
     for member in shell.teamMateNames:
         dict = {}
@@ -115,6 +118,10 @@ def AI(shell):
     shell.respond("I have uploaded your team members into the panel to your left. Have a look around!")
 
     shell.analyzer.update(shell, "species")
+    shell.analyzer.update(shell, "stats")
+    shell.analyzer.update(shell, "physpec Offense")
+    shell.analyzer.update(shell, "physpec Defense")
+    shell.toplevel.deiconify()
     #shell.toplevel.iconify()
 
     # Iterate Over Every Team Member
