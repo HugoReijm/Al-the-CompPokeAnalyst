@@ -1,41 +1,79 @@
-import json,os
+import json,os,threading
 
+__singletonPokedex=None
+
+__singletonLearnSets=None
+
+__singletonTypedex=None
+
+__singletonMovedex=None
+
+__singletonItemdex=None
+
+__singletonAbilitydex=None
+
+def synchronized(func):
+    func.__lock__ = threading.Lock()
+
+    def synced_func(*args, **kws):
+        with func.__lock__:
+            return func(*args, **kws)
+
+    return synced_func
+
+@synchronized
 def loadPokedex():
-    with open(os.path.dirname(os.path.realpath(__file__))+"/data/pokedex.json","r") as data:
-        python_obj = json.load(data)
-    data.close()
-    return python_obj
+    global __singletonPokedex
+    if __singletonPokedex==None:
+        with open(os.path.dirname(os.path.realpath(__file__))+"/data/pokedex.json","r") as data:
+            __singletonPokedex = json.load(data)
+        data.close()
+    return __singletonPokedex
 
+@synchronized
 def loadLearnSets():
-    with open(os.path.dirname(os.path.realpath(__file__))+"/data/learnsets.json","r") as data:
-        python_obj = json.load(data)
-    data.close()
-    return python_obj
+    global __singletonLearnSets
+    if __singletonLearnSets==None:
+        with open(os.path.dirname(os.path.realpath(__file__))+"/data/learnsets.json","r") as data:
+            __singletonLearnSets = json.load(data)
+        data.close()
+    return __singletonLearnSets
 
+@synchronized
 def loadTypes():
-    with open(os.path.dirname(os.path.realpath(__file__))+"/data/types.json", "r") as data:
-        python_obj = json.load(data)
-    data.close()
-    return python_obj
+    global __singletonTypedex
+    if __singletonTypedex==None:
+        with open(os.path.dirname(os.path.realpath(__file__))+"/data/types.json", "r") as data:
+            __singletonTypedex = json.load(data)
+        data.close()
+    return __singletonTypedex
 
+@synchronized
 def loadMoves():
-    with open(os.path.dirname(os.path.realpath(__file__))+"/data/moves.json","r") as data:
-        python_obj = json.load(data)
-    data.close()
-    return python_obj
+    global __singletonMovedex
+    if __singletonMovedex==None:
+        with open(os.path.dirname(os.path.realpath(__file__))+"/data/moves.json","r") as data:
+            __singletonMovedex = json.load(data)
+        data.close()
+    return __singletonMovedex
 
+@synchronized
 def loadItems():
-    with open(os.path.dirname(os.path.realpath(__file__))+"/data/items.json","r") as data:
-        python_obj = json.load(data)
-    data.close()
-    return python_obj
+    global __singletonItemdex
+    if __singletonItemdex==None:
+        with open(os.path.dirname(os.path.realpath(__file__))+"/data/items.json","r") as data:
+            __singletonItemdex = json.load(data)
+        data.close()
+    return __singletonItemdex
 
+@synchronized
 def loadAbilities():
-    os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.dirname(os.path.realpath(__file__))+"/data/abilities.json","r") as data:
-        python_obj = json.load(data)
-    data.close()
-    return python_obj
+    global __singletonAbilitydex
+    if __singletonAbilitydex==None:
+        with open(os.path.dirname(os.path.realpath(__file__))+"/data/abilities.json","r") as data:
+            __singletonAbilitydex = json.load(data)
+        data.close()
+    return __singletonAbilitydex
 
 def checkPokedex(name):
     pokedex = loadPokedex()

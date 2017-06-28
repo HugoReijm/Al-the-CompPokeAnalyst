@@ -1230,8 +1230,7 @@ def chooseItem(shell,poke):
         text = ""
         for s in sortedItems:
             itemData = Pokedex.findItemData(s[0])
-            text += itemData["name"] + ":" + shell.cut("\n\tDESC: " + itemData["desc"]) + "\n\tPOP: " + str(
-                s[1]) + "\n    "
+            text += itemData["name"] + ":" + shell.cut("\n\tDESC: " + itemData["desc"]) + "\n\tPOP: " + str(s[1]) + "\n    "
         shell.respond(text)
         itemGate = False
         while not itemGate:

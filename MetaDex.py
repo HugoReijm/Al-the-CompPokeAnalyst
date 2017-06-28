@@ -1,4 +1,13 @@
-import json,sys,os
+import json,os,threading
+
+def synchronized(func):
+    func.__lock__ = threading.Lock()
+
+    def synced_func(*args, **kws):
+        with func.__lock__:
+            return func(*args, **kws)
+
+    return synced_func
 
 def getTiers():
     with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/tiers.txt","r") as data:
@@ -8,25 +17,31 @@ def getTiers():
         python_list[i] = python_list[i].replace("\n","")
     return python_list
 
+@synchronized
 def setTiers(tier):
     with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/tiers.txt", "a") as file:
         file.write(tier+"\n")
     file.close()
 
+__singletonMetaDexList=[]
+for i in range(len(getTiers())):
+    __singletonMetaDexList.append(None)
+
+@synchronized
 def loadTier(tier):
-    if isinstance(tier, str)==True and ".json" in tier:
-        with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/"+tier,"r") as data:
-            python_obj = json.load(data)
-        data.close()
-        return python_obj
+    tiers = getTiers()
+    if tier[:-5] in tiers and tier.endswith(".json"):
+        if __singletonMetaDexList[tiers.index(tier[:-5])]==None:
+            with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/"+tier,"r") as data:
+                __singletonMetaDexList[tiers.index(tier[:-5])] = json.load(data)
+            data.close()
+        return __singletonMetaDexList[tiers.index(tier[:-5])]
 
 def findTierInfo(tier):
-    meta = loadTier(tier)
-    return meta["info"]
+    return loadTier(tier)["info"]
 
 def findTierData(tier):
-    meta = loadTier(tier)
-    return meta["data"]
+    return loadTier(tier)["data"]
 
 def findPokemonTierData(pokemon,tier):
     pokeList = list(pokemon)
@@ -140,10 +155,3 @@ def findPokemonTierViabilityCeiling(pokemon, tier):
         return data["Viability Ceiling"]
     else:
         return None
-
-#tiers = getTiers()
-#for t in range(len(tiers)):
-#    tiers[t] = tiers[t]+".json"
-#for string in tiers:
-#    print(string)
-#    print(findTierInfo(string))
