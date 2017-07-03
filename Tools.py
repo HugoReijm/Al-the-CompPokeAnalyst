@@ -149,6 +149,110 @@ def compress(name):
     else:
         return None
 
+def buildPokemon(poke,tier):
+    pokeName = Pokedex.findPokemonSpecies(poke)
+    if pokeName!=None:
+        pokeDict={}
+        pokeDict["species"] = pokeName
+        pokeDict["ability"] = None
+        pokeDict["nature"] = None
+        pokeDict["typing"] = Pokedex.findPokemonTypes(pokeName)
+        pokeDict["baseStats"] = {"hp": Pokedex.findPokemonHP(pokeName), "atk": Pokedex.findPokemonAtk(pokeName),
+                             "def": Pokedex.findPokemonDef(pokeName), "spa": Pokedex.findPokemonSpA(pokeName),
+                             "spd": Pokedex.findPokemonSpD(pokeName), "spe": Pokedex.findPokemonSpe(pokeName)}
+        pokeDict["ivs"] = {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
+        pokeDict["evs"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
+        pokeDict["item"] = None
+        pokeDict["gender"] = None
+        pokeDict["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
+        pokeDict["happiness"] = 255
+        if "battlespot" in tier or "vgc" in tier:
+            pokeDict["level"] = 50
+        else:
+            pokeDict["level"] = 100
+        pokeDict["shiny"] = "No"
+
+        #ability
+        abPop = 0
+        abilities = MetaDex.findPokemonTierAbilities(pokeName, tier)
+        for index in abilities:
+            if abilities[index] > abPop:
+                pokeDict["ability"] = index
+                abPop = abilities[index]
+
+        #nature/evs
+        sprdPop = 0
+        spreads = MetaDex.findPokemonTierSpreads(pokeName, tier)
+        for index in spreads:
+            if spreads[index] > sprdPop:
+                pokeDict["nature"] = index.split(":")[0]
+                try:
+                    pokeDict["evs"]["hp"] = int(index.split(":")[1].split("/")[0])
+                    pokeDict["evs"]["atk"] = int(index.split(":")[1].split("/")[1])
+                    pokeDict["evs"]["def"] = int(index.split(":")[1].split("/")[2])
+                    pokeDict["evs"]["spa"] = int(index.split(":")[1].split("/")[3])
+                    pokeDict["evs"]["spd"] = int(index.split(":")[1].split("/")[4])
+                    pokeDict["evs"]["spe"] = int(index.split(":")[1].split("/")[5])
+                except:
+                    print("Oh something went wrong with giving evs to your Pokemon")
+                    pokeDict["evs"]["hp"] = 0
+                    pokeDict["evs"]["atk"] = 0
+                    pokeDict["evs"]["def"] = 0
+                    pokeDict["evs"]["spa"] = 0
+                    pokeDict["evs"]["spd"] = 0
+                    pokeDict["evs"]["spe"] = 0
+                sprdPop = spreads[index]
+
+        #moves
+        movesDict = MetaDex.findPokemonTierMoves(pokeName, tier)
+        moves = []
+        movePop = []
+        moves.append(None)
+        movePop.append(-100)
+        moves.append(None)
+        movePop.append(-100)
+        moves.append(None)
+        movePop.append(-100)
+        moves.append(None)
+        movePop.append(-100)
+        for move in movesDict:
+            for i in range(4):
+                if movePop[i] < movesDict[move]:
+                    for j in range(3, i, -1):
+                        moves[j] = moves[j - 1]
+                        movePop[j] = movePop[j - 1]
+                    moves[i] = move
+                    movePop[i] = movesDict[move]
+                    break
+        if moves[0]!=None:
+            pokeDict["moves"]["move1"] = moves[0]
+        if moves[1] != None:
+            pokeDict["moves"]["move2"] = moves[1]
+        if moves[2] != None:
+            pokeDict["moves"]["move3"] = moves[2]
+        if moves[3] != None:
+            pokeDict["moves"]["move4"] = moves[3]
+
+        #item
+        itmPop = 0
+        items = MetaDex.findPokemonTierItems(pokeName, tier)
+        for item in items:
+            if items[item] > itmPop:
+                pokeDict["item"] = item
+                itmPop = items[item]
+
+        #happiness
+        hppPop = 0
+        happiness = MetaDex.findPokemonTierHappiness(pokeName, tier)
+        for happy in happiness:
+            if happiness[happy] > hppPop:
+                pokeDict["happiness"] = happy
+                hppPop = happiness[happy]
+        return pokeDict
+    else:
+        print("Poke %s can not be parsed into a Pokemon in tier %s" % (poke,tier))
+        return None
+
 def downloadTier(url):
     if isinstance(url,str)==True:
         if url[42:][:-5] not in MetaDex.getTiers():
@@ -156,10 +260,10 @@ def downloadTier(url):
             try:
                 with urllib.request.urlopen(url) as file:
                     python_obj = json.loads(file.read().decode())
-                file.close
+                    file.close
                 with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/"+tier,"w") as file:
                     json.dump(python_obj,file)
-                file.close
+                    file.close
                 tier = tier[:-5]
                 if tier not in MetaDex.getTiers():
                     MetaDex.setTiers(tier)

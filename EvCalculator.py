@@ -1,13 +1,13 @@
 import math, Pokedex
 
-name = "rhydon"
+name = "galvantula"
 baseHP = Pokedex.findPokemonHP(name)
 baseDef = Pokedex.findPokemonDef(name)
-defNature = 1.5
+defNature = 1.0
 baseSpDef = Pokedex.findPokemonSpD(name)
-spDefNature = 1.5
+spDefNature = 1.0
 ivs = [31,31,31,31,31,31]
-usableEVs = 510
+usableEVs = 510-252
 level = 100
 oppAttack = 100
 power = 100
@@ -27,10 +27,10 @@ def calcSpecialDefense(evs):
     return math.floor((math.floor(((2*baseSpDef+ivs[4]+math.floor(evs/4))*level)/100)+5)*spDefNature)
 
 def calcPhysicalDamage(hp,defense):
-    return math.floor(((2*level+10)/250*oppAttack/defense*power+2)*modifier)/hp
+    return ((2*level/5+2)*oppAttack/defense*power/50+2)*modifier/hp
 
 def calcSpecialDamage(hp,spDefense):
-    return math.floor(((2*level+10)/250*oppAttack/spDefense*power+2)*modifier)/hp
+    return ((2*level/5+2)*oppAttack/spDefense*power/50+2)*modifier/hp
 
 def calcScore(pDamage,spDamage):
     return math.sqrt(0.5*(pDamage**2+spDamage**2))
@@ -39,14 +39,11 @@ score = 1000
 optHPEV = 0
 optDefEV = 0
 optSpDefEV = 0
-for i in range(0,min(usableEVs,252)+1,10):
-    for j in range(0,min(usableEVs-i,252)+1,10):
-        for k in range(0,min(usableEVs-i-j,252)+1,10):
-            tempHP = calcHP(k)
-            tempDef = calcDefense(i)
-            tempSpDef = calcSpecialDefense(j)
-            tempPDamage = calcPhysicalDamage(tempHP,tempDef)
-            tempSDamage = calcSpecialDamage(tempHP,tempSpDef)
+for i in range(0,min(usableEVs,252)+1,8):
+    for j in range(0,min(usableEVs-i,252)+1,8):
+        for k in range(0,min(usableEVs-i-j,252)+1,8):
+            tempPDamage = calcPhysicalDamage(calcHP(k),calcDefense(i))
+            tempSDamage = calcSpecialDamage(calcHP(k),calcSpecialDefense(j))
             tempScore = calcScore(tempPDamage,tempSDamage)
             if tempScore<score:
                 score = tempScore
@@ -56,14 +53,11 @@ for i in range(0,min(usableEVs,252)+1,10):
 approxHPEV = optHPEV
 approxDefEV = optDefEV
 approxSpDefEV = optSpDefEV
-for i in range(max(approxDefEV-9,0),min(approxDefEV+9,252)+1):
-    for j in range(max(approxSpDefEV-9-i,0),min(approxSpDefEV+9-i,252)+1):
-        for k in range(max(approxHPEV-9-i-j,0),min(approxHPEV+9-i-j,252)+1):
-            tempHP = calcHP(k)
-            tempDef = calcDefense(i)
-            tempSpDef = calcSpecialDefense(j)
-            tempPDamage = calcPhysicalDamage(tempHP,tempDef)
-            tempSDamage = calcSpecialDamage(tempHP,tempSpDef)
+for i in range(max(approxDefEV-8,0),min(approxDefEV+8,252)+1):
+    for j in range(max(approxSpDefEV-8-i,0),min(approxSpDefEV+8-i,252)+1):
+        for k in range(max(approxHPEV-8-i-j,0),min(approxHPEV+8-i-j,252)+1):
+            tempPDamage = calcPhysicalDamage(calcHP(k),calcDefense(i))
+            tempSDamage = calcSpecialDamage(calcHP(k),calcSpecialDefense(j))
             tempScore = calcScore(tempPDamage,tempSDamage)
             if tempScore<score:
                 score = tempScore

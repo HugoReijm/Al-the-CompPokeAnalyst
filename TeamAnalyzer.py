@@ -1,20 +1,22 @@
 from tkinter import *
 from tkinter import ttk
-import math, Pokedex, MetaDex, Tools, threading, random, datetime, os, glob
+import Pokedex, MetaDex, Tools
 
 class TeamAnalyzer:
 
     @staticmethod
-    def defCombineTypes(types):
-        if isinstance(types,list):
+    def defCombineTypes(types, scrappy):
+        if isinstance(types, list):
             wri = []
             wri.append([])
             wri.append([])
             wri.append([])
-            if len(types)==2 and types[0]!=types[1]:
+            # seperating between single and dual type Pokemon
+            if len(types) == 2 and types[0] != types[1]:
                 wri.append([])
                 wri.append([])
 
+                # collecting data on type #1
                 data1 = Pokedex.findTypeData(types[0])
                 w1 = []
                 r1 = []
@@ -29,6 +31,7 @@ class TeamAnalyzer:
                     if i != "":
                         i1.append(i)
 
+                # collecting data on type #2
                 data2 = Pokedex.findTypeData(types[1])
                 w2 = []
                 r2 = []
@@ -43,12 +46,13 @@ class TeamAnalyzer:
                     if i != "":
                         i2.append(i)
 
+                # combining weaknesses
                 done = False
                 while not done:
                     done = True
                     for a in w1:
                         for b in w2:
-                            if a==b:
+                            if a == b:
                                 wri[0].append(a)
                                 del w1[w1.index(a)]
                                 del w2[w2.index(b)]
@@ -59,6 +63,7 @@ class TeamAnalyzer:
                 for b in w2:
                     wri[1].append(b)
 
+                # combining resistances
                 done = False
                 while not done:
                     done = True
@@ -76,19 +81,27 @@ class TeamAnalyzer:
                     wri[2].append(b)
 
                 for a in i1:
-                    wri[4].append(a)
+                    if a in ["Normal", "Fighting"]:
+                        if scrappy == False:
+                            wri[4].append(a)
+                    else:
+                        wri[4].append(a)
                 for b in i2:
-                    wri[4].append(b)
+                    if b in ["Normal", "Fighting"]:
+                        if scrappy == False:
+                            wri[4].append(b)
+                    else:
+                        wri[4].append(b)
 
                 done = False
                 while not done:
-                    done=True
+                    done = True
                     for w in wri[1]:
                         for r in wri[2]:
-                            if w==r:
+                            if w == r:
                                 del wri[1][wri[1].index(w)]
                                 del wri[2][wri[2].index(r)]
-                                done=False
+                                done = False
                                 break
 
                 for a in wri[4]:
@@ -96,7 +109,7 @@ class TeamAnalyzer:
                     while not done:
                         done = True
                         for b in wri[2]:
-                            if a==b:
+                            if a == b:
                                 del wri[2][wri[2].index(b)]
                                 done = False
                                 break
@@ -104,7 +117,7 @@ class TeamAnalyzer:
                     while not done:
                         done = True
                         for b in wri[1]:
-                            if a==b:
+                            if a == b:
                                 del wri[1][wri[1].index(b)]
                                 done = False
                                 break
@@ -113,7 +126,7 @@ class TeamAnalyzer:
                     done = True
                     for a in wri[4]:
                         for b in wri[4]:
-                            if a==b and a is not b:
+                            if a == b and a is not b:
                                 del wri[4][wri[4].index(a)]
                                 done = False
                                 break
@@ -127,10 +140,378 @@ class TeamAnalyzer:
                         wri[1].append(r)
                 for i in data["immunities"]:
                     if i != "":
-                        wri[2].append(i)
+                        if i in ["Normal", "Fighting"]:
+                            if scrappy == False:
+                                wri[2].append(i)
+                        else:
+                            wri[2].append(i)
             return wri
         else:
             return None
+
+    @staticmethod
+    def calcDamage(level, basePower, atk, defn, modifier):
+        return (((2 * level / 5 + 2) * basePower * atk / defn) / 50 + 2) * modifier
+
+    def checkAndCounters(self,shell):
+        self.counterMssngr.config(state=NORMAL)
+        self.counterMssngr.delete(1.0, END)
+        for poke in MetaDex.findTierData(shell.tierfile):
+            pokeName = Pokedex.findPokemonSpecies(poke)
+            pokeAbilities = []
+            abilities = Pokedex.findPokemonAbilities(pokeName)
+            for index in abilities:
+                pokeAbilities.append(abilities[index])
+            pokeTyping=Pokedex.findPokemonTypes(pokeName)
+            maxlevel=0
+            for member in shell.teamMatesDict:
+                if shell.teamMatesDict[member]["level"]>maxlevel:
+                    maxlevel=shell.teamMatesDict[member]["level"]
+            pokeBaseStats=[]
+            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["hp"])
+            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["atk"])
+            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["def"])
+            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spa"])
+            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spd"])
+            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spe"])
+            pokeHP=shell.hpStatCalc(pokeBaseStats[0], 0, 31, maxlevel)
+            maxDamage = 0
+
+            for member in shell.teamMatesDict:
+                if shell.teamMatesDict[member]["ability"] == "Scrappy":
+                    combinedWRI = self.defCombineTypes(pokeTyping, True)
+                else:
+                    combinedWRI = self.defCombineTypes(pokeTyping, False)
+                for move in shell.teamMatesDict[member]["moves"]:
+                    modifier = 1
+                    moveType = Pokedex.findMoveType(shell.teamMatesDict[member]["moves"][move])
+                    if moveType == "Normal":
+                        if shell.teamMatesDict[member]["ability"] == "Aerilate":
+                            modifier = modifier * 1.2
+                            moveType = "Flying"
+                        elif shell.teamMatesDict[member]["ability"] == "Pixilate":
+                            modifier = modifier * 1.2
+                            moveType = "Fairy"
+                        elif shell.teamMatesDict[member]["ability"] == "Galvanize":
+                            modifier = modifier * 1.2
+                            moveType = "Electric"
+                        elif shell.teamMatesDict[member]["ability"] == "Refrigerate":
+                            modifier = modifier * 1.2
+                            moveType = "Ice"
+                    else:
+                        if shell.teamMatesDict[member]["ability"] == "Normalize":
+                            modifier = modifier * 1.2
+                            moveType = "Normal"
+
+                    if len(combinedWRI) == 3:
+                        if moveType in combinedWRI[0]:
+                            modifier = modifier * 2
+                        elif moveType in combinedWRI[1]:
+                            modifier = modifier * 0.5
+                        elif moveType in combinedWRI[2]:
+                            modifier = 0
+                        if "Wonder Guard" in pokeAbilities and moveType not in combinedWRI[0]:
+                            modifier = 0
+                        elif ("Solid Rock" in pokeAbilities or "Filter" in pokeAbilities) and moveType in combinedWRI[0]:
+                            modifier = modifier * 0.75
+                    elif len(combinedWRI) == 5:
+                        if moveType in combinedWRI[0]:
+                            modifier = modifier * 4
+                        elif moveType in combinedWRI[1]:
+                            modifier = modifier * 2
+                        elif moveType in combinedWRI[2]:
+                            modifier = modifier * 0.5
+                        elif moveType in combinedWRI[3]:
+                            modifier = modifier * 0.25
+                        elif moveType in combinedWRI[4]:
+                            modifier = 0
+                        if "Wonder Guard" in pokeAbilities and moveType not in combinedWRI[0] and moveType not in \
+                                combinedWRI[1]:
+                            modifier = 0
+                        elif ("Solid Rock" in pokeAbilities or "Filter" in pokeAbilities) and (
+                                moveType in combinedWRI[0] or moveType in combinedWRI[1]):
+                            modifier = modifier * 0.75
+                    else:
+                        print("Oops, something went wrong here.")
+
+                    if shell.teamMatesDict[member]["ability"] != "Mold Breaker":
+                        if shell.teamMatesDict[member]["moves"][move] in ["Self-Destruct",
+                                                                    "Explosion"] and "Damp" in pokeAbilities:
+                            modifier = 0
+                        elif shell.teamMatesDict[member]["moves"][move] in ["Hyper Voice", "Perish Song", "Snore",
+                                                                      "Uproar"] and "Soundproof" in pokeAbilities:
+                            modifier = 0
+                        elif shell.teamMatesDict[member]["moves"][move] in ["Fissure", "Guillotine", "Horn Drill", "Sheer Cold"]:
+                            if "Sturdy" in pokeAbilities:
+                                modifier = 0
+                            else:
+                                modifier = 1000000
+
+                    if Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) != "Status":
+                        if shell.teamMatesDict[member]["ability"] != "Mold Breaker":
+                            if moveType == "Fire":
+                                if "Flash Fire" in pokeAbilities or "Primordial Sea" in pokeAbilities:
+                                    modifier = 0
+                                elif "Dry Skin" in pokeAbilities:
+                                    modifier = modifier * 1.25
+                                elif "Fluffy" in pokeAbilities:
+                                    modifier = modifier * 2
+                                elif "Thick Fat" in pokeAbilities or "Water Bubble" in pokeAbilities:
+                                    modifier = modifier * 0.5
+                            elif moveType == "Water":
+                                if "Storm Drain" in pokeAbilities or "Water Absorb" in pokeAbilities or "Desolate Land" in pokeAbilities:
+                                    modifier = 0
+                                if shell.teamMatesDict[member]["ability"] == "Water Bubble":
+                                    modifier = modifier * 2
+                            elif moveType == "Electric" and (
+                                        "Lightning Rod" in pokeAbilities or "Volt Absorb" in pokeAbilities or "Motor Drive" in pokeAbilities):
+                                modifier = 0
+                            elif moveType == "Grass" and "Sap Sipper" in pokeAbilities:
+                                modifier = 0
+                            elif moveType == "Ice" and "Thick Fat" in pokeAbilities:
+                                modifier = modifier * 0.5
+                            elif moveType == "Ground" and "Levitate" in pokeAbilities:
+                                modifier = 0
+                            elif moveType == "Dark" and shell.teamMatesDict[member]["ability"] == "Dark Aura":
+                                if "Aura Break" in pokeAbilities:
+                                    modifier = 0.75 * modifier
+                                else:
+                                    modifier = 1.33 * modifier
+                            elif moveType == "Fairy" and shell.teamMatesDict[member]["ability"] == "Fairy Aura":
+                                if "Aura Break" in pokeAbilities:
+                                    modifier = 0.75 * modifier
+                                else:
+                                    modifier = 1.33 * modifier
+                        # TODO: add modifications here
+                        # TODO: add item modifications
+
+                        if moveType in Pokedex.findPokemonTypes(member):
+                            modifier = modifier * 1.5
+
+                        # Expected value of a uniform stochast on [0.85,1]
+                        modifier = modifier * 0.925
+
+                    if Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) == "Physical":
+                        physDamage = self.calcDamage(shell.teamMatesDict[member]["level"],
+                            Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move]),
+                            shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],
+                                shell.teamMatesDict[member]["evs"]["atk"],
+                                shell.teamMatesDict[member]["ivs"]["atk"],
+                                shell.teamMatesDict[member]["level"],
+                                shell.teamMatesDict[member]["nature"]),
+                            shell.defStatCalc(pokeBaseStats[2], 0, 31,
+                                             shell.teamMatesDict[member]["level"], "Serious"), modifier)/pokeHP
+                        if physDamage > maxDamage:
+                            maxDamage = physDamage
+                    elif Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) == "Special":
+                        specDamage = self.calcDamage(shell.teamMatesDict[member]["level"],
+                            Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move]),
+                            shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],
+                                shell.teamMatesDict[member]["evs"]["spa"],
+                                shell.teamMatesDict[member]["ivs"]["spa"],
+                                shell.teamMatesDict[member]["level"],
+                                shell.teamMatesDict[member]["nature"]),
+                            shell.spdStatCalc(pokeBaseStats[4], 0, 31,
+                                        shell.teamMatesDict[member]["level"], "Serious"), modifier)/pokeHP
+                        if specDamage > maxDamage:
+                            maxDamage = specDamage
+
+            if maxDamage < 0.33:
+                self.counterMssngr.config(state=NORMAL)
+                if len(pokeTyping)==1:
+                    self.counterMssngr.insert(END, "%s:\n  %s/%s/%s/%s/%s/%s\n  %s\n  Damage: %.2f%%\n  Count: %s\n\n" % (pokeName,pokeBaseStats[0],pokeBaseStats[1],pokeBaseStats[2],pokeBaseStats[3],pokeBaseStats[4],pokeBaseStats[5],pokeTyping[0],maxDamage * 100,MetaDex.findPokemonTierRawCount(pokeName,shell.tierfile)))
+                elif len(pokeTyping)==2:
+                    self.counterMssngr.insert(END, "%s:\n  %s/%s/%s/%s/%s/%s\n  %s, %s\n  Damage: %.2f%%\n  Count: %s\n\n" % (pokeName,pokeBaseStats[0],pokeBaseStats[1],pokeBaseStats[2],pokeBaseStats[3],pokeBaseStats[4],pokeBaseStats[5],pokeTyping[0],pokeTyping[1],maxDamage * 100,MetaDex.findPokemonTierRawCount(pokeName,shell.tierfile)))
+                self.counterMssngr.config(state=DISABLED)
+
+    def threats(self,shell):
+        self.threatMssngr.config(state=NORMAL)
+        self.threatMssngr.delete(1.0, END)
+        for poke in MetaDex.findTierData(shell.tierfile):
+            pokeDict = Tools.buildPokemon(poke, shell.tierfile)
+            pokeTyping = Pokedex.findPokemonTypes(pokeDict["species"])
+            minDamage = 1000000
+            for member in shell.teamMatesDict:
+                maxDamage = 0
+                memberHP = shell.hpStatCalc(shell.teamMatesDict[member]["baseStats"]["hp"], shell.teamMatesDict[member]["evs"]["hp"],
+                                      shell.teamMatesDict[member]["ivs"]["hp"], shell.teamMatesDict[member]["level"])
+                memberTyping = Pokedex.findPokemonTypes(shell.teamMatesDict[member]["species"])
+                if pokeDict["ability"] == "Scrappy":
+                    combinedWRI = self.defCombineTypes(memberTyping, True)
+                else:
+                    combinedWRI = self.defCombineTypes(memberTyping, False)
+                for move in pokeDict["moves"]:
+                    if pokeDict["moves"][move] != None:
+                        moveData = Pokedex.findMoveData(pokeDict["moves"][move])
+                        moveType = moveData["type"]
+                        modifier = 1
+                        if moveType == "Normal":
+                            if pokeDict["ability"] == "Aerilate":
+                                modifier = modifier * 1.2
+                                moveType = "Flying"
+                            elif pokeDict["ability"] == "Pixilate":
+                                modifier = modifier * 1.2
+                                moveType = "Fairy"
+                            elif pokeDict["ability"] == "Galvanize":
+                                modifier = modifier * 1.2
+                                moveType = "Electric"
+                            elif pokeDict["ability"] == "Refrigerate":
+                                modifier = modifier * 1.2
+                                moveType = "Ice"
+                        else:
+                            if pokeDict["ability"] == "Normalize":
+                                modifier = modifier * 1.2
+                                moveType = "Normal"
+
+                        if len(combinedWRI) == 3:
+                            if moveType in combinedWRI[0]:
+                                modifier = modifier * 2
+                            elif moveType in combinedWRI[1]:
+                                modifier = modifier * 0.5
+                            elif moveType in combinedWRI[2]:
+                                modifier = 0
+                            if shell.teamMatesDict[member]["ability"] == "Wonder Guard" and moveType not in combinedWRI[0]:
+                                modifier = 0
+                            elif shell.teamMatesDict[member]["ability"] in ["Solid Rock", "Filter"] and moveType in \
+                                    combinedWRI[0]:
+                                modifier = modifier * 0.75
+                        elif len(combinedWRI) == 5:
+                            if moveType in combinedWRI[0]:
+                                modifier = modifier * 4
+                            elif moveType in combinedWRI[1]:
+                                modifier = modifier * 2
+                            elif moveType in combinedWRI[2]:
+                                modifier = modifier * 0.5
+                            elif moveType in combinedWRI[3]:
+                                modifier = modifier * 0.25
+                            elif moveType in combinedWRI[4]:
+                                modifier = 0
+                            if shell.teamMatesDict[member]["ability"] == "Wonder Guard" and moveType not in combinedWRI[
+                                0] and moveType not in \
+                                    combinedWRI[1]:
+                                modifier = 0
+                            elif shell.teamMatesDict[member]["ability"] in ["Solid Rock", "Filter"] and (
+                                            moveType in combinedWRI[0] or moveType in combinedWRI[1]):
+                                modifier = modifier * 0.75
+                        else:
+                            print("Oops, something went wrong here.")
+
+                        if shell.teamMatesDict[member]["ability"] != "Mold Breaker":
+                            if pokeDict["moves"][move] in ["Self-Destruct", "Explosion"] and shell.teamMatesDict[member][
+                                "ability"] == "Damp":
+                                modifier = 0
+                            elif pokeDict["moves"][move] in ["Hyper Voice", "Perish Song", "Snore", "Uproar"] and \
+                                            shell.teamMatesDict[member]["ability"] == "Soundproof":
+                                modifier = 0
+                            elif pokeDict["moves"][move] in ["Fissure", "Guillotine", "Horn Drill", "Sheer Cold"]:
+                                if shell.teamMatesDict[member]["ability"] == "Sturdy":
+                                    modifier = 0
+                                else:
+                                    modifier = 1000000
+
+                        if Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) != "Status":
+                            if shell.teamMatesDict[member]["ability"] != "Mold Breaker":
+                                if moveType == "Fire":
+                                    if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
+                                        modifier = 0
+                                    elif shell.teamMatesDict[member]["ability"] == "Dry Skin":
+                                        modifier = modifier * 1.25
+                                    elif shell.teamMatesDict[member]["ability"] == "Fluffy":
+                                        modifier = modifier * 2
+                                    elif shell.teamMatesDict[member]["ability"] in ["Thick Fat", "Water Bubble"]:
+                                        modifier = modifier * 0.5
+                                elif moveType == "Water":
+                                    if shell.teamMatesDict[member]["ability"] in ["Storm Drain", "Water Absorb",
+                                                                            "Desolate Land"]:
+                                        modifier = 0
+                                    if pokeDict["ability"] == "Water Bubble":
+                                        modifier = modifier * 2
+                                elif moveType == "Electric" and shell.teamMatesDict[member]["ability"] in ["Lightning Rod",
+                                                                                                     "Volt Absorb",
+                                                                                                     "Motor Drive"]:
+                                    modifier = 0
+                                elif moveType == "Grass" and shell.teamMatesDict[member]["ability"] == "Sap Sipper":
+                                    modifier = 0
+                                elif moveType == "Ice" and shell.teamMatesDict[member]["ability"] == "Thick Fat":
+                                    modifier = modifier * 0.5
+                                elif moveType == "Ground" and shell.teamMatesDict[member]["ability"] == "Levitate":
+                                    modifier = 0
+                                elif moveType == "Dark" and pokeDict["ability"] == "Dark Aura":
+                                    if shell.teamMatesDict[member]["ability"] == "Aura Break":
+                                        modifier = 0.75 * modifier
+                                    else:
+                                        modifier = 1.33 * modifier
+                                elif moveType == "Fairy" and pokeDict["ability"] == "Fairy Aura":
+                                    if shell.teamMatesDict[member]["ability"] == "Aura Break":
+                                        modifier = 0.75 * modifier
+                                    else:
+                                        modifier = 1.33 * modifier
+                            # TODO: add modifications here
+                            # TODO: add item modifications
+
+                            if moveType in pokeTyping:
+                                modifier = modifier * 1.5
+
+                            # Expected value of a uniform stochast on [0.85,1]
+                            modifier = modifier * 0.925
+
+                        if moveData["category"] == "Physical":
+                            physDamage = self.calcDamage(pokeDict["level"], moveData["basePower"],
+                                shell.atkStatCalc(pokeDict["baseStats"]["atk"], pokeDict["evs"]["atk"],
+                                            pokeDict["ivs"]["atk"], pokeDict["level"],
+                                            pokeDict["nature"]),
+                                shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],
+                                            shell.teamMatesDict[member]["evs"]["def"],
+                                            shell.teamMatesDict[member]["ivs"]["def"],
+                                            shell.teamMatesDict[member]["level"],
+                                            shell.teamMatesDict[member]["nature"]), modifier) / memberHP
+                            if maxDamage < physDamage:
+                                maxDamage = physDamage
+                                # print(pokeDict["moves"][move] + ": " + str(physDamage))
+                        elif moveData["category"] == "Special":
+                            specDamage = self.calcDamage(pokeDict["level"], moveData["basePower"],
+                                shell.spaStatCalc(pokeDict["baseStats"]["spa"], pokeDict["evs"]["spa"],
+                                            pokeDict["ivs"]["spa"], pokeDict["level"],
+                                            pokeDict["nature"]),
+                                shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],
+                                            shell.teamMatesDict[member]["evs"]["spd"],
+                                            shell.teamMatesDict[member]["ivs"]["spd"],
+                                            shell.teamMatesDict[member]["level"],
+                                            shell.teamMatesDict[member]["nature"]), modifier) / memberHP
+                            if maxDamage < specDamage:
+                                maxDamage = specDamage
+                                # print(pokeDict["moves"][move] + ": " + str(specDamage))
+                if maxDamage < minDamage:
+                    minDamage = maxDamage
+            if minDamage != 1000000 and minDamage > 0.66:
+                self.threatMssngr.config(state=NORMAL)
+                if len(pokeTyping) == 1:
+                    self.threatMssngr.insert(END,"%s: \n  %s/%s/%s/%s/%s/%s\n  %s\n  Ability: %s\n  Item: %s\n  Nature: %s\n  Spread: %s/%s/%s/%s/%s/%s\n  Moveset: \n\t%s\n\t%s\n\t%s\n\t%s\n  Min Damage: %.2f%%\n  Count: %s\n\n" % (
+                         pokeDict["species"], pokeDict["baseStats"]["hp"],
+                         pokeDict["baseStats"]["atk"], pokeDict["baseStats"]["def"],
+                         pokeDict["baseStats"]["spa"], pokeDict["baseStats"]["spd"],
+                         pokeDict["baseStats"]["spe"], pokeTyping[0], pokeDict["ability"],
+                         pokeDict["item"], pokeDict["nature"], pokeDict["evs"]["hp"],
+                         pokeDict["evs"]["atk"], pokeDict["evs"]["def"], pokeDict["evs"]["spa"],
+                         pokeDict["evs"]["spd"], pokeDict["evs"]["spe"],
+                         pokeDict["moves"]["move1"], pokeDict["moves"]["move2"],
+                         pokeDict["moves"]["move3"], pokeDict["moves"]["move4"],
+                         minDamage * 100,
+                         MetaDex.findPokemonTierRawCount(pokeDict["species"], shell.tierfile)))
+                elif len(pokeTyping) == 2:
+                    self.threatMssngr.insert(END,"%s: \n  %s/%s/%s/%s/%s/%s\n  %s, %s\n  Ability: %s\n  Item: %s\n  Nature: %s\n  Spread: %s/%s/%s/%s/%s/%s\n  Moveset: \n\t%s\n\t%s\n\t%s\n\t%s\n  Min Damage: %.2f%%\n  Count: %s\n\n" % (
+                         pokeDict["species"], pokeDict["baseStats"]["hp"],
+                         pokeDict["baseStats"]["atk"], pokeDict["baseStats"]["def"],
+                         pokeDict["baseStats"]["spa"], pokeDict["baseStats"]["spd"],
+                         pokeDict["baseStats"]["spe"], pokeTyping[0], pokeTyping[1], pokeDict["ability"],
+                         pokeDict["item"], pokeDict["nature"], pokeDict["evs"]["hp"],
+                         pokeDict["evs"]["atk"], pokeDict["evs"]["def"], pokeDict["evs"]["spa"],
+                         pokeDict["evs"]["spd"], pokeDict["evs"]["spe"],
+                         pokeDict["moves"]["move1"], pokeDict["moves"]["move2"],
+                         pokeDict["moves"]["move3"], pokeDict["moves"]["move4"],
+                         minDamage * 100,
+                         MetaDex.findPokemonTierRawCount(pokeDict["species"], shell.tierfile)))
+                self.threatMssngr.config(state=DISABLED)
 
     def offTypeColor(self,typeArray,zeroDef,halfDef,twoDef):
         score = typeArray[0]-typeArray[1]-2*typeArray[2]
@@ -218,7 +599,7 @@ class TeamAnalyzer:
             for member in shell.teamMatesDict:
                 typesList = Pokedex.findPokemonTypes(member)
                 if len(typesList)==2:
-                    wriplus = self.defCombineTypes(typesList)
+                    wriplus = self.defCombineTypes(typesList,False)
                     for wType in wriplus[0]:
                         if wType == "Normal":
                             normalArray[0]+=1
@@ -959,6 +1340,8 @@ class TeamAnalyzer:
             self.fairytwoOffText.set(fairyArray[0])
             self.offTypeColor(fairyArray, self.fairyzeroOffLabel, self.fairyhalfOffLabel, self.fairytwoOffLabel)
 
+            self.checkAndCounters(shell)
+
         elif option=="stats":
             #scale=150/255
             scale=150/714
@@ -1027,10 +1410,11 @@ class TeamAnalyzer:
         else:
             print("Whoops, something went wrong with the options for the team analyzer")
 
-    def __init__(self,shell,toplevel):
-        toplevel.geometry("872x700")
-        toplevel.title("Team Analyzer")
-        offCovFrame = Frame(toplevel)
+    def __init__(self,toplevel):
+        self.toplevel=toplevel
+        self.toplevel.geometry("872x700")
+        self.toplevel.title("Team Analyzer")
+        offCovFrame = Frame(self.toplevel)
         offCovFrame.pack(side=LEFT,fill=Y)
         Label(offCovFrame, text="Offensive Coverage").grid(row=0, column=0, columnspan=11,sticky=EW)
         ttk.Separator(offCovFrame, orient=HORIZONTAL).grid(row=1, column=3, columnspan=7, sticky=EW)
@@ -1354,7 +1738,7 @@ class TeamAnalyzer:
         self.fairytwoOffLabel=Label(offCovFrame, textvariable=self.fairytwoOffText, anchor=W)
         self.fairytwoOffLabel.grid(row=21, column=9)
 
-        middleFrame = Frame(toplevel)
+        middleFrame = Frame(self.toplevel)
         middleFrame.pack(side=LEFT, fill=Y)
         Label(middleFrame,text="Physical/Special Balances").grid(row=0,column=0,columnspan=2,sticky=EW)
         Label(middleFrame,text="Offenive Balance").grid(row=1,column=0,columnspan=2,sticky=EW)
@@ -1379,7 +1763,7 @@ class TeamAnalyzer:
         advicescrollbar.grid(row=5,column=1,padx=(0,10),pady=10,sticky=NS)
         self.adviceMssngr["yscrollcommand"] = advicescrollbar.set
 
-        defCovFrame = Frame(toplevel)
+        defCovFrame = Frame(self.toplevel)
         defCovFrame.pack(side=LEFT,fill=Y)
         Label(defCovFrame, text="Defensive Coverage").grid(row=0, column=0, columnspan=15, sticky=EW)
         ttk.Separator(defCovFrame, orient=HORIZONTAL).grid(row=1, column=2, columnspan=12, sticky=EW)
@@ -1851,71 +2235,71 @@ class TeamAnalyzer:
         self.fairyfourDefLabel=Label(defCovFrame, textvariable=self.fairyfourDefText, anchor=W)
         self.fairyfourDefLabel.grid(row=21, column=13)
 
-        Label(toplevel,text="Counters").place(x=10, y=470)
-        self.counterMssngr = Text(toplevel,wrap=WORD)
+        Label(self.toplevel,text="Checks and Counters").place(x=10, y=470)
+        self.counterMssngr = Text(self.toplevel,wrap=WORD)
         self.counterMssngr.place(x=10, y=490, width=250, height=190)
-        #self.counterMssngr.config(state=DISABLED)
-        counterscrollbar = Scrollbar(toplevel,command=self.counterMssngr.yview)
+        self.counterMssngr.config(state=DISABLED)
+        counterscrollbar = Scrollbar(self.toplevel,command=self.counterMssngr.yview)
         counterscrollbar.place(x=260, y=490, height=190)
         self.counterMssngr["yscrollcommand"] = counterscrollbar.set
 
-        Label(toplevel,text="Average Team Stats").place(x=350,y=470)
-        Label(toplevel,text="HP").place(x=305,y=495)
-        Label(toplevel,text="Atk").place(x=305,y=528)
-        Label(toplevel,text="Def").place(x=305,y=561)
-        Label(toplevel,text="SpA").place(x=305,y=594)
-        Label(toplevel,text="SpD").place(x=305,y=626)
-        Label(toplevel,text="Spe").place(x=305,y=660)
+        Label(self.toplevel,text="Average Team Stats").place(x=350,y=470)
+        Label(self.toplevel,text="HP").place(x=305,y=495)
+        Label(self.toplevel,text="Atk").place(x=305,y=528)
+        Label(self.toplevel,text="Def").place(x=305,y=561)
+        Label(self.toplevel,text="SpA").place(x=305,y=594)
+        Label(self.toplevel,text="SpD").place(x=305,y=626)
+        Label(self.toplevel,text="Spe").place(x=305,y=660)
 
-        self.averageHPCanvas = Canvas(toplevel,width=150, height=20)
+        self.averageHPCanvas = Canvas(self.toplevel,width=150, height=20)
         self.averageHPCanvas.place(x=340,y=495)
         self.avHPBar=self.averageHPCanvas.create_rectangle(0, 0, 0, 20, fill="lawn green")
         self.avHP=StringVar()
         self.avHP.set(0)
-        Label(toplevel,textvariable=self.avHP).place(x=500,y=495)
+        Label(self.toplevel,textvariable=self.avHP).place(x=500,y=495)
 
-        self.averageAtkCanvas = Canvas(toplevel,width=150, height=20)
+        self.averageAtkCanvas = Canvas(self.toplevel,width=150, height=20)
         self.averageAtkCanvas.place(x=340,y=528)
         self.avAtkBar =self.averageAtkCanvas.create_rectangle(0, 0, 0, 20, fill="lawn green")
         self.avAtk = StringVar()
         self.avAtk.set(0)
-        Label(toplevel, textvariable=self.avAtk).place(x=500, y=528)
+        Label(self.toplevel, textvariable=self.avAtk).place(x=500, y=528)
 
-        self.averageDefCanvas = Canvas(toplevel,width=150, height=20)
+        self.averageDefCanvas = Canvas(self.toplevel,width=150, height=20)
         self.averageDefCanvas.place(x=340,y=561)
         self.avDefBar =self.averageDefCanvas.create_rectangle(0, 0, 0, 20, fill="lawn green")
         self.avDef = StringVar()
         self.avDef.set(0)
-        Label(toplevel, textvariable=self.avDef).place(x=500, y=561)
+        Label(self.toplevel, textvariable=self.avDef).place(x=500, y=561)
 
-        self.averageSpACanvas = Canvas(toplevel,width=150, height=20)
+        self.averageSpACanvas = Canvas(self.toplevel,width=150, height=20)
         self.averageSpACanvas.place(x=340,y=594)
         self.avSpABar =self.averageSpACanvas.create_rectangle(0, 0, 0, 20, fill="lawn green")
         self.avSpA = StringVar()
         self.avSpA.set(0)
-        Label(toplevel, textvariable=self.avSpA).place(x=500, y=594)
+        Label(self.toplevel, textvariable=self.avSpA).place(x=500, y=594)
 
-        self.averageSpDCanvas = Canvas(toplevel,width=150, height=20)
+        self.averageSpDCanvas = Canvas(self.toplevel,width=150, height=20)
         self.averageSpDCanvas.place(x=340,y=626)
         self.avSpDBar =self.averageSpDCanvas.create_rectangle(0, 0, 0, 20, fill="lawn green")
         self.avSpD = StringVar()
         self.avSpD.set(0)
-        Label(toplevel, textvariable=self.avSpD).place(x=500, y=626)
+        Label(self.toplevel, textvariable=self.avSpD).place(x=500, y=626)
 
-        self.averageSpeCanvas = Canvas(toplevel,width=150, height=20)
+        self.averageSpeCanvas = Canvas(self.toplevel,width=150, height=20)
         self.averageSpeCanvas.place(x=340,y=660)
         self.avSpeBar =self.averageSpeCanvas.create_rectangle(0, 0, 0, 20, fill="lawn green")
         self.avSpe = StringVar()
         self.avSpe.set(0)
-        Label(toplevel, textvariable=self.avSpe).place(x=500, y=660)
+        Label(self.toplevel, textvariable=self.avSpe).place(x=500, y=660)
 
-        ttk.Separator(toplevel,orient=VERTICAL).place(x=340, y=495, height=188)
+        ttk.Separator(self.toplevel,orient=VERTICAL).place(x=340, y=495, height=188)
 
-        Label(toplevel,text="Threats").place(x=805,y=470)
-        self.threatMssngr = Text(toplevel,wrap=WORD)
+        Label(self.toplevel,text="Threats").place(x=805,y=470)
+        self.threatMssngr = Text(self.toplevel,wrap=WORD)
         self.threatMssngr.place(x=600,y=490,width=250,height=190)
         self.threatMssngr.config(state=DISABLED)
-        threatscrollbar = Scrollbar(toplevel,command=self.threatMssngr.yview)
+        threatscrollbar = Scrollbar(self.toplevel,command=self.threatMssngr.yview)
         threatscrollbar.place(x=850, y=490,height=190)
         self.threatMssngr["yscrollcommand"] = threatscrollbar.set
 
@@ -1925,4 +2309,4 @@ class TeamAnalyzer:
 #TeamAnalyzer(1,tl)
 #root.mainloop()
 
-#TeamAnalyzer.defCombineTypes(["Steel","Steel"])
+#TeamAnalyzer.defCombineTypes(["Steel","Steel"],False)

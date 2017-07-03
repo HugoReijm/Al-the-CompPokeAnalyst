@@ -82,7 +82,7 @@ def checkPokedex(name):
             n = name.lower()
             nlist = list(n)
             for i in range(len(nlist)-1,-1,-1):
-                if nlist[i]==" " or nlist[i]=="-" or nlist[i]==":":
+                if nlist[i]==" " or nlist[i]=="-" or nlist[i]==":" or nlist[i]=="%" or nlist[i]=="'" or nlist[i]==".":
                     del nlist[i]
             n = "".join(nlist)
             if n in pokedex:

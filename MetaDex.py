@@ -1,4 +1,4 @@
-import json,os,threading
+import json,os,threading,Tools
 
 def synchronized(func):
     func.__lock__ = threading.Lock()
@@ -47,7 +47,7 @@ def findPokemonTierData(pokemon,tier):
     pokeList = list(pokemon)
     pokeList[0] = pokeList[0].capitalize()
     for letter in range(len(pokeList)):
-        if (pokeList[letter]==" " or pokeList[letter]=="-" or pokeList[letter]==":") and (pokemon!="Kommo-o" or pokemon!="kommo-o") and (pokemon!="Hakamo-o" or pokemon!="hakamo-o") and (pokemon!="Jangmo-o" or pokemon!="jangmo-o"):
+        if (pokeList[letter]==" " or pokeList[letter]=="-" or pokeList[letter]==":") and Tools.compress(pokemon) not in ["kommoo","hakamoo","jangmoo"]:
             pokeList[letter+1] = pokeList[letter+1].capitalize()
     pokemon = "".join(pokeList)
     data = findTierData(tier)
@@ -155,3 +155,4 @@ def findPokemonTierViabilityCeiling(pokemon, tier):
         return data["Viability Ceiling"]
     else:
         return None
+    

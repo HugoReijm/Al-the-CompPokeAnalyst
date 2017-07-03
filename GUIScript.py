@@ -12,7 +12,7 @@ def AI(shell):
 
     #chooseTier(shell)
     #CLEAR THIS
-    shell.tier = "gen7doublesou-1695"
+    shell.tier = "gen7ou-1695"
     shell.tierfile = shell.tier+".json"
 
     # Helping the User Start a New Team and Selecting First Team Member
@@ -55,7 +55,7 @@ def AI(shell):
     #switchMembers(shell)
 
     # CLEAR THIS
-    shell.teamMateNames = ["Zapdos","Landorus-Therian", "Heatran", "Ninetales-Alola", "Sandslash-Alola", "Tapu Fini"]
+    shell.teamMateNames = ["Thundurus-Therian","Rotom-Wash", "Magnezone", "Mandibuzz", "Eelektross", "Gyarados"]
 
     #TODO: oh, something interesting...apparently having multiple of the same species messes with the program, cause it then works on all individuals simultaneously
     #shell.teamMateNames = ["Blissey","Blissey","Blissey","Blissey","Blissey","Blissey"]
@@ -177,6 +177,7 @@ def AI(shell):
         shell.respond("And last but probably the most important, shininess!")
         chooseShiny(shell,poke)
 
+        shell.analyzer.threats(shell)
         if shell.teamMateNames.index(spName) < 5:
             checkMember(shell,poke)
         else:
@@ -864,9 +865,9 @@ def chooseNatureEVs(shell,poke):
                                 shell.respond(
                                     "You exceeded the limit on your total EVs. Hey, I didn't make the rules...")
                         else:
-                            shell.respond("Oh, I'm sorry, but I can't give %s %s HP EVs. Try again" % (spName, ev))
+                            shell.respond("Oh, I'm sorry, but I can't give %s %s %s EVs. Try again" % (spName, ev, string))
                     except:
-                        shell.respond("Um...how can I give %s %s HP EVs? Try again" % (spName, ev))
+                        shell.respond("Um...how can I give %s %s %s EVs? Try again" % (spName, ev, string))
             shell.respond("Your %s currently has the following IV spread." % spName)
             shell.respond("%s/%s/%s/%s/%s/%s" % (
                 shell.teamMatesDict[spName]["evs"]["hp"], shell.teamMatesDict[spName]["evs"]["atk"],

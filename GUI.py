@@ -60,7 +60,7 @@ class AL:
         elif nature in ["Bold", "Modest", "Calm", "Timid"]:
             return math.floor((math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5) * 0.9)
         else:
-            return math.floor(math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5)
+            return math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5
 
     @staticmethod
     def defStatCalc(base,evs,ivs,level,nature):
@@ -69,7 +69,7 @@ class AL:
         elif nature in ["Lonely", "Mild", "Gentle", "Hasty"]:
             return math.floor((math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5) * 0.9)
         else:
-            return math.floor(math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5)
+            return math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5
 
     @staticmethod
     def spaStatCalc(base,evs,ivs,level,nature):
@@ -78,7 +78,7 @@ class AL:
         elif nature in ["Adamant", "Impish", "Careful", "Jolly"]:
             return math.floor((math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5) * 0.9)
         else:
-            return math.floor(math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5)
+            return math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5
 
     @staticmethod
     def spdStatCalc(base,evs,ivs,level,nature):
@@ -87,7 +87,7 @@ class AL:
         elif nature in ["Naughty", "Lax", "Rash", "Naive"]:
             return math.floor((math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5) * 0.9)
         else:
-            return math.floor(math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5)
+            return math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5
 
     @staticmethod
     def speStatCalc(base,evs,ivs,level,nature):
@@ -96,7 +96,7 @@ class AL:
         elif nature in ["Brave", "Relaxed", "Quiet", "Sassy"]:
             return math.floor((math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5) * 0.9)
         else:
-            return math.floor(math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5)
+            return math.floor(((2 * base + ivs + math.floor(evs / 4)) * level) / 100) + 5
 
     @staticmethod
     def get_picture_name(icon, species):
@@ -1344,7 +1344,7 @@ class AL:
         self.the_menu.add_cascade(label="File",menu=file_menu)
 
         self.toplevel = Toplevel()
-        self.analyzer = TeamAnalyzer.TeamAnalyzer(self, self.toplevel)
+        self.analyzer = TeamAnalyzer.TeamAnalyzer(self.toplevel)
         self.toplevel.resizable(width=False,height=False)
         self.toplevel.withdraw()
 
