@@ -55,7 +55,7 @@ def AI(shell):
     #switchMembers(shell)
 
     # CLEAR THIS
-    shell.teamMateNames = ["Thundurus-Therian","Rotom-Wash", "Magnezone", "Mandibuzz", "Eelektross", "Gyarados"]
+    shell.teamMateNames = ["Thundurus-Therian","Rotom-Heat", "Magnezone", "Mandibuzz", "Aerodactyl-Mega", "Galvantula"]
 
     #TODO: oh, something interesting...apparently having multiple of the same species messes with the program, cause it then works on all individuals simultaneously
     #shell.teamMateNames = ["Blissey","Blissey","Blissey","Blissey","Blissey","Blissey"]
