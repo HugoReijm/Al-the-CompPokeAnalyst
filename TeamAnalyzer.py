@@ -761,6 +761,13 @@ class TeamAnalyzer:
             if typeArray[0] != 0:
                 twoDef.config(bg="green2")
 
+        if typeArray[2]==0:
+            zeroDef.config(bg="light grey")
+        if typeArray[1]==0:
+            halfDef.config(bg="light grey")
+        if typeArray[0]==0:
+            twoDef.config(bg="light grey")
+
     def defTypeColor(self,typeArray,zeroDef,quarterDef,halfDef,twoDef,fourDef):
         score = 2*typeArray[4]+2*typeArray[3]+typeArray[2]-typeArray[1]-2*typeArray[0]
         if score>=2:
@@ -797,7 +804,20 @@ class TeamAnalyzer:
             if typeArray[0] != 0:
                 fourDef.config(bg="orange red")
 
+        if typeArray[4]==0:
+            zeroDef.config(bg="light grey")
+        if typeArray[3]==0:
+            quarterDef.config(bg="light grey")
+        if typeArray[2]==0:
+            halfDef.config(bg="light grey")
+        if typeArray[1]==0:
+            twoDef.config(bg="light grey")
+        if typeArray[0]==0:
+            fourDef.config(bg="light grey")
+
     def update(self,shell,option):
+        self.toplevel.deiconify()
+
         if option=="species":
             normalArray = [0, 0, 0, 0, 0]
             fireArray = [0, 0, 0, 0, 0]
@@ -820,7 +840,9 @@ class TeamAnalyzer:
 
             typesDict = Pokedex.loadTypes()
 
-            for member in shell.teamMatesDict:
+            #for member in shell.teamMatesDict:
+
+            for member in shell.teamMateNames:
                 typesList = Pokedex.findPokemonTypes(member)
                 if len(typesList)==2:
                     wriplus = self.defCombineTypes(typesList,False)
@@ -1160,7 +1182,7 @@ class TeamAnalyzer:
             self.normalzeroDefText.set(normalArray[4])
             self.normalquarterDefText.set(normalArray[3])
             self.normalhalfDefText.set(normalArray[2])
-            self.normaloneDefText.set(len(shell.teamMatesDict)-normalArray[4]-normalArray[3]-normalArray[2]-normalArray[1]-normalArray[0])
+            self.normaloneDefText.set(len(shell.teamMateNames)-normalArray[4]-normalArray[3]-normalArray[2]-normalArray[1]-normalArray[0])
             self.normaltwoDefText.set(normalArray[1])
             self.normalfourDefText.set(normalArray[0])
             self.defTypeColor(normalArray,self.normalzeroDefLabel,self.normalquarterDefLabel,self.normalhalfDefLabel,self.normaltwoDefLabel,self.normalfourDefLabel)
@@ -1168,7 +1190,7 @@ class TeamAnalyzer:
             self.firezeroDefText.set(fireArray[4])
             self.firequarterDefText.set(fireArray[3])
             self.firehalfDefText.set(fireArray[2])
-            self.fireoneDefText.set(len(shell.teamMatesDict)-fireArray[4]-fireArray[3]-fireArray[2]-fireArray[1]-fireArray[0])
+            self.fireoneDefText.set(len(shell.teamMateNames)-fireArray[4]-fireArray[3]-fireArray[2]-fireArray[1]-fireArray[0])
             self.firetwoDefText.set(fireArray[1])
             self.firefourDefText.set(fireArray[0])
             self.defTypeColor(fireArray, self.firezeroDefLabel, self.firequarterDefLabel, self.firehalfDefLabel,self.firetwoDefLabel, self.firefourDefLabel)
@@ -1176,7 +1198,7 @@ class TeamAnalyzer:
             self.waterzeroDefText.set(waterArray[4])
             self.waterquarterDefText.set(waterArray[3])
             self.waterhalfDefText.set(waterArray[2])
-            self.wateroneDefText.set(len(shell.teamMatesDict)-waterArray[4]-waterArray[3]-waterArray[2]-waterArray[1]-waterArray[0])
+            self.wateroneDefText.set(len(shell.teamMateNames)-waterArray[4]-waterArray[3]-waterArray[2]-waterArray[1]-waterArray[0])
             self.watertwoDefText.set(waterArray[1])
             self.waterfourDefText.set(waterArray[0])
             self.defTypeColor(waterArray, self.waterzeroDefLabel, self.waterquarterDefLabel, self.waterhalfDefLabel,self.watertwoDefLabel, self.waterfourDefLabel)
@@ -1184,7 +1206,7 @@ class TeamAnalyzer:
             self.electriczeroDefText.set(electricArray[4])
             self.electricquarterDefText.set(electricArray[3])
             self.electrichalfDefText.set(electricArray[2])
-            self.electriconeDefText.set(len(shell.teamMatesDict)-electricArray[4]-electricArray[3]-electricArray[2]-electricArray[1]-electricArray[0])
+            self.electriconeDefText.set(len(shell.teamMateNames)-electricArray[4]-electricArray[3]-electricArray[2]-electricArray[1]-electricArray[0])
             self.electrictwoDefText.set(electricArray[1])
             self.electricfourDefText.set(electricArray[0])
             self.defTypeColor(electricArray, self.electriczeroDefLabel, self.electricquarterDefLabel, self.electrichalfDefLabel,self.electrictwoDefLabel, self.electricfourDefLabel)
@@ -1192,7 +1214,7 @@ class TeamAnalyzer:
             self.grasszeroDefText.set(grassArray[4])
             self.grassquarterDefText.set(grassArray[3])
             self.grasshalfDefText.set(grassArray[2])
-            self.grassoneDefText.set(len(shell.teamMatesDict)-grassArray[4]-grassArray[3]-grassArray[2]-grassArray[1]-grassArray[0])
+            self.grassoneDefText.set(len(shell.teamMateNames)-grassArray[4]-grassArray[3]-grassArray[2]-grassArray[1]-grassArray[0])
             self.grasstwoDefText.set(grassArray[1])
             self.electricfourDefText.set(grassArray[0])
             self.defTypeColor(grassArray, self.grasszeroDefLabel, self.grassquarterDefLabel, self.grasshalfDefLabel,self.grasstwoDefLabel, self.grassfourDefLabel)
@@ -1200,7 +1222,7 @@ class TeamAnalyzer:
             self.icezeroDefText.set(iceArray[4])
             self.icequarterDefText.set(iceArray[3])
             self.icehalfDefText.set(iceArray[2])
-            self.iceoneDefText.set(len(shell.teamMatesDict)-iceArray[4]-iceArray[3]-iceArray[2]-iceArray[1]-iceArray[0])
+            self.iceoneDefText.set(len(shell.teamMateNames)-iceArray[4]-iceArray[3]-iceArray[2]-iceArray[1]-iceArray[0])
             self.icetwoDefText.set(iceArray[1])
             self.icefourDefText.set(iceArray[0])
             self.defTypeColor(iceArray, self.icezeroDefLabel, self.icequarterDefLabel, self.icehalfDefLabel,self.icetwoDefLabel, self.icefourDefLabel)
@@ -1208,7 +1230,7 @@ class TeamAnalyzer:
             self.fightingzeroDefText.set(fightingArray[4])
             self.fightingquarterDefText.set(fightingArray[3])
             self.fightinghalfDefText.set(fightingArray[2])
-            self.fightingoneDefText.set(len(shell.teamMatesDict)-fightingArray[4]-fightingArray[3]-fightingArray[2]-fightingArray[1]-fightingArray[0])
+            self.fightingoneDefText.set(len(shell.teamMateNames)-fightingArray[4]-fightingArray[3]-fightingArray[2]-fightingArray[1]-fightingArray[0])
             self.fightingtwoDefText.set(fightingArray[1])
             self.fightingfourDefText.set(fightingArray[0])
             self.defTypeColor(fightingArray, self.fightingzeroDefLabel, self.fightingquarterDefLabel, self.fightinghalfDefLabel,self.fightingtwoDefLabel, self.fightingfourDefLabel)
@@ -1216,7 +1238,7 @@ class TeamAnalyzer:
             self.poisonzeroDefText.set(poisonArray[4])
             self.poisonquarterDefText.set(poisonArray[3])
             self.poisonhalfDefText.set(poisonArray[2])
-            self.poisononeDefText.set(len(shell.teamMatesDict)-poisonArray[4]-poisonArray[3]-poisonArray[2]-poisonArray[1]-poisonArray[0])
+            self.poisononeDefText.set(len(shell.teamMateNames)-poisonArray[4]-poisonArray[3]-poisonArray[2]-poisonArray[1]-poisonArray[0])
             self.poisontwoDefText.set(poisonArray[1])
             self.poisonfourDefText.set(poisonArray[0])
             self.defTypeColor(poisonArray, self.poisonzeroDefLabel, self.poisonquarterDefLabel, self.poisonhalfDefLabel,self.poisontwoDefLabel, self.poisonfourDefLabel)
@@ -1224,7 +1246,7 @@ class TeamAnalyzer:
             self.groundzeroDefText.set(groundArray[4])
             self.groundquarterDefText.set(groundArray[3])
             self.groundhalfDefText.set(groundArray[2])
-            self.groundoneDefText.set(len(shell.teamMatesDict)-groundArray[4]-groundArray[3]-groundArray[2]-groundArray[1]-groundArray[0])
+            self.groundoneDefText.set(len(shell.teamMateNames)-groundArray[4]-groundArray[3]-groundArray[2]-groundArray[1]-groundArray[0])
             self.groundtwoDefText.set(groundArray[1])
             self.groundfourDefText.set(groundArray[0])
             self.defTypeColor(groundArray, self.groundzeroDefLabel, self.groundquarterDefLabel, self.groundhalfDefLabel,self.groundtwoDefLabel, self.groundfourDefLabel)
@@ -1232,7 +1254,7 @@ class TeamAnalyzer:
             self.flyingzeroDefText.set(flyingArray[4])
             self.flyingquarterDefText.set(flyingArray[3])
             self.flyinghalfDefText.set(flyingArray[2])
-            self.flyingoneDefText.set(len(shell.teamMatesDict)-flyingArray[4]-flyingArray[3]-flyingArray[2]-flyingArray[1]-flyingArray[0])
+            self.flyingoneDefText.set(len(shell.teamMateNames)-flyingArray[4]-flyingArray[3]-flyingArray[2]-flyingArray[1]-flyingArray[0])
             self.flyingtwoDefText.set(flyingArray[1])
             self.flyingfourDefText.set(flyingArray[0])
             self.defTypeColor(flyingArray, self.flyingzeroDefLabel, self.flyingquarterDefLabel, self.flyinghalfDefLabel,self.flyingtwoDefLabel, self.flyingfourDefLabel)
@@ -1240,7 +1262,7 @@ class TeamAnalyzer:
             self.psychiczeroDefText.set(psychicArray[4])
             self.psychicquarterDefText.set(psychicArray[3])
             self.psychichalfDefText.set(psychicArray[2])
-            self.psychiconeDefText.set(len(shell.teamMatesDict)-psychicArray[4]-psychicArray[3]-psychicArray[2]-psychicArray[1]-psychicArray[0])
+            self.psychiconeDefText.set(len(shell.teamMateNames)-psychicArray[4]-psychicArray[3]-psychicArray[2]-psychicArray[1]-psychicArray[0])
             self.psychictwoDefText.set(psychicArray[1])
             self.psychicfourDefText.set(psychicArray[0])
             self.defTypeColor(psychicArray, self.psychiczeroDefLabel, self.psychicquarterDefLabel, self.psychichalfDefLabel,self.psychictwoDefLabel, self.psychicfourDefLabel)
@@ -1248,7 +1270,7 @@ class TeamAnalyzer:
             self.bugzeroDefText.set(bugArray[4])
             self.bugquarterDefText.set(bugArray[3])
             self.bughalfDefText.set(bugArray[2])
-            self.bugoneDefText.set(len(shell.teamMatesDict)-bugArray[4]-bugArray[3]-bugArray[2]-bugArray[1]-bugArray[0])
+            self.bugoneDefText.set(len(shell.teamMateNames)-bugArray[4]-bugArray[3]-bugArray[2]-bugArray[1]-bugArray[0])
             self.bugtwoDefText.set(bugArray[1])
             self.bugfourDefText.set(bugArray[0])
             self.defTypeColor(bugArray, self.bugzeroDefLabel, self.bugquarterDefLabel, self.bughalfDefLabel,self.bugtwoDefLabel, self.bugfourDefLabel)
@@ -1256,7 +1278,7 @@ class TeamAnalyzer:
             self.rockzeroDefText.set(rockArray[4])
             self.rockquarterDefText.set(rockArray[3])
             self.rockhalfDefText.set(rockArray[2])
-            self.rockoneDefText.set(len(shell.teamMatesDict)-rockArray[4]-rockArray[3]-rockArray[2]-rockArray[1]-rockArray[0])
+            self.rockoneDefText.set(len(shell.teamMateNames)-rockArray[4]-rockArray[3]-rockArray[2]-rockArray[1]-rockArray[0])
             self.rocktwoDefText.set(rockArray[1])
             self.rockfourDefText.set(rockArray[0])
             self.defTypeColor(rockArray, self.rockzeroDefLabel, self.rockquarterDefLabel, self.rockhalfDefLabel,self.rocktwoDefLabel, self.rockfourDefLabel)
@@ -1264,7 +1286,7 @@ class TeamAnalyzer:
             self.ghostzeroDefText.set(ghostArray[4])
             self.ghostquarterDefText.set(ghostArray[3])
             self.ghosthalfDefText.set(ghostArray[2])
-            self.ghostoneDefText.set(len(shell.teamMatesDict)-ghostArray[4]-ghostArray[3]-ghostArray[2]-ghostArray[1]-ghostArray[0])
+            self.ghostoneDefText.set(len(shell.teamMateNames)-ghostArray[4]-ghostArray[3]-ghostArray[2]-ghostArray[1]-ghostArray[0])
             self.ghosttwoDefText.set(ghostArray[1])
             self.ghostfourDefText.set(ghostArray[0])
             self.defTypeColor(ghostArray, self.ghostzeroDefLabel, self.ghostquarterDefLabel, self.ghosthalfDefLabel,self.ghosttwoDefLabel, self.ghostfourDefLabel)
@@ -1272,7 +1294,7 @@ class TeamAnalyzer:
             self.dragonzeroDefText.set(dragonArray[4])
             self.dragonquarterDefText.set(dragonArray[3])
             self.dragonhalfDefText.set(dragonArray[2])
-            self.dragononeDefText.set(len(shell.teamMatesDict)-dragonArray[4]-dragonArray[3]-dragonArray[2]-dragonArray[1]-dragonArray[0])
+            self.dragononeDefText.set(len(shell.teamMateNames)-dragonArray[4]-dragonArray[3]-dragonArray[2]-dragonArray[1]-dragonArray[0])
             self.dragontwoDefText.set(dragonArray[1])
             self.dragonfourDefText.set(dragonArray[0])
             self.defTypeColor(dragonArray, self.dragonzeroDefLabel, self.dragonquarterDefLabel, self.dragonhalfDefLabel,self.dragontwoDefLabel, self.dragonfourDefLabel)
@@ -1280,7 +1302,7 @@ class TeamAnalyzer:
             self.darkzeroDefText.set(darkArray[4])
             self.darkquarterDefText.set(darkArray[3])
             self.darkhalfDefText.set(darkArray[2])
-            self.darkoneDefText.set(len(shell.teamMatesDict)-darkArray[4]-darkArray[3]-darkArray[2]-darkArray[1]-darkArray[0])
+            self.darkoneDefText.set(len(shell.teamMateNames)-darkArray[4]-darkArray[3]-darkArray[2]-darkArray[1]-darkArray[0])
             self.darktwoDefText.set(darkArray[1])
             self.darkfourDefText.set(darkArray[0])
             self.defTypeColor(darkArray, self.darkzeroDefLabel, self.darkquarterDefLabel, self.darkhalfDefLabel,self.darktwoDefLabel, self.darkfourDefLabel)
@@ -1288,7 +1310,7 @@ class TeamAnalyzer:
             self.steelzeroDefText.set(steelArray[4])
             self.steelquarterDefText.set(steelArray[3])
             self.steelhalfDefText.set(steelArray[2])
-            self.steeloneDefText.set(len(shell.teamMatesDict)-steelArray[4]-steelArray[3]-steelArray[2]-steelArray[1]-steelArray[0])
+            self.steeloneDefText.set(len(shell.teamMateNames)-steelArray[4]-steelArray[3]-steelArray[2]-steelArray[1]-steelArray[0])
             self.steeltwoDefText.set(steelArray[1])
             self.steelfourDefText.set(steelArray[0])
             self.defTypeColor(steelArray, self.steelzeroDefLabel, self.steelquarterDefLabel, self.steelhalfDefLabel,self.steeltwoDefLabel, self.steelfourDefLabel)
@@ -1296,10 +1318,12 @@ class TeamAnalyzer:
             self.fairyzeroDefText.set(fairyArray[4])
             self.fairyquarterDefText.set(fairyArray[3])
             self.fairyhalfDefText.set(fairyArray[2])
-            self.fairyoneDefText.set(len(shell.teamMatesDict)-fairyArray[4]-fairyArray[3]-fairyArray[2]-fairyArray[1]-fairyArray[0])
+            self.fairyoneDefText.set(len(shell.teamMateNames)-fairyArray[4]-fairyArray[3]-fairyArray[2]-fairyArray[1]-fairyArray[0])
             self.fairytwoDefText.set(fairyArray[1])
             self.fairyfourDefText.set(fairyArray[0])
             self.defTypeColor(fairyArray, self.fairyzeroDefLabel, self.fairyquarterDefLabel, self.fairyhalfDefLabel,self.fairytwoDefLabel, self.fairyfourDefLabel)
+
+            #self.toplevel.deiconify()
 
         elif option=="moves":
             normalArray = [0,0,0]
@@ -1565,71 +1589,125 @@ class TeamAnalyzer:
             self.offTypeColor(fairyArray, self.fairyzeroOffLabel, self.fairyhalfOffLabel, self.fairytwoOffLabel)
 
             self.checkAndCounters(shell)
+            #self.toplevel.deiconify()
 
         elif option=="stats":
-            #scale=150/255
             scale=150/714
             sumStats = [0,0,0,0,0,0]
             #TODO: implement ivs, nature, evs, and level
-            for member in shell.teamMatesDict:
-                sumStats[0] += shell.hpStatCalc(shell.teamMatesDict[member]["baseStats"]["hp"],shell.teamMatesDict[member]["evs"]["hp"],shell.teamMatesDict[member]["ivs"]["hp"],shell.teamMatesDict[member]["level"])
-                sumStats[1] += shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],shell.teamMatesDict[member]["evs"]["atk"],shell.teamMatesDict[member]["ivs"]["atk"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                sumStats[2] += shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],shell.teamMatesDict[member]["evs"]["def"],shell.teamMatesDict[member]["ivs"]["def"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                sumStats[3] += shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],shell.teamMatesDict[member]["evs"]["spa"],shell.teamMatesDict[member]["ivs"]["spa"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                sumStats[4] += shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],shell.teamMatesDict[member]["evs"]["spd"],shell.teamMatesDict[member]["ivs"]["spd"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                sumStats[5] += shell.speStatCalc(shell.teamMatesDict[member]["baseStats"]["spe"],shell.teamMatesDict[member]["evs"]["spe"],shell.teamMatesDict[member]["ivs"]["spe"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+            if any(shell.teamMatesDict):
+                for member in shell.teamMatesDict:
+                    sumStats[0] += shell.hpStatCalc(shell.teamMatesDict[member]["baseStats"]["hp"],shell.teamMatesDict[member]["evs"]["hp"],shell.teamMatesDict[member]["ivs"]["hp"],shell.teamMatesDict[member]["level"])
+                    sumStats[1] += shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],shell.teamMatesDict[member]["evs"]["atk"],shell.teamMatesDict[member]["ivs"]["atk"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    sumStats[2] += shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],shell.teamMatesDict[member]["evs"]["def"],shell.teamMatesDict[member]["ivs"]["def"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    sumStats[3] += shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],shell.teamMatesDict[member]["evs"]["spa"],shell.teamMatesDict[member]["ivs"]["spa"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    sumStats[4] += shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],shell.teamMatesDict[member]["evs"]["spd"],shell.teamMatesDict[member]["ivs"]["spd"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    sumStats[5] += shell.speStatCalc(shell.teamMatesDict[member]["baseStats"]["spe"],shell.teamMatesDict[member]["evs"]["spe"],shell.teamMatesDict[member]["ivs"]["spe"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
 
-            self.averageHPCanvas.coords(self.avHPBar, 0, 0, int(sumStats[0]/len(shell.teamMatesDict) * scale), 20)
-            self.avHP.set(int(sumStats[0] / len(shell.teamMatesDict)))
+                self.averageHPCanvas.coords(self.avHPBar, 0, 0, int(sumStats[0] / len(shell.teamMatesDict) * scale), 20)
+                self.avHP.set(int(sumStats[0] / len(shell.teamMatesDict)))
 
-            self.averageAtkCanvas.coords(self.avAtkBar, 0, 0, int(sumStats[1]/len(shell.teamMatesDict) * scale), 20)
-            self.avAtk.set(int(sumStats[1] / len(shell.teamMatesDict)))
+                self.averageAtkCanvas.coords(self.avAtkBar, 0, 0, int(sumStats[1] / len(shell.teamMatesDict) * scale),20)
+                self.avAtk.set(int(sumStats[1] / len(shell.teamMatesDict)))
 
-            self.averageDefCanvas.coords(self.avDefBar, 0, 0, int(sumStats[2]/len(shell.teamMatesDict) * scale), 20)
-            self.avDef.set(int(sumStats[2] / len(shell.teamMatesDict)))
+                self.averageDefCanvas.coords(self.avDefBar, 0, 0, int(sumStats[2] / len(shell.teamMatesDict) * scale),20)
+                self.avDef.set(int(sumStats[2] / len(shell.teamMatesDict)))
 
-            self.averageSpACanvas.coords(self.avSpABar, 0, 0, int(sumStats[3]/len(shell.teamMatesDict) * scale), 20)
-            self.avSpA.set(int(sumStats[3] / len(shell.teamMatesDict)))
+                self.averageSpACanvas.coords(self.avSpABar, 0, 0, int(sumStats[3] / len(shell.teamMatesDict) * scale),20)
+                self.avSpA.set(int(sumStats[3] / len(shell.teamMatesDict)))
 
-            self.averageSpDCanvas.coords(self.avSpDBar, 0, 0, int(sumStats[4]/len(shell.teamMatesDict) * scale), 20)
-            self.avSpD.set(int(sumStats[4] / len(shell.teamMatesDict)))
+                self.averageSpDCanvas.coords(self.avSpDBar, 0, 0, int(sumStats[4] / len(shell.teamMatesDict) * scale),20)
+                self.avSpD.set(int(sumStats[4] / len(shell.teamMatesDict)))
 
-            self.averageSpeCanvas.coords(self.avSpeBar, 0, 0, int(sumStats[5]/len(shell.teamMatesDict) * scale), 20)
-            self.avSpe.set(int(sumStats[5] / len(shell.teamMatesDict)))
+                self.averageSpeCanvas.coords(self.avSpeBar, 0, 0, int(sumStats[5] / len(shell.teamMatesDict) * scale),20)
+                self.avSpe.set(int(sumStats[5] / len(shell.teamMatesDict)))
+            else:
+                for member in shell.teamMateNames:
+                    memberBaseStats = Pokedex.findPokemonBaseStats(member)
+                    level=100
+                    if "vgc" in shell.tier or "battlespot" in shell.tier:
+                        level=50
+                    sumStats[0] += shell.hpStatCalc(memberBaseStats["hp"],0,31,level)
+                    sumStats[1] += shell.atkStatCalc(memberBaseStats["atk"],0,31,level,"Serious")
+                    sumStats[2] += shell.defStatCalc(memberBaseStats["def"],0,31,level,"Serious")
+                    sumStats[3] += shell.spaStatCalc(memberBaseStats["spa"],0,31,level,"Serious")
+                    sumStats[4] += shell.spdStatCalc(memberBaseStats["spd"],0,31,level,"Serious")
+                    sumStats[5] += shell.speStatCalc(memberBaseStats["spe"],0,31,level,"Serious")
+
+                self.averageHPCanvas.coords(self.avHPBar, 0, 0, int(sumStats[0] / len(shell.teamMateNames) * scale),20)
+                self.avHP.set(int(sumStats[0] / len(shell.teamMateNames)))
+
+                self.averageAtkCanvas.coords(self.avAtkBar, 0, 0,int(sumStats[1] / len(shell.teamMateNames) * scale), 20)
+                self.avAtk.set(int(sumStats[1] / len(shell.teamMateNames)))
+
+                self.averageDefCanvas.coords(self.avDefBar, 0, 0,int(sumStats[2] / len(shell.teamMateNames) * scale), 20)
+                self.avDef.set(int(sumStats[2] / len(shell.teamMateNames)))
+
+                self.averageSpACanvas.coords(self.avSpABar, 0, 0,int(sumStats[3] / len(shell.teamMateNames) * scale), 20)
+                self.avSpA.set(int(sumStats[3] / len(shell.teamMateNames)))
+
+                self.averageSpDCanvas.coords(self.avSpDBar, 0, 0,int(sumStats[4] / len(shell.teamMateNames) * scale), 20)
+                self.avSpD.set(int(sumStats[4] / len(shell.teamMateNames)))
+
+                self.averageSpeCanvas.coords(self.avSpeBar, 0, 0,int(sumStats[5] / len(shell.teamMateNames) * scale), 20)
+                self.avSpe.set(int(sumStats[5] / len(shell.teamMateNames)))
+            #self.toplevel.deiconify()
 
         elif option=="physpec Offense":
             physSum=0
             specSum=0
-            for member in shell.teamMatesDict:
-                physMoveSum=0
-                specMoveSum=0
-                for move in shell.teamMatesDict[member]["moves"]:
-                    if shell.teamMatesDict[member]["moves"][move] != None:
-                        cat = Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move])
-                        if cat == "Physical":
-                            physMoveSum+=Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move])
-                        elif cat == "Special":
-                            specMoveSum+=Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move])
-                if (physMoveSum+specMoveSum)!=0:
-                    physSum+=shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],shell.teamMatesDict[member]["evs"]["atk"],shell.teamMatesDict[member]["ivs"]["atk"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])*physMoveSum/(physMoveSum+specMoveSum)
-                    specSum+=shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],shell.teamMatesDict[member]["evs"]["spa"],shell.teamMatesDict[member]["ivs"]["spa"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])*specMoveSum/(physMoveSum+specMoveSum)
-                else:
-                    physSum += shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],shell.teamMatesDict[member]["evs"]["atk"],shell.teamMatesDict[member]["ivs"]["atk"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                    specSum += shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],shell.teamMatesDict[member]["evs"]["spa"],shell.teamMatesDict[member]["ivs"]["spa"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+            if any(shell.teamMatesDict):
+                for member in shell.teamMatesDict:
+                    physMoveSum=0
+                    specMoveSum=0
+                    for move in shell.teamMatesDict[member]["moves"]:
+                        if shell.teamMatesDict[member]["moves"][move] != None:
+                            cat = Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move])
+                            if cat == "Physical":
+                                physMoveSum+=Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move])
+                            elif cat == "Special":
+                                specMoveSum+=Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move])
+                    if (physMoveSum+specMoveSum)!=0:
+                        physSum+=shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],shell.teamMatesDict[member]["evs"]["atk"],shell.teamMatesDict[member]["ivs"]["atk"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])*physMoveSum/(physMoveSum+specMoveSum)
+                        specSum+=shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],shell.teamMatesDict[member]["evs"]["spa"],shell.teamMatesDict[member]["ivs"]["spa"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])*specMoveSum/(physMoveSum+specMoveSum)
+                    else:
+                        physSum += shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],shell.teamMatesDict[member]["evs"]["atk"],shell.teamMatesDict[member]["ivs"]["atk"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                        specSum += shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],shell.teamMatesDict[member]["evs"]["spa"],shell.teamMatesDict[member]["ivs"]["spa"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+
+            else:
+                for member in shell.teamMateNames:
+                    physMoveSum=0
+                    specMoveSum=0
+                    level=100
+                    if "vgc" in shell.tier or "battlespot" in shell.tier:
+                        level=50
+                    physSum += shell.atkStatCalc(Pokedex.findPokemonBaseStats(member)["atk"],0,31,50,"Serious")
+                    specSum += shell.spaStatCalc(Pokedex.findPokemonBaseStats(member)["spa"],0,31,50,"Serious")
 
             balance=physSum/(physSum+specSum)*self.physpecOffCanvas.winfo_reqwidth()
             self.physpecOffCanvas.coords(self.physOffBar,0,0,int(balance),20)
             self.physpecOffCanvas.coords(self.specOffBar,int(balance),0,self.physpecOffCanvas.winfo_reqwidth(), 20)
+            #self.toplevel.deiconify()
 
         elif option=="physpec Defense":
             physSum = 0
             specSum = 0
-            for member in shell.teamMatesDict:
-                physSum += shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],shell.teamMatesDict[member]["evs"]["def"],shell.teamMatesDict[member]["ivs"]["def"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                specSum += shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],shell.teamMatesDict[member]["evs"]["spd"],shell.teamMatesDict[member]["ivs"]["spd"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+            if any(shell.teamMatesDict):
+                for member in shell.teamMatesDict:
+                    physSum += shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],shell.teamMatesDict[member]["evs"]["def"],shell.teamMatesDict[member]["ivs"]["def"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    specSum += shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],shell.teamMatesDict[member]["evs"]["spd"],shell.teamMatesDict[member]["ivs"]["spd"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+            else:
+                for member in shell.teamMateNames:
+                    level = 100
+                    if "vgc" in shell.tier or "battlespot" in shell.tier:
+                        level=50
+                    physSum += shell.defStatCalc(Pokedex.findPokemonBaseStats(member)["def"],0,31,level,"Serious")
+                    specSum += shell.spdStatCalc(Pokedex.findPokemonBaseStats(member)["spd"],0,31,level,"Serious")
+
             balance = physSum / (physSum + specSum) * self.physpecDefCanvas.winfo_reqwidth()
             self.physpecDefCanvas.coords(self.physOffBar, 0, 0, int(balance), 20)
             self.physpecDefCanvas.coords(self.specOffBar, int(balance), 0, self.physpecDefCanvas.winfo_reqwidth(), 20)
+            #self.toplevel.deiconify()
 
         else:
             print("Whoops, something went wrong with the options for the team analyzer")
@@ -1968,17 +2046,17 @@ class TeamAnalyzer:
         Label(middleFrame,text="Offenive Balance").grid(row=1,column=0,columnspan=2,sticky=EW)
         self.physpecOffCanvas = Canvas(middleFrame, height=20)
         self.physpecOffCanvas.grid(row=2,column=0,columnspan=2,padx=10,sticky=EW)
-        self.offBalance=50
         size=self.physpecOffCanvas.winfo_reqwidth()
-        self.physOffBar=self.physpecOffCanvas.create_rectangle(0,0,self.offBalance,20,fill="orange red")
-        self.specOffBar=self.physpecOffCanvas.create_rectangle(self.offBalance,0,size,20,fill="cornflower blue")
+        offBalance = int(size/2)
+        self.physOffBar=self.physpecOffCanvas.create_rectangle(0,0,offBalance,20,fill="orange red")
+        self.specOffBar=self.physpecOffCanvas.create_rectangle(offBalance,0,size,20,fill="cornflower blue")
 
         Label(middleFrame, text="Defensive Balance").grid(row=3,column=0,columnspan=2,sticky=EW)
         self.physpecDefCanvas = Canvas(middleFrame, height=20)
         self.physpecDefCanvas.grid(row=4,column=0,columnspan=2,padx=10,sticky=EW)
-        self.defBalance = 50
-        self.physDefBar=self.physpecDefCanvas.create_rectangle(0, 0, self.defBalance, 20, fill="orange red")
-        self.specDefBar=self.physpecDefCanvas.create_rectangle(self.defBalance, 0, size, 20, fill="cornflower blue")
+        defBalance = int(size/2)
+        self.physDefBar=self.physpecDefCanvas.create_rectangle(0, 0, defBalance, 20, fill="orange red")
+        self.specDefBar=self.physpecDefCanvas.create_rectangle(defBalance, 0, size, 20, fill="cornflower blue")
 
         self.adviceMssngr = Text(middleFrame, wrap=WORD,width=45,height=21)
         self.adviceMssngr.grid(row=5,column=0,pady=10,padx=(10,0),sticky=EW)
