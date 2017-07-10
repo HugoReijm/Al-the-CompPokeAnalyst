@@ -16,9 +16,9 @@ gen7battlespotdoubles-1630
 gen7battlespotdoubles-1760
 gen7doublesou-0
 gen7doublesou-1500
-gen7ou-0
-gen7ou-1500
 gen7doublesou-1695
 gen7doublesou-1825
+gen7ou-0
+gen7ou-1500
 gen7ou-1695
 gen7ou-1825

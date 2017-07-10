@@ -157,471 +157,59 @@ class TeamAnalyzer:
         self.counterMssngr.config(state=NORMAL)
         self.counterMssngr.delete(1.0, END)
         for poke in MetaDex.findTierData(shell.tierfile):
-            #Find necessary pokemon data
-            pokeName = Pokedex.findPokemonSpecies(poke)
-            pokeAbilities = []
-            abilities = Pokedex.findPokemonAbilities(pokeName)
-            for index in abilities:
-                pokeAbilities.append(abilities[index])
-            pokeTyping=Pokedex.findPokemonTypes(pokeName)
-            maxlevel=0
-            for member in shell.teamMatesDict:
-                if shell.teamMatesDict[member]["level"]>maxlevel:
-                    maxlevel=shell.teamMatesDict[member]["level"]
-            pokeBaseStats=[]
-            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["hp"])
-            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["atk"])
-            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["def"])
-            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spa"])
-            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spd"])
-            pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spe"])
-            pokeHP=shell.hpStatCalc(pokeBaseStats[0], 0, 31, maxlevel)
-            maxDamage = 0
-
-            for member in shell.teamMatesDict:
-                if shell.teamMatesDict[member]["ability"] == "Scrappy":
-                    combinedWRI = self.defCombineTypes(pokeTyping, True)
-                else:
-                    combinedWRI = self.defCombineTypes(pokeTyping, False)
-
-                for move in shell.teamMatesDict[member]["moves"]:
-                    if Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) != "Status":
-
-                        modifier = 1
-
-                        #Member's Ability
-                        moveType = Pokedex.findMoveType(shell.teamMatesDict[member]["moves"][move])
-                        if moveType == "Normal":
-                            if shell.teamMatesDict[member]["ability"] == "Aerilate":
-                                modifier = modifier * 1.2
-                                moveType = "Flying"
-                            elif shell.teamMatesDict[member]["ability"] == "Pixilate":
-                                modifier = modifier * 1.2
-                                moveType = "Fairy"
-                            elif shell.teamMatesDict[member]["ability"] == "Galvanize":
-                                modifier = modifier * 1.2
-                                moveType = "Electric"
-                            elif shell.teamMatesDict[member]["ability"] == "Refrigerate":
-                                modifier = modifier * 1.2
-                                moveType = "Ice"
-                        else:
-                            if shell.teamMatesDict[member]["ability"] == "Normalize":
-                                modifier = modifier * 1.2
-                                moveType = "Normal"
-
-                        if len(combinedWRI) == 3:
-                            if moveType in combinedWRI[0]:
-                                modifier = modifier * 2
-                            elif moveType in combinedWRI[1]:
-                                modifier = modifier * 0.5
-                            elif moveType in combinedWRI[2]:
-                                modifier = 0
-                            if "Wonder Guard" in pokeAbilities and shell.teamMatesDict[member]["ability"] != "Mold Breaker" and moveType not in combinedWRI[0]:
-                                modifier = 0
-                            elif ("Solid Rock" in pokeAbilities or "Filter" in pokeAbilities) and shell.teamMatesDict[member]["ability"] != "Mold Breaker" and moveType in combinedWRI[0]:
-                                modifier = modifier * 0.75
-                        elif len(combinedWRI) == 5:
-                            if moveType in combinedWRI[0]:
-                                modifier = modifier * 4
-                            elif moveType in combinedWRI[1]:
-                                modifier = modifier * 2
-                            elif moveType in combinedWRI[2]:
-                                modifier = modifier * 0.5
-                            elif moveType in combinedWRI[3]:
-                                modifier = modifier * 0.25
-                            elif moveType in combinedWRI[4]:
-                                modifier = 0
-                            if "Wonder Guard" in pokeAbilities and moveType not in combinedWRI[0] and moveType not in combinedWRI[1]:
-                                modifier = 0
-                            elif ("Solid Rock" in pokeAbilities or "Filter" in pokeAbilities) and (
-                                            moveType in combinedWRI[0] or moveType in combinedWRI[1]):
-                                modifier = modifier * 0.75
-                        else:
-                            print("Oops, something went wrong here.")
-
-                        #TODO: weather
-                        if shell.teamMatesDict[member]["ability"] != "Mold Breaker":
-                            if moveType == "Fire":
-                                if "Flash Fire" in pokeAbilities or "Primordial Sea" in pokeAbilities:
-                                    modifier = 0
-                                elif "Dry Skin" in pokeAbilities:
-                                    modifier = modifier * 1.25
-                                elif "Fluffy" in pokeAbilities:
-                                    modifier = modifier * 2
-                                elif "Thick Fat" in pokeAbilities or "Water Bubble" in pokeAbilities:
-                                    modifier = modifier * 0.5
-
-                                #for member in shell.teamMatesDict:
-                                #    for move in shell.teamMatesDict[member]["moves"]:
-                                #        if shell.teamMatesDict[member]["moves"][move] == "Rain Dain"
-                            elif moveType == "Water":
-                                if "Storm Drain" in pokeAbilities or "Water Absorb" in pokeAbilities or "Desolate Land" in pokeAbilities:
-                                    modifier = 0
-                                if shell.teamMatesDict[member]["ability"] == "Water Bubble":
-                                    modifier = modifier * 2
-                            elif moveType == "Electric" and (
-                                        "Lightning Rod" in pokeAbilities or "Volt Absorb" in pokeAbilities or "Motor Drive" in pokeAbilities):
-                                modifier = 0
-                            elif moveType == "Grass" and "Sap Sipper" in pokeAbilities:
-                                modifier = 0
-                            elif moveType == "Ice" and "Thick Fat" in pokeAbilities:
-                                modifier = modifier * 0.5
-                            elif moveType == "Ground" and "Levitate" in pokeAbilities:
-                                modifier = 0
-                            elif moveType == "Dark" and shell.teamMatesDict[member]["ability"] == "Dark Aura":
-                                if "Aura Break" in pokeAbilities:
-                                    modifier = 0.75 * modifier
-                                else:
-                                    modifier = 1.33 * modifier
-                            elif moveType == "Fairy" and shell.teamMatesDict[member]["ability"] == "Fairy Aura":
-                                if "Aura Break" in pokeAbilities:
-                                    modifier = 0.75 * modifier
-                                else:
-                                    modifier = 1.33 * modifier
-
-                        #Member's Moves
-                        if shell.teamMatesDict[member]["moves"][move] == "Knock Off":
-                            modifier = modifier * 1.5
-                        elif shell.teamMatesDict[member]["moves"][move] in ["Self-Destruct","Explosion"]:
-                            if shell.teamMatesDict[member]["ability"] != "Mold Breaker" and "Damp" in pokeAbilities:
-                                modifier = 0
-                        elif shell.teamMatesDict[member]["moves"][move] in ["Hyper Voice", "Perish Song", "Snore","Uproar"]:
-                            if shell.teamMatesDict[member]["ability"] != "Mold Breaker" and "Soundproof" in pokeAbilities:
-                                modifier = 0
-                        elif shell.teamMatesDict[member]["moves"][move] in ["Fissure", "Guillotine", "Horn Drill","Sheer Cold"]:
-                            if shell.teamMatesDict[member]["ability"] != "Mold Breaker" and "Sturdy" in pokeAbilities:
-                                modifier = 0
-                            else:
-                                modifier = 1000000
-
-                        #Member's Items
-                        if shell.teamMatesDict[member]["item"] == "Life Orb":
-                            modifier = modifier * 1.3
-                            # TODO: havent implemented Multi Attack or Judgement typing
-                        elif shell.teamMatesDict[member]["item"] in ["Silk Scarf"]:
-                            if moveType == "Normal":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Flame Plate", "Charcoal"]:
-                            if moveType == "Fire":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Splash Plate", "Mystic Water", "Sea Incense", "Wave Incense"]:
-                            if moveType == "Water":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Zap Plate", "Magnet"]:
-                            if moveType == "Electric":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Meadow Plate", "Miracle Seed", "Rose Incense"]:
-                            if moveType == "Graass":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Icicle Plate", "Never-Melt Ice"]:
-                            if moveType == "Ice":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Fist Plate", "Black Belt"]:
-                            if moveType == "Fighting":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Toxic Plate", "Poison Barb"]:
-                            if moveType == "Poison":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Earth Plate", "Soft Sand"]:
-                            if moveType == "Ground":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Sky Plate", "Sharp Beak"]:
-                            if moveType == "Flying":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Mind Plate", "Twisted Spoon", "Odd Incense"]:
-                            if moveType == "Psychic":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Insect Plate", "Silver Powder"]:
-                            if moveType == "Bug":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Stone Plate", "Hard Stone", "Rock Incense"]:
-                            if moveType == "Rock":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Spooky Plate", "Spell Tag"]:
-                            if moveType == "Ghost":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Draco Plate", "Dragon Fang"]:
-                            if moveType == "Dragon":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Dread Plate", "Black Glasses"]:
-                            if moveType == "Dark":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Iron Plate", "Metal Coat"]:
-                            if moveType == "Steel":
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["item"] in ["Pixie Plate"]:
-                            if moveType == "Fairy":
-                                modifier = modifier * 1.2
-
-                        if shell.teamMatesDict[member]["species"] == "Dialga" and shell.teamMatesDict[member]["item"] == "Adamant Orb":
-                            if moveType in ["Steel", "Dragon"]:
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["species"] == "Palkia" and shell.teamMatesDict[member]["item"] == "Lustrous Orb":
-                            if moveType in ["Water", "Dragon"]:
-                                modifier = modifier * 1.2
-                        elif "Giratina" in shell.teamMatesDict[member]["species"] and shell.teamMatesDict[member]["item"] == "Griseous Orb":
-                            if moveType in ["Ghost", "Dragon"]:
-                                modifier = modifier * 1.2
-                        elif shell.teamMatesDict[member]["species"] in ["Latios", "Latias"] and shell.teamMatesDict[member]["item"] == "Soul Dew":
-                            if moveType in ["Psychic", "Dragon"]:
-                                modifier = modifier * 1.5 * 1.2
-
-                        # TODO: contact? make sure u check out protective pads
-
-                        #Poke's Ability
-
-                        #Poke's Moves
-
-                        #Poke's Items
-                        if "eviolite" in MetaDex.findPokemonTierItems(pokeName,shell.tierfile):
-                                modifier = modifier / 1.5
-                        #elif shell.teamMatesDict[member]["species"] in ["Latios", "Latias"] and in "Soul Dew":
-                        #    if moveType in ["Psychic", "Dragon"]:
-                        #        modifier = modifier / 1.5
-
-                        #STAB
-                        if moveType in Pokedex.findPokemonTypes(member) or shell.teamMatesDict[member]["ability"]=="Protean":
-                            modifier = modifier * 1.5
-
-                        # Expected value of a uniform stochast on [0.85,1]
-                        modifier = modifier * 0.925
-
-                    #Physical/Special Split and the necessary abilities/moves/items ect.
-                    if Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) == "Physical":
-                        if shell.teamMatesDict[member]["item"] == "Choice Band":
-                            modifier = modifier * 1.5
-                        elif shell.teamMatesDict[member]["item"] == "Muscle Band":
-                            modifier = modifier * 1.1
-
-                        physDamage = self.calcDamage(shell.teamMatesDict[member]["level"],
-                            Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move]),
-                            shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],
-                                shell.teamMatesDict[member]["evs"]["atk"],
-                                shell.teamMatesDict[member]["ivs"]["atk"],
-                                shell.teamMatesDict[member]["level"],
-                                shell.teamMatesDict[member]["nature"]),
-                            shell.defStatCalc(pokeBaseStats[2], 0, 31,
-                                             shell.teamMatesDict[member]["level"], "Serious"), modifier)/pokeHP
-                        if physDamage > maxDamage:
-                            maxDamage = physDamage
-                    elif Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) == "Special":
-                        if shell.teamMatesDict[member]["item"] == "Choice Specs":
-                            modifier = modifier * 1.5
-                        elif shell.teamMatesDict[member]["item"] == "Wise Glasses":
-                            modifier = modifier * 1.1
-                        #if "assaultvest" in MetaDex.findPokemonTierItems(pokeName,shell.tierfile):
-                        #    modifier = modifier / 1.5
-
-                        specDamage = self.calcDamage(shell.teamMatesDict[member]["level"],
-                            Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move]),
-                            shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],
-                                shell.teamMatesDict[member]["evs"]["spa"],
-                                shell.teamMatesDict[member]["ivs"]["spa"],
-                                shell.teamMatesDict[member]["level"],
-                                shell.teamMatesDict[member]["nature"]),
-                            shell.spdStatCalc(pokeBaseStats[4], 0, 31,
-                                        shell.teamMatesDict[member]["level"], "Serious"), modifier)/pokeHP
-                        if specDamage > maxDamage:
-                            maxDamage = specDamage
-
-            if maxDamage < 0.33:
-                self.counterMssngr.config(state=NORMAL)
-                if len(pokeTyping)==1:
-                    self.counterMssngr.insert(END, "%s:\n  %s/%s/%s/%s/%s/%s\n  %s\n  Damage: %.2f%%\n  Count: %s\n\n" % (pokeName,pokeBaseStats[0],pokeBaseStats[1],pokeBaseStats[2],pokeBaseStats[3],pokeBaseStats[4],pokeBaseStats[5],pokeTyping[0],maxDamage * 100,MetaDex.findPokemonTierRawCount(pokeName,shell.tierfile)))
-                elif len(pokeTyping)==2:
-                    self.counterMssngr.insert(END, "%s:\n  %s/%s/%s/%s/%s/%s\n  %s, %s\n  Damage: %.2f%%\n  Count: %s\n\n" % (pokeName,pokeBaseStats[0],pokeBaseStats[1],pokeBaseStats[2],pokeBaseStats[3],pokeBaseStats[4],pokeBaseStats[5],pokeTyping[0],pokeTyping[1],maxDamage * 100,MetaDex.findPokemonTierRawCount(pokeName,shell.tierfile)))
-                self.counterMssngr.config(state=DISABLED)
-
-    def threats(self,shell):
-        self.threatMssngr.config(state=NORMAL)
-        self.threatMssngr.delete(1.0, END)
-        for poke in MetaDex.findTierData(shell.tierfile):
-            pokeDict = Tools.buildPokemon(poke, shell.tierfile)
-            pokeTyping = Pokedex.findPokemonTypes(pokeDict["species"])
-            minDamage = 1000000
-            for member in shell.teamMatesDict:
+            if MetaDex.findPokemonTierUsage(poke,shell.tierfile)>0.0095:
+                #Find necessary pokemon data
+                pokeName = Pokedex.findPokemonSpecies(poke)
+                pokeAbilities = []
+                abilities = Pokedex.findPokemonAbilities(pokeName)
+                for index in abilities:
+                    pokeAbilities.append(abilities[index])
+                pokeTyping=Pokedex.findPokemonTypes(pokeName)
+                maxlevel=0
+                for member in shell.teamMatesDict:
+                    if shell.teamMatesDict[member]["level"]>maxlevel:
+                        maxlevel=shell.teamMatesDict[member]["level"]
+                pokeBaseStats=[]
+                pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["hp"])
+                pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["atk"])
+                pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["def"])
+                pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spa"])
+                pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spd"])
+                pokeBaseStats.append(Pokedex.findPokemonBaseStats(pokeName)["spe"])
+                pokeHP=shell.hpStatCalc(pokeBaseStats[0], 0, 31, maxlevel)
                 maxDamage = 0
-                memberHP = shell.hpStatCalc(shell.teamMatesDict[member]["baseStats"]["hp"], shell.teamMatesDict[member]["evs"]["hp"],
-                                      shell.teamMatesDict[member]["ivs"]["hp"], shell.teamMatesDict[member]["level"])
-                memberTyping = Pokedex.findPokemonTypes(shell.teamMatesDict[member]["species"])
-                if pokeDict["ability"] == "scrappy":
-                    combinedWRI = self.defCombineTypes(memberTyping, True)
-                else:
-                    combinedWRI = self.defCombineTypes(memberTyping, False)
-                for move in pokeDict["moves"]:
-                    if pokeDict["moves"][move] != None:
-                        moveData = Pokedex.findMoveData(pokeDict["moves"][move])
 
-                        if moveData["category"] != "Status":
-                            moveType = moveData["type"]
+                for member in shell.teamMatesDict:
+                    if shell.teamMatesDict[member]["ability"] == "Scrappy":
+                        combinedWRI = self.defCombineTypes(pokeTyping, True)
+                    else:
+                        combinedWRI = self.defCombineTypes(pokeTyping, False)
+
+                    for move in shell.teamMatesDict[member]["moves"]:
+                        if Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) != "Status":
+
                             modifier = 1
 
-                            #Poke's Ability
+                            #Member's Ability
+                            moveType = Pokedex.findMoveType(shell.teamMatesDict[member]["moves"][move])
                             if moveType == "Normal":
-                                if pokeDict["ability"] == "aerilate":
+                                if shell.teamMatesDict[member]["ability"] == "Aerilate":
                                     modifier = modifier * 1.2
                                     moveType = "Flying"
-                                elif pokeDict["ability"] == "pixilate":
+                                elif shell.teamMatesDict[member]["ability"] == "Pixilate":
                                     modifier = modifier * 1.2
                                     moveType = "Fairy"
-                                elif pokeDict["ability"] == "galvanize":
+                                elif shell.teamMatesDict[member]["ability"] == "Galvanize":
                                     modifier = modifier * 1.2
                                     moveType = "Electric"
-                                elif pokeDict["ability"] == "refrigerate":
+                                elif shell.teamMatesDict[member]["ability"] == "Refrigerate":
                                     modifier = modifier * 1.2
                                     moveType = "Ice"
                             else:
-                                if pokeDict["ability"] == "normalize":
+                                if shell.teamMatesDict[member]["ability"] == "Normalize":
                                     modifier = modifier * 1.2
                                     moveType = "Normal"
 
-                            #TODO: weather
-                            if shell.teamMatesDict[member]["ability"] != "Mold Breaker":
-                                if moveType == "Fire":
-                                    if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
-                                        modifier = 0
-                                    elif shell.teamMatesDict[member]["ability"] in ["Thick Fat","Water Bubble","Drizzle"]:
-                                        modifier = modifier * 0.5
-                                    elif shell.teamMatesDict[member]["ability"] == "Dry Skin":
-                                        modifier = modifier * 1.25
-                                    elif shell.teamMatesDict[member]["ability"] in ["Drought","Desolate Land"]:
-                                        modifier = modifier * 1.5
-                                    elif shell.teamMatesDict[member]["ability"] == "Fluffy":
-                                        modifier = modifier * 2
-                                elif moveType == "Water":
-                                    if shell.teamMatesDict[member]["ability"] in ["Storm Drain","Water Absorb","Desolate Land"]:
-                                        modifier = 0
-                                    elif shell.teamMatesDict[member]["ability"] in ["Drought"]:
-                                        modifier = modifier*0.5
-                                    elif shell.teamMatesDict[member]["ability"] in ["Dry Skin","Primordial Sea"]:
-                                        modifier = modifier*1.5
-                                    if pokeDict["ability"] == "waterbubble":
-                                        modifier = modifier * 2
-                                elif moveType == "Electric" and shell.teamMatesDict[member]["ability"] in ["Lightning Rod","Volt Absorb","Motor Drive"]:
-                                    modifier = 0
-                                elif moveType == "Grass" and shell.teamMatesDict[member]["ability"] == "Sap Sipper":
-                                    modifier = 0
-                                elif moveType == "Ice" and shell.teamMatesDict[member]["ability"] == "Thick Fat":
-                                    modifier = modifier * 0.5
-                                elif moveType == "Ground" and shell.teamMatesDict[member]["ability"] == "Levitate":
-                                    modifier = 0
-                                elif moveType == "Dark" and pokeDict["ability"] == "darkaura":
-                                    if shell.teamMatesDict[member]["ability"] == "Aura Break":
-                                        modifier = 0.75 * modifier
-                                    else:
-                                        modifier = 1.33 * modifier
-                                elif moveType == "Fairy" and pokeDict["ability"] == "fairyaura":
-                                    if shell.teamMatesDict[member]["ability"] == "Aura Break":
-                                        modifier = 0.75 * modifier
-                                    else:
-                                        modifier = 1.33 * modifier
-
-                            if moveType in pokeTyping or pokeDict["ability"]=="protean":
-                                modifier = modifier * 1.5
-
-                            #Poke's Moves
-                            if pokeDict["moves"][move] == "knockoff":
-                                if shell.teamMatesDict[member]["item"] != None:
-                                    modifier = modifier * 1.5
-                            elif pokeDict["moves"][move] in ["selfdestruct", "explosion"]:
-                                if pokeDict["ability"] != "moldbreaker"  and shell.teamMatesDict[member]["ability"] == "Damp":
-                                    modifier = 0
-                            elif pokeDict["moves"][move] in ["hypervoice", "perishsong", "snore", "uproar"]:
-                                if pokeDict["ability"] != "moldbreaker" and shell.teamMatesDict[member]["ability"] == "Soundproof":
-                                    modifier = 0
-                            elif pokeDict["moves"][move] in ["fissure", "guillotine", "horndrill", "sheercold"]:
-                                if shell.teamMatesDict[member]["ability"] == "Sturdy" and pokeDict["ability"] != "moldbreaker":
-                                    modifier = 0
-                                else:
-                                    modifier = 1000000
-
-                            #Poke's Items
-                            if pokeDict["item"] == "lifeorb":
-                                modifier=modifier*1.3
-                                # TODO: havent implemented Multi Attack or Judgement typing
-                            elif pokeDict["item"] in ["silkscarf"]:
-                                if moveType == "Normal":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["flameplate", "charcoal"]:
-                                if moveType == "Fire":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["splashplate", "mysticwater", "seaincense", "waveincense"]:
-                                if moveType == "Water":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["zapplate", "magnet"]:
-                                if moveType == "Electric":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["meadowplate", "miracleseed", "roseincense"]:
-                                if moveType == "Graass":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["icicleplate", "nevermeltice"]:
-                                if moveType == "Ice":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["fistplate", "blackbelt"]:
-                                if moveType == "Fighting":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["toxicplate", "poisonbarb"]:
-                                if moveType == "Poison":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["earthplate", "softsand"]:
-                                if moveType == "Ground":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["skyplate", "sharpbeak"]:
-                                if moveType == "Flying":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["mindplate", "twistedspoon", "oddincense"]:
-                                if moveType == "Psychic":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["insectplate", "silverpowder"]:
-                                if moveType == "Bug":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["stoneplate", "hardstone", "rockincense"]:
-                                if moveType == "Rock":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["spookyplate", "spelltag"]:
-                                if moveType == "Ghost":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["dracoplate", "dragonfang"]:
-                                if moveType == "Dragon":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["dreadplate", "blackglasses"]:
-                                if moveType == "Dark":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["ironplate", "metalcoat"]:
-                                if moveType == "Steel":
-                                    modifier = modifier * 1.2
-                            elif pokeDict["item"] in ["pixieplate"]:
-                                if moveType == "Fairy":
-                                    modifier = modifier * 1.2
-
-                            if pokeDict["species"] == "Dialga" and pokeDict["item"] == "adamantorb":
-                                if moveType in ["Steel", "Dragon"]:
-                                    modifier = modifier * 1.2
-                            elif pokeDict["species"] == "Palkia" and pokeDict["item"] == "lustrousorb":
-                                if moveType in ["Water", "Dragon"]:
-                                    modifier = modifier * 1.2
-                            elif "Giratina" in pokeDict["species"] and pokeDict["item"] == "griseousorb":
-                                if moveType in ["Ghost", "Dragon"]:
-                                    modifier = modifier * 1.2
-                            elif pokeDict["species"] in ["Latios", "Latias"] and pokeDict["item"] == "souldew":
-                                if moveType in ["Psychic", "Dragon"]:
-                                    modifier = modifier * 1.5 * 1.2
-
-                            # TODO: contact? make sure u check out protective pads
-
-                            #Member's Abilities
-
-                            #Member's Moves
-
-                            #Member's Items
-                            if shell.teamMatesDict[member]["item"] == "Eviolite":
-                                if Pokedex.findPokemonEvos(shell.teamMatesDict[member]["species"]) != None:
-                                    modifier = modifier / 1.5
-                            #elif shell.teamMatesDict[member]["species"] in ["Latios", "Latias"] and shell.teamMatesDict[member]["item"] == "Soul Dew":
-                            #    if moveType in ["Psychic", "Dragon"]:
-                            #        modifier = modifier / 1.5
-
-                            # STAB
                             if len(combinedWRI) == 3:
                                 if moveType in combinedWRI[0]:
                                     modifier = modifier * 2
@@ -629,11 +217,9 @@ class TeamAnalyzer:
                                     modifier = modifier * 0.5
                                 elif moveType in combinedWRI[2]:
                                     modifier = 0
-                                if pokeDict["ability"] != "moldbreaker" and shell.teamMatesDict[member][
-                                    "ability"] == "Wonder Guard" and moveType not in combinedWRI[0]:
+                                if "Wonder Guard" in pokeAbilities and shell.teamMatesDict[member]["ability"] != "Mold Breaker" and moveType not in combinedWRI[0]:
                                     modifier = 0
-                                elif pokeDict["ability"] != "moldbreaker" and shell.teamMatesDict[member][
-                                    "ability"] in ["Solid Rock", "Filter"] and moveType in combinedWRI[0]:
+                                elif ("Solid Rock" in pokeAbilities or "Filter" in pokeAbilities) and shell.teamMatesDict[member]["ability"] != "Mold Breaker" and moveType in combinedWRI[0]:
                                     modifier = modifier * 0.75
                             elif len(combinedWRI) == 5:
                                 if moveType in combinedWRI[0]:
@@ -646,96 +232,583 @@ class TeamAnalyzer:
                                     modifier = modifier * 0.25
                                 elif moveType in combinedWRI[4]:
                                     modifier = 0
-                                if shell.teamMatesDict[member]["ability"] == "Wonder Guard" and moveType not in \
-                                        combinedWRI[0] and moveType not in combinedWRI[1]:
+                                if "Wonder Guard" in pokeAbilities and moveType not in combinedWRI[0] and moveType not in combinedWRI[1]:
                                     modifier = 0
-                                elif shell.teamMatesDict[member]["ability"] in ["Solid Rock", "Filter"] and (
+                                elif ("Solid Rock" in pokeAbilities or "Filter" in pokeAbilities) and (
                                                 moveType in combinedWRI[0] or moveType in combinedWRI[1]):
                                     modifier = modifier * 0.75
                             else:
                                 print("Oops, something went wrong here.")
 
+                            #TODO: weather
+                            if shell.teamMatesDict[member]["ability"] != "Mold Breaker":
+                                if moveType == "Fire":
+                                    if "Flash Fire" in pokeAbilities or "Primordial Sea" in pokeAbilities:
+                                        modifier = 0
+                                    elif "Dry Skin" in pokeAbilities:
+                                        modifier = modifier * 1.25
+                                    elif "Fluffy" in pokeAbilities:
+                                        modifier = modifier * 2
+                                    elif "Thick Fat" in pokeAbilities or "Water Bubble" in pokeAbilities:
+                                        modifier = modifier * 0.5
+
+                                    #for member in shell.teamMatesDict:
+                                    #    for move in shell.teamMatesDict[member]["moves"]:
+                                    #        if shell.teamMatesDict[member]["moves"][move] == "Rain Dain"
+                                elif moveType == "Water":
+                                    if "Storm Drain" in pokeAbilities or "Water Absorb" in pokeAbilities or "Desolate Land" in pokeAbilities:
+                                        modifier = 0
+                                    if shell.teamMatesDict[member]["ability"] == "Water Bubble":
+                                        modifier = modifier * 2
+                                elif moveType == "Electric" and (
+                                            "Lightning Rod" in pokeAbilities or "Volt Absorb" in pokeAbilities or "Motor Drive" in pokeAbilities):
+                                    modifier = 0
+                                elif moveType == "Grass" and "Sap Sipper" in pokeAbilities:
+                                    modifier = 0
+                                elif moveType == "Ice" and "Thick Fat" in pokeAbilities:
+                                    modifier = modifier * 0.5
+                                elif moveType == "Ground" and "Levitate" in pokeAbilities:
+                                    modifier = 0
+                                elif moveType == "Dark" and shell.teamMatesDict[member]["ability"] == "Dark Aura":
+                                    if "Aura Break" in pokeAbilities:
+                                        modifier = 0.75 * modifier
+                                    else:
+                                        modifier = 1.33 * modifier
+                                elif moveType == "Fairy" and shell.teamMatesDict[member]["ability"] == "Fairy Aura":
+                                    if "Aura Break" in pokeAbilities:
+                                        modifier = 0.75 * modifier
+                                    else:
+                                        modifier = 1.33 * modifier
+
+                            #Member's Moves
+                            if shell.teamMatesDict[member]["moves"][move] == "Knock Off":
+                                modifier = modifier * 1.5
+                            elif shell.teamMatesDict[member]["moves"][move] in ["Self-Destruct","Explosion"]:
+                                if shell.teamMatesDict[member]["ability"] != "Mold Breaker" and "Damp" in pokeAbilities:
+                                    modifier = 0
+                            elif shell.teamMatesDict[member]["moves"][move] in ["Hyper Voice", "Perish Song", "Snore","Uproar"]:
+                                if shell.teamMatesDict[member]["ability"] != "Mold Breaker" and "Soundproof" in pokeAbilities:
+                                    modifier = 0
+                            elif shell.teamMatesDict[member]["moves"][move] in ["Fissure", "Guillotine", "Horn Drill","Sheer Cold"]:
+                                if shell.teamMatesDict[member]["ability"] != "Mold Breaker" and "Sturdy" in pokeAbilities:
+                                    modifier = 0
+                                else:
+                                    modifier = 1000000
+
+                            #Member's Items
+                            if shell.teamMatesDict[member]["item"] == "Life Orb":
+                                modifier = modifier * 1.3
+                                # TODO: havent implemented Multi Attack or Judgement typing
+                            elif shell.teamMatesDict[member]["item"] in ["Silk Scarf"]:
+                                if moveType == "Normal":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Flame Plate", "Charcoal"]:
+                                if moveType == "Fire":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Splash Plate", "Mystic Water", "Sea Incense", "Wave Incense"]:
+                                if moveType == "Water":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Zap Plate", "Magnet"]:
+                                if moveType == "Electric":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Meadow Plate", "Miracle Seed", "Rose Incense"]:
+                                if moveType == "Graass":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Icicle Plate", "Never-Melt Ice"]:
+                                if moveType == "Ice":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Fist Plate", "Black Belt"]:
+                                if moveType == "Fighting":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Toxic Plate", "Poison Barb"]:
+                                if moveType == "Poison":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Earth Plate", "Soft Sand"]:
+                                if moveType == "Ground":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Sky Plate", "Sharp Beak"]:
+                                if moveType == "Flying":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Mind Plate", "Twisted Spoon", "Odd Incense"]:
+                                if moveType == "Psychic":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Insect Plate", "Silver Powder"]:
+                                if moveType == "Bug":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Stone Plate", "Hard Stone", "Rock Incense"]:
+                                if moveType == "Rock":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Spooky Plate", "Spell Tag"]:
+                                if moveType == "Ghost":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Draco Plate", "Dragon Fang"]:
+                                if moveType == "Dragon":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Dread Plate", "Black Glasses"]:
+                                if moveType == "Dark":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Iron Plate", "Metal Coat"]:
+                                if moveType == "Steel":
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["item"] in ["Pixie Plate"]:
+                                if moveType == "Fairy":
+                                    modifier = modifier * 1.2
+
+                            if shell.teamMatesDict[member]["species"] == "Dialga" and shell.teamMatesDict[member]["item"] == "Adamant Orb":
+                                if moveType in ["Steel", "Dragon"]:
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["species"] == "Palkia" and shell.teamMatesDict[member]["item"] == "Lustrous Orb":
+                                if moveType in ["Water", "Dragon"]:
+                                    modifier = modifier * 1.2
+                            elif "Giratina" in shell.teamMatesDict[member]["species"] and shell.teamMatesDict[member]["item"] == "Griseous Orb":
+                                if moveType in ["Ghost", "Dragon"]:
+                                    modifier = modifier * 1.2
+                            elif shell.teamMatesDict[member]["species"] in ["Latios", "Latias"] and shell.teamMatesDict[member]["item"] == "Soul Dew":
+                                if moveType in ["Psychic", "Dragon"]:
+                                    modifier = modifier * 1.5 * 1.2
+
+                            # TODO: contact? make sure u check out protective pads
+
+                            #Poke's Ability
+
+                            #Poke's Moves
+
+                            #Poke's Items
+                            if "eviolite" in MetaDex.findPokemonTierItems(pokeName,shell.tierfile):
+                                    modifier = modifier / 1.5
+                            #elif shell.teamMatesDict[member]["species"] in ["Latios", "Latias"] and in "Soul Dew":
+                            #    if moveType in ["Psychic", "Dragon"]:
+                            #        modifier = modifier / 1.5
+
+                            #STAB
+                            if moveType in Pokedex.findPokemonTypes(member) or shell.teamMatesDict[member]["ability"]=="Protean":
+                                modifier = modifier * 1.5
+
                             # Expected value of a uniform stochast on [0.85,1]
                             modifier = modifier * 0.925
 
-                        #Physical/Special Split with needed abilities/items/moves ect.
-                        if moveData["category"] == "Physical":
-                            if pokeDict["item"] == "choiceband":
-                                modifier=modifier*1.5
-                            elif pokeDict["item"] == "muscleband":
+                        #Physical/Special Split and the necessary abilities/moves/items ect.
+                        if Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) == "Physical":
+                            #Items
+                            if shell.teamMatesDict[member]["item"] == "Choice Band":
+                                modifier = modifier * 1.5
+                            elif shell.teamMatesDict[member]["item"] == "Muscle Band":
                                 modifier = modifier * 1.1
 
-                            for move in shell.teamMatesDict["moves"]:
-                                if shell.teaMatesDict["moves"][move] in ["Reflect","Aurora Veil"]:
-                                    modifier=modifier*0.5
+                            #Moves
+                            for m in shell.teamMatesDict[member]["moves"]:
+                                if shell.teamMatesDict[member]["moves"][m] in ["Bulk Up","Coil","Curse","Dragon Dance","Gear Up","Growth","Hone Claws","Howl","Meditate","Power-Up Punch","Sharpen","Shift Gear","Work Up","Acid","Leer","Tail Whip","Tickle"]:
+                                    modifier=modifier*1.5
+                                elif shell.teamMatesDict[member]["moves"][m] in ["Shell Smash","Swords Dance","Screech"]:
+                                    modifier=modifier*2
+                                elif shell.teamMatesDict[member]["moves"][m] in ["Belly Drum"]:
+                                    modifier=modifier*4
 
-                            physDamage = self.calcDamage(pokeDict["level"], moveData["basePower"],
-                                shell.atkStatCalc(pokeDict["baseStats"]["atk"], pokeDict["evs"]["atk"],
-                                            pokeDict["ivs"]["atk"], pokeDict["level"],
-                                            pokeDict["nature"]),
-                                shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],
-                                            shell.teamMatesDict[member]["evs"]["def"],
-                                            shell.teamMatesDict[member]["ivs"]["def"],
-                                            shell.teamMatesDict[member]["level"],
-                                            shell.teamMatesDict[member]["nature"]), modifier) / memberHP
-                            if maxDamage < physDamage:
+                            #Ability
+                            if shell.teamMatesDict[member]["ability"] in ["Huge Power","Pure Power"]:
+                                modifier=modifier*2
+
+                            physDamage = self.calcDamage(shell.teamMatesDict[member]["level"],
+                                Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move]),
+                                shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],
+                                    shell.teamMatesDict[member]["evs"]["atk"],
+                                    shell.teamMatesDict[member]["ivs"]["atk"],
+                                    shell.teamMatesDict[member]["level"],
+                                    shell.teamMatesDict[member]["nature"]),
+                                shell.defStatCalc(pokeBaseStats[2], 0, 31,
+                                                 shell.teamMatesDict[member]["level"], "Serious"), modifier)/pokeHP
+                            if physDamage > maxDamage:
                                 maxDamage = physDamage
-
-                        elif moveData["category"] == "Special":
-                            if pokeDict["item"] == "choicespecs":
-                                modifier=modifier*1.5
-                            elif pokeDict["item"] == "wiseglasses":
+                        elif Pokedex.findMoveCategory(shell.teamMatesDict[member]["moves"][move]) == "Special":
+                            #Items
+                            if shell.teamMatesDict[member]["item"] == "Choice Specs":
+                                modifier = modifier * 1.5
+                            elif shell.teamMatesDict[member]["item"] == "Wise Glasses":
                                 modifier = modifier * 1.1
-                            if shell.teamMatesDict[member]["item"] == "Assault Vest":
-                                modifier=modifier/1.5
 
-                            for move in shell.teamMatesDict["moves"]:
-                                if shell.teaMatesDict["moves"][move] in ["Light Screen","Aurora Veil"]:
-                                    modifier=modifier*0.5
+                            #Moves
+                            for m in shell.teamMatesDict[member]["moves"]:
+                                if shell.teamMatesDict[member]["moves"][m] in ["Calm Mind","Gear Up","Growth","Quiver Dance","Work Up","Acid"]:
+                                    modifier = modifier * 1.5
+                                elif shell.teamMatesDict[member]["moves"][m] in ["Geomancy","Nasty Plot","Shell Smash","Acid Spray","Fake Tears","Metal Sound"]:
+                                    modifier = modifier * 2
+                                elif shell.teamMatesDict[member]["moves"][m] in ["Tail Glow"]:
+                                    modifier = modifier * 2.5
 
-                            specDamage = self.calcDamage(pokeDict["level"], moveData["basePower"],
-                                shell.spaStatCalc(pokeDict["baseStats"]["spa"], pokeDict["evs"]["spa"],
-                                            pokeDict["ivs"]["spa"], pokeDict["level"],
-                                            pokeDict["nature"]),
-                                shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],
-                                            shell.teamMatesDict[member]["evs"]["spd"],
-                                            shell.teamMatesDict[member]["ivs"]["spd"],
-                                            shell.teamMatesDict[member]["level"],
-                                            shell.teamMatesDict[member]["nature"]), modifier) / memberHP
-                            if maxDamage < specDamage:
+                            #Ability
+
+                            specDamage = self.calcDamage(shell.teamMatesDict[member]["level"],
+                                Pokedex.findMoveBasePower(shell.teamMatesDict[member]["moves"][move]),
+                                shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],
+                                    shell.teamMatesDict[member]["evs"]["spa"],
+                                    shell.teamMatesDict[member]["ivs"]["spa"],
+                                    shell.teamMatesDict[member]["level"],
+                                    shell.teamMatesDict[member]["nature"]),
+                                shell.spdStatCalc(pokeBaseStats[4], 0, 31,
+                                            shell.teamMatesDict[member]["level"], "Serious"), modifier)/pokeHP
+                            if specDamage > maxDamage:
                                 maxDamage = specDamage
 
-                if maxDamage < minDamage:
-                    minDamage = maxDamage
-            if minDamage != 1000000 and minDamage > 0.66:
-                self.threatMssngr.config(state=NORMAL)
-                if len(pokeTyping) == 1:
-                    self.threatMssngr.insert(END,"%s: \n  %s/%s/%s/%s/%s/%s\n  %s\n  Ability: %s\n  Item: %s\n  Nature: %s\n  Spread: %s/%s/%s/%s/%s/%s\n  Moveset: \n\t%s\n\t%s\n\t%s\n\t%s\n  Min Damage: %.2f%%\n  Count: %s\n\n" % (
-                         pokeDict["species"], pokeDict["baseStats"]["hp"],
-                         pokeDict["baseStats"]["atk"], pokeDict["baseStats"]["def"],
-                         pokeDict["baseStats"]["spa"], pokeDict["baseStats"]["spd"],
-                         pokeDict["baseStats"]["spe"], pokeTyping[0], pokeDict["ability"],
-                         pokeDict["item"], pokeDict["nature"], pokeDict["evs"]["hp"],
-                         pokeDict["evs"]["atk"], pokeDict["evs"]["def"], pokeDict["evs"]["spa"],
-                         pokeDict["evs"]["spd"], pokeDict["evs"]["spe"],
-                         pokeDict["moves"]["move1"], pokeDict["moves"]["move2"],
-                         pokeDict["moves"]["move3"], pokeDict["moves"]["move4"],
-                         minDamage * 100,
-                         MetaDex.findPokemonTierRawCount(pokeDict["species"], shell.tierfile)))
-                elif len(pokeTyping) == 2:
-                    self.threatMssngr.insert(END,"%s: \n  %s/%s/%s/%s/%s/%s\n  %s, %s\n  Ability: %s\n  Item: %s\n  Nature: %s\n  Spread: %s/%s/%s/%s/%s/%s\n  Moveset: \n\t%s\n\t%s\n\t%s\n\t%s\n  Min Damage: %.2f%%\n  Count: %s\n\n" % (
-                         pokeDict["species"], pokeDict["baseStats"]["hp"],
-                         pokeDict["baseStats"]["atk"], pokeDict["baseStats"]["def"],
-                         pokeDict["baseStats"]["spa"], pokeDict["baseStats"]["spd"],
-                         pokeDict["baseStats"]["spe"], pokeTyping[0], pokeTyping[1], pokeDict["ability"],
-                         pokeDict["item"], pokeDict["nature"], pokeDict["evs"]["hp"],
-                         pokeDict["evs"]["atk"], pokeDict["evs"]["def"], pokeDict["evs"]["spa"],
-                         pokeDict["evs"]["spd"], pokeDict["evs"]["spe"],
-                         pokeDict["moves"]["move1"], pokeDict["moves"]["move2"],
-                         pokeDict["moves"]["move3"], pokeDict["moves"]["move4"],
-                         minDamage * 100,
-                         MetaDex.findPokemonTierRawCount(pokeDict["species"], shell.tierfile)))
-                self.threatMssngr.config(state=DISABLED)
+                if maxDamage < 0.33:
+                    self.counterMssngr.config(state=NORMAL)
+                    if len(pokeTyping)==1:
+                        self.counterMssngr.insert(END, "%s:\n  %s/%s/%s/%s/%s/%s\n  %s\n  Damage: %.2f%%\n\n" % (pokeName,pokeBaseStats[0],pokeBaseStats[1],pokeBaseStats[2],pokeBaseStats[3],pokeBaseStats[4],pokeBaseStats[5],pokeTyping[0],maxDamage * 100))
+                    elif len(pokeTyping)==2:
+                        self.counterMssngr.insert(END, "%s:\n  %s/%s/%s/%s/%s/%s\n  %s, %s\n  Damage: %.2f%%\n\n" % (pokeName,pokeBaseStats[0],pokeBaseStats[1],pokeBaseStats[2],pokeBaseStats[3],pokeBaseStats[4],pokeBaseStats[5],pokeTyping[0],pokeTyping[1],maxDamage * 100))
+                    self.counterMssngr.config(state=DISABLED)
+
+    def threats(self,shell):
+        self.threatMssngr.config(state=NORMAL)
+        self.threatMssngr.delete(1.0, END)
+        for poke in MetaDex.findTierData(shell.tierfile):
+            if MetaDex.findPokemonTierUsage(poke,shell.tierfile)>0.0095:
+                pokeDict = Tools.buildPokemon(poke, shell.tierfile)
+                pokeTyping = Pokedex.findPokemonTypes(pokeDict["species"])
+                minDamage = 1000000
+                for member in shell.teamMatesDict:
+                    maxDamage = 0
+                    memberHP = shell.hpStatCalc(shell.teamMatesDict[member]["baseStats"]["hp"], shell.teamMatesDict[member]["evs"]["hp"],
+                                          shell.teamMatesDict[member]["ivs"]["hp"], shell.teamMatesDict[member]["level"])
+                    memberTyping = Pokedex.findPokemonTypes(shell.teamMatesDict[member]["species"])
+                    if pokeDict["ability"] == "scrappy":
+                        combinedWRI = self.defCombineTypes(memberTyping, True)
+                    else:
+                        combinedWRI = self.defCombineTypes(memberTyping, False)
+                    for move in pokeDict["moves"]:
+                        if pokeDict["moves"][move] != None:
+                            moveData = Pokedex.findMoveData(pokeDict["moves"][move])
+
+                            if moveData["category"] != "Status":
+                                moveType = moveData["type"]
+                                modifier = 1
+
+                                #Poke's Ability
+                                if moveType == "Normal":
+                                    if pokeDict["ability"] == "aerilate":
+                                        modifier = modifier * 1.2
+                                        moveType = "Flying"
+                                    elif pokeDict["ability"] == "pixilate":
+                                        modifier = modifier * 1.2
+                                        moveType = "Fairy"
+                                    elif pokeDict["ability"] == "galvanize":
+                                        modifier = modifier * 1.2
+                                        moveType = "Electric"
+                                    elif pokeDict["ability"] == "refrigerate":
+                                        modifier = modifier * 1.2
+                                        moveType = "Ice"
+                                else:
+                                    if pokeDict["ability"] == "normalize":
+                                        modifier = modifier * 1.2
+                                        moveType = "Normal"
+
+                                #TODO: weather
+                                if shell.teamMatesDict[member]["ability"] != "Mold Breaker":
+                                    if moveType == "Fire":
+                                        if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
+                                            modifier = 0
+                                        elif shell.teamMatesDict[member]["ability"] in ["Thick Fat","Water Bubble","Drizzle"]:
+                                            modifier = modifier * 0.5
+                                        elif shell.teamMatesDict[member]["ability"] == "Dry Skin":
+                                            modifier = modifier * 1.25
+                                        elif shell.teamMatesDict[member]["ability"] in ["Drought","Desolate Land"]:
+                                            modifier = modifier * 1.5
+                                        elif shell.teamMatesDict[member]["ability"] == "Fluffy":
+                                            modifier = modifier * 2
+                                    elif moveType == "Water":
+                                        if shell.teamMatesDict[member]["ability"] in ["Storm Drain","Water Absorb","Desolate Land"]:
+                                            modifier = 0
+                                        elif shell.teamMatesDict[member]["ability"] in ["Drought"]:
+                                            modifier = modifier*0.5
+                                        elif shell.teamMatesDict[member]["ability"] in ["Dry Skin","Primordial Sea"]:
+                                            modifier = modifier*1.5
+                                        if pokeDict["ability"] == "waterbubble":
+                                            modifier = modifier * 2
+                                    elif moveType == "Electric" and shell.teamMatesDict[member]["ability"] in ["Lightning Rod","Volt Absorb","Motor Drive"]:
+                                        modifier = 0
+                                    elif moveType == "Grass" and shell.teamMatesDict[member]["ability"] == "Sap Sipper":
+                                        modifier = 0
+                                    elif moveType == "Ice" and shell.teamMatesDict[member]["ability"] == "Thick Fat":
+                                        modifier = modifier * 0.5
+                                    elif moveType == "Ground" and shell.teamMatesDict[member]["ability"] == "Levitate":
+                                        modifier = 0
+                                    elif moveType == "Dark" and pokeDict["ability"] == "darkaura":
+                                        if shell.teamMatesDict[member]["ability"] == "Aura Break":
+                                            modifier = 0.75 * modifier
+                                        else:
+                                            modifier = 1.33 * modifier
+                                    elif moveType == "Fairy" and pokeDict["ability"] == "fairyaura":
+                                        if shell.teamMatesDict[member]["ability"] == "Aura Break":
+                                            modifier = 0.75 * modifier
+                                        else:
+                                            modifier = 1.33 * modifier
+
+                                if moveType in pokeTyping or pokeDict["ability"]=="protean":
+                                    modifier = modifier * 1.5
+
+                                #Poke's Moves
+                                if pokeDict["moves"][move] == "knockoff":
+                                    if shell.teamMatesDict[member]["item"] != None:
+                                        modifier = modifier * 1.5
+                                elif pokeDict["moves"][move] in ["selfdestruct", "explosion"]:
+                                    if pokeDict["ability"] != "moldbreaker"  and shell.teamMatesDict[member]["ability"] == "Damp":
+                                        modifier = 0
+                                elif pokeDict["moves"][move] in ["hypervoice", "perishsong", "snore", "uproar"]:
+                                    if pokeDict["ability"] != "moldbreaker" and shell.teamMatesDict[member]["ability"] == "Soundproof":
+                                        modifier = 0
+                                elif pokeDict["moves"][move] in ["fissure", "guillotine", "horndrill", "sheercold"]:
+                                    if shell.teamMatesDict[member]["ability"] == "Sturdy" and pokeDict["ability"] != "moldbreaker":
+                                        modifier = 0
+                                    else:
+                                        modifier = 1000000
+
+                                #Poke's Items
+                                if pokeDict["item"] == "lifeorb":
+                                    modifier=modifier*1.3
+                                    # TODO: havent implemented Multi Attack or Judgement typing
+                                elif pokeDict["item"] in ["silkscarf"]:
+                                    if moveType == "Normal":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["flameplate", "charcoal"]:
+                                    if moveType == "Fire":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["splashplate", "mysticwater", "seaincense", "waveincense"]:
+                                    if moveType == "Water":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["zapplate", "magnet"]:
+                                    if moveType == "Electric":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["meadowplate", "miracleseed", "roseincense"]:
+                                    if moveType == "Graass":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["icicleplate", "nevermeltice"]:
+                                    if moveType == "Ice":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["fistplate", "blackbelt"]:
+                                    if moveType == "Fighting":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["toxicplate", "poisonbarb"]:
+                                    if moveType == "Poison":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["earthplate", "softsand"]:
+                                    if moveType == "Ground":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["skyplate", "sharpbeak"]:
+                                    if moveType == "Flying":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["mindplate", "twistedspoon", "oddincense"]:
+                                    if moveType == "Psychic":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["insectplate", "silverpowder"]:
+                                    if moveType == "Bug":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["stoneplate", "hardstone", "rockincense"]:
+                                    if moveType == "Rock":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["spookyplate", "spelltag"]:
+                                    if moveType == "Ghost":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["dracoplate", "dragonfang"]:
+                                    if moveType == "Dragon":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["dreadplate", "blackglasses"]:
+                                    if moveType == "Dark":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["ironplate", "metalcoat"]:
+                                    if moveType == "Steel":
+                                        modifier = modifier * 1.2
+                                elif pokeDict["item"] in ["pixieplate"]:
+                                    if moveType == "Fairy":
+                                        modifier = modifier * 1.2
+
+                                if pokeDict["species"] == "Dialga" and pokeDict["item"] == "adamantorb":
+                                    if moveType in ["Steel", "Dragon"]:
+                                        modifier = modifier * 1.2
+                                elif pokeDict["species"] == "Palkia" and pokeDict["item"] == "lustrousorb":
+                                    if moveType in ["Water", "Dragon"]:
+                                        modifier = modifier * 1.2
+                                elif "Giratina" in pokeDict["species"] and pokeDict["item"] == "griseousorb":
+                                    if moveType in ["Ghost", "Dragon"]:
+                                        modifier = modifier * 1.2
+                                elif pokeDict["species"] in ["Latios", "Latias"] and pokeDict["item"] == "souldew":
+                                    if moveType in ["Psychic", "Dragon"]:
+                                        modifier = modifier * 1.5 * 1.2
+
+                                # TODO: contact? make sure u check out protective pads
+
+                                #Member's Abilities
+
+                                #Member's Moves
+
+                                #Member's Items
+                                if shell.teamMatesDict[member]["item"] == "Eviolite":
+                                    if Pokedex.findPokemonEvos(shell.teamMatesDict[member]["species"]) != None:
+                                        modifier = modifier / 1.5
+                                #elif shell.teamMatesDict[member]["species"] in ["Latios", "Latias"] and shell.teamMatesDict[member]["item"] == "Soul Dew":
+                                #    if moveType in ["Psychic", "Dragon"]:
+                                #        modifier = modifier / 1.5
+
+                                # STAB
+                                if len(combinedWRI) == 3:
+                                    if moveType in combinedWRI[0]:
+                                        modifier = modifier * 2
+                                    elif moveType in combinedWRI[1]:
+                                        modifier = modifier * 0.5
+                                    elif moveType in combinedWRI[2]:
+                                        modifier = 0
+                                    if pokeDict["ability"] != "moldbreaker" and shell.teamMatesDict[member][
+                                        "ability"] == "Wonder Guard" and moveType not in combinedWRI[0]:
+                                        modifier = 0
+                                    elif pokeDict["ability"] != "moldbreaker" and shell.teamMatesDict[member][
+                                        "ability"] in ["Solid Rock", "Filter"] and moveType in combinedWRI[0]:
+                                        modifier = modifier * 0.75
+                                elif len(combinedWRI) == 5:
+                                    if moveType in combinedWRI[0]:
+                                        modifier = modifier * 4
+                                    elif moveType in combinedWRI[1]:
+                                        modifier = modifier * 2
+                                    elif moveType in combinedWRI[2]:
+                                        modifier = modifier * 0.5
+                                    elif moveType in combinedWRI[3]:
+                                        modifier = modifier * 0.25
+                                    elif moveType in combinedWRI[4]:
+                                        modifier = 0
+                                    if shell.teamMatesDict[member]["ability"] == "Wonder Guard" and moveType not in \
+                                            combinedWRI[0] and moveType not in combinedWRI[1]:
+                                        modifier = 0
+                                    elif shell.teamMatesDict[member]["ability"] in ["Solid Rock", "Filter"] and (
+                                                    moveType in combinedWRI[0] or moveType in combinedWRI[1]):
+                                        modifier = modifier * 0.75
+                                else:
+                                    print("Oops, something went wrong here.")
+
+                                # Expected value of a uniform stochast on [0.85,1]
+                                modifier = modifier * 0.925
+
+                            #Physical/Special Split with needed abilities/items/moves ect.
+                            if moveData["category"] == "Physical":
+                                #Item
+                                if pokeDict["item"] == "choiceband":
+                                    modifier=modifier*1.5
+                                elif pokeDict["item"] == "muscleband":
+                                    modifier = modifier * 1.1
+
+                                #Moves
+                                for m in pokeDict["moves"]:
+                                    if pokeDict["moves"][m] in ["bulkup", "coil", "curse",
+                                           "dragondance", "gearup", "growth",
+                                           "honeclaws", "howl", "meditate",
+                                           "poweruppunch", "sharpen",
+                                           "shiftgear", "workup","acid","leer","tailwhip","tickle"]:
+                                        modifier = modifier * 1.5
+                                    elif pokeDict["moves"][m] in ["shellsmash", "swordsdance","screech"]:
+                                        modifier = modifier * 2
+                                    elif pokeDict["moves"][m] in ["bellydrum"]:
+                                        modifier = modifier * 4
+
+                                # Ability
+                                if pokeDict["ability"] in ["hugepower", "purepower"]:
+                                    modifier = modifier * 2
+
+                                #Opponent's Item
+
+
+                                #Opponent's Moves
+                                for m in shell.teamMatesDict[member]["moves"]:
+                                    if shell.teamMatesDict[member]["moves"][m] in ["Bulk Up","Coil","Cosmic Power","Curse","Defend Order","Defense Curl","Harden","Skull Bash","Withdraw","Stockpile","Baby-Doll Eyes","Growl","Lunge","Noble Roar","Parting Shot","Play Nice","Strength Sap","Tearful Look","Tickle","Trop Kick"]:
+                                        modifier=modifier/1.5
+                                    elif shell.teamMatesDict[member]["moves"][m] in ["Acid Armor","Aurora Veil","Barrier","Iron Defense","Reflect","Charm","Feather Dance"]:
+                                        modifier=modifier/2
+                                    elif shell.teamMatesDict[member]["moves"][m] in ["Cotton Guard"]:
+                                        modifier=modifier/2.5
+
+                                #Opponent's Ability
+                                if shell.teamMatesDict[member]["ability"] in ["Stamina","Intimidate"]:
+                                    modifier=modifier/1.5
+
+                                physDamage = self.calcDamage(pokeDict["level"], moveData["basePower"],
+                                    shell.atkStatCalc(pokeDict["baseStats"]["atk"], pokeDict["evs"]["atk"],
+                                                pokeDict["ivs"]["atk"], pokeDict["level"],
+                                                pokeDict["nature"]),
+                                    shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],
+                                                shell.teamMatesDict[member]["evs"]["def"],
+                                                shell.teamMatesDict[member]["ivs"]["def"],
+                                                shell.teamMatesDict[member]["level"],
+                                                shell.teamMatesDict[member]["nature"]), modifier) / memberHP
+                                if maxDamage < physDamage:
+                                    maxDamage = physDamage
+
+                            elif moveData["category"] == "Special":
+                                #Item
+                                if pokeDict["item"] == "choicespecs":
+                                    modifier=modifier*1.5
+                                elif pokeDict["item"] == "wiseglasses":
+                                    modifier = modifier * 1.1
+
+                                # Moves
+                                for m in pokeDict["moves"]:
+                                    if pokeDict["moves"][m] in ["calmmind","gearup","growth","quiverdance","workup","acid"]:
+                                        modifier = modifier * 1.5
+                                    elif pokeDict["moves"][m] in ["geomancy", "nastyplot","shellsmash","acidspray","faketears","metalsound"]:
+                                        modifier = modifier * 2
+                                    elif pokeDict["moves"][m] in ["tailglow"]:
+                                        modifier = modifier * 2.5
+
+                                #Ability
+
+                                #Opponent's Item
+                                if shell.teamMatesDict[member]["item"] == "Assault Vest":
+                                    modifier = modifier / 1.5
+
+                                #Opponent's Moves
+                                for m in shell.teamMatesDict[member]["moves"]:
+                                    if shell.teamMatesDict[member]["moves"][m] in ["Aromatic Mist","Calm Mind","Cosmic Power","Defend Order","Quiver Dance","Stockpile","Confide","Noble Roar","Parting Shot","Snarl","Struggle Bug","Tearful Look"]:
+                                        modifier=modifier/1.5
+                                    elif shell.teamMatesDict[member]["moves"][m] in ["Amnesia","Geomancy","Light Screen","Aurora Veil","Eerie Impulse"]:
+                                        modifier=modifier/2
+
+                                #Opponent's Ability
+
+                                specDamage = self.calcDamage(pokeDict["level"], moveData["basePower"],
+                                    shell.spaStatCalc(pokeDict["baseStats"]["spa"], pokeDict["evs"]["spa"],
+                                                pokeDict["ivs"]["spa"], pokeDict["level"],
+                                                pokeDict["nature"]),
+                                    shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],
+                                                shell.teamMatesDict[member]["evs"]["spd"],
+                                                shell.teamMatesDict[member]["ivs"]["spd"],
+                                                shell.teamMatesDict[member]["level"],
+                                                shell.teamMatesDict[member]["nature"]), modifier) / memberHP
+                                if maxDamage < specDamage:
+                                    maxDamage = specDamage
+
+                    if maxDamage < minDamage:
+                        minDamage = maxDamage
+                if minDamage != 1000000 and minDamage > 0.66:
+                    self.threatMssngr.config(state=NORMAL)
+                    if len(pokeTyping) == 1:
+                        self.threatMssngr.insert(END,"%s: \n  %s/%s/%s/%s/%s/%s\n  %s\n  Ability: %s\n  Item: %s\n  Nature: %s\n  Spread: %s/%s/%s/%s/%s/%s\n  Moveset: \n\t%s\n\t%s\n\t%s\n\t%s\n  Min Damage: %.2f%%\n\n" % (
+                             pokeDict["species"], pokeDict["baseStats"]["hp"],
+                             pokeDict["baseStats"]["atk"], pokeDict["baseStats"]["def"],
+                             pokeDict["baseStats"]["spa"], pokeDict["baseStats"]["spd"],
+                             pokeDict["baseStats"]["spe"], pokeTyping[0], pokeDict["ability"],
+                             pokeDict["item"], pokeDict["nature"], pokeDict["evs"]["hp"],
+                             pokeDict["evs"]["atk"], pokeDict["evs"]["def"], pokeDict["evs"]["spa"],
+                             pokeDict["evs"]["spd"], pokeDict["evs"]["spe"],
+                             pokeDict["moves"]["move1"], pokeDict["moves"]["move2"],
+                             pokeDict["moves"]["move3"], pokeDict["moves"]["move4"],
+                             minDamage * 100))
+                    elif len(pokeTyping) == 2:
+                        self.threatMssngr.insert(END,"%s: \n  %s/%s/%s/%s/%s/%s\n  %s, %s\n  Ability: %s\n  Item: %s\n  Nature: %s\n  Spread: %s/%s/%s/%s/%s/%s\n  Moveset: \n\t%s\n\t%s\n\t%s\n\t%s\n  Min Damage: %.2f%%\n\n" % (
+                             pokeDict["species"], pokeDict["baseStats"]["hp"],
+                             pokeDict["baseStats"]["atk"], pokeDict["baseStats"]["def"],
+                             pokeDict["baseStats"]["spa"], pokeDict["baseStats"]["spd"],
+                             pokeDict["baseStats"]["spe"], pokeTyping[0], pokeTyping[1], pokeDict["ability"],
+                             pokeDict["item"], pokeDict["nature"], pokeDict["evs"]["hp"],
+                             pokeDict["evs"]["atk"], pokeDict["evs"]["def"], pokeDict["evs"]["spa"],
+                             pokeDict["evs"]["spd"], pokeDict["evs"]["spe"],
+                             pokeDict["moves"]["move1"], pokeDict["moves"]["move2"],
+                             pokeDict["moves"]["move3"], pokeDict["moves"]["move4"],
+                             minDamage * 100))
+                    self.threatMssngr.config(state=DISABLED)
 
     def offTypeColor(self,typeArray,zeroDef,halfDef,twoDef):
         score = typeArray[0]-typeArray[1]-2*typeArray[2]
@@ -762,11 +835,11 @@ class TeamAnalyzer:
                 twoDef.config(bg="green2")
 
         if typeArray[2]==0:
-            zeroDef.config(bg="light grey")
+            zeroDef.config(bg="gray95")
         if typeArray[1]==0:
-            halfDef.config(bg="light grey")
+            halfDef.config(bg="gray95")
         if typeArray[0]==0:
-            twoDef.config(bg="light grey")
+            twoDef.config(bg="gray95")
 
     def defTypeColor(self,typeArray,zeroDef,quarterDef,halfDef,twoDef,fourDef):
         score = 2*typeArray[4]+2*typeArray[3]+typeArray[2]-typeArray[1]-2*typeArray[0]
@@ -805,18 +878,19 @@ class TeamAnalyzer:
                 fourDef.config(bg="orange red")
 
         if typeArray[4]==0:
-            zeroDef.config(bg="light grey")
+            zeroDef.config(bg="gray95")
         if typeArray[3]==0:
-            quarterDef.config(bg="light grey")
+            quarterDef.config(bg="gray95")
         if typeArray[2]==0:
-            halfDef.config(bg="light grey")
+            halfDef.config(bg="gray95")
         if typeArray[1]==0:
-            twoDef.config(bg="light grey")
+            twoDef.config(bg="gray95")
         if typeArray[0]==0:
-            fourDef.config(bg="light grey")
+            fourDef.config(bg="gray95")
 
     def update(self,shell,option):
-        self.toplevel.deiconify()
+        if self.toplevel.state() in ["iconic","icon","withdrawn"]:
+            self.toplevel.deiconify()
 
         if option=="species":
             normalArray = [0, 0, 0, 0, 0]
@@ -2050,6 +2124,7 @@ class TeamAnalyzer:
         offBalance = int(size/2)
         self.physOffBar=self.physpecOffCanvas.create_rectangle(0,0,offBalance,20,fill="orange red")
         self.specOffBar=self.physpecOffCanvas.create_rectangle(offBalance,0,size,20,fill="cornflower blue")
+        self.physpecOffCanvas.create_line(size/2,0,size/2,20,fill="green2")
 
         Label(middleFrame, text="Defensive Balance").grid(row=3,column=0,columnspan=2,sticky=EW)
         self.physpecDefCanvas = Canvas(middleFrame, height=20)
@@ -2057,6 +2132,7 @@ class TeamAnalyzer:
         defBalance = int(size/2)
         self.physDefBar=self.physpecDefCanvas.create_rectangle(0, 0, defBalance, 20, fill="orange red")
         self.specDefBar=self.physpecDefCanvas.create_rectangle(defBalance, 0, size, 20, fill="cornflower blue")
+        self.physpecDefCanvas.create_line(size/2,0,size/2,20,fill="green2")
 
         self.adviceMssngr = Text(middleFrame, wrap=WORD,width=45,height=21)
         self.adviceMssngr.grid(row=5,column=0,pady=10,padx=(10,0),sticky=EW)

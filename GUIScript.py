@@ -9,60 +9,60 @@ def AI(shell):
     shell.respond("The great thing is, after we have built your team, I'll automatically export your team so you can easily import it into Pokemon Showdown, a Competitive Pokemon Battle Simulator used by hundreds of people every day!")
     shell.respond("Let's get started!")
 
-    chooseTier(shell)
+    #chooseTier(shell)
     #CLEAR THIS
-    #shell.tier = "gen7ou-1695"
-    #shell.tierfile = shell.tier+".json"
+    shell.tier = "gen7ou-1695"
+    shell.tierfile = shell.tier+".json"
 
     # Helping the User Start a New Team and Selecting First Team Member
-    firstMemberGate = False
-    while not firstMemberGate:
-        shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
-        shell.inputEvent.wait()
-        if shell.input_get in shell.yes:
-            firstMemberGate = True
-            shell.respond("Great! Innovation makes a great team!")
-        elif shell.input_get in shell.no:
-            firstMemberGate = True
-            shell.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
-            text = ""
-            for poke in Tools.rawCountTopFinds(shell.tierfile, 20):
-                pokeData = Pokedex.findPokemonData(poke[0])
-                if len(pokeData["types"]) == 1:
-                    text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
-                        pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
-                        pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
-                        pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
-                        poke[1]) + "\n\n    "
-                elif len(pokeData["types"]) == 2:
-                    text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
-                        1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
-                        pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
-                        pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
-                        pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
-            shell.respond(text[:-5])
-        else:
-            shell.respond("Um... I don't understand your response ")
-    shell.teamMateNames = []
-    teamAdder(shell)
-    shell.updateAnalyzer("species")
-    shell.updateAnalyzer("stats")
-    shell.updateAnalyzer("physpec Offense")
-    shell.updateAnalyzer("physpec Defense")
+    #firstMemberGate = False
+    #while not firstMemberGate:
+    #    shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
+    #    shell.inputEvent.wait()
+    #    if shell.input_get in shell.yes:
+    #        firstMemberGate = True
+    #        shell.respond("Great! Innovation makes a great team!")
+    #    elif shell.input_get in shell.no:
+    #        firstMemberGate = True
+    #        shell.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
+    #        text = ""
+    #        for poke in Tools.rawCountTopFinds(shell.tierfile, 20):
+    #            pokeData = Pokedex.findPokemonData(poke[0])
+    #            if len(pokeData["types"]) == 1:
+    #                text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
+    #                    pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
+    #                    pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
+    #                    pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
+    #                    poke[1]) + "\n\n    "
+    #            elif len(pokeData["types"]) == 2:
+    #                text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
+    #                    1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
+    #                    pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
+    #                    pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
+    #                    pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
+    #        shell.respond(text[:-5])
+    #    else:
+    #        shell.respond("Um... I don't understand your response ")
+    #shell.teamMateNames = []
+    #teamAdder(shell)
+    #shell.updateAnalyzer("species")
+    #shell.updateAnalyzer("stats")
+    #shell.updateAnalyzer("physpec Offense")
+    #shell.updateAnalyzer("physpec Defense")
 
     # Adding Other 5 Members
-    for i in range(5):
-        showMemberOptions(shell)
-        teamAdder(shell)
-        shell.updateAnalyzer("species")
-        shell.updateAnalyzer("stats")
-        shell.updateAnalyzer("physpec Offense")
-        shell.updateAnalyzer("physpec Defense")
+    #for i in range(5):
+    #    showMemberOptions(shell)
+    #    teamAdder(shell)
+    #    shell.updateAnalyzer("species")
+    #    shell.updateAnalyzer("stats")
+    #    shell.updateAnalyzer("physpec Offense")
+    #    shell.updateAnalyzer("physpec Defense")
 
-    switchMembers(shell)
+    #switchMembers(shell)
 
     # CLEAR THIS
-    #shell.teamMateNames = ["Thundurus-Therian","Rotom-Heat", "Magnezone", "Mandibuzz", "Aerodactyl-Mega", "Galvantula"]
+    shell.teamMateNames = ["Thundurus-Therian","Toxapex", "Charizard-Mega-X", "Skarmory", "Tapu Lele", "Dugtrio"]
 
     #TODO: oh, something interesting...apparently having multiple of the same species messes with the program, cause it then works on all individuals simultaneously
     #shell.teamMateNames = ["Blissey","Blissey","Blissey","Blissey","Blissey","Blissey"]
@@ -128,8 +128,7 @@ def AI(shell):
     shell.updateAnalyzer("stats")
     shell.updateAnalyzer("physpec Offense")
     shell.updateAnalyzer("physpec Defense")
-
-    #shell.toplevel.iconify()
+    shell.updateAnalyzer("")
 
     # Iterate Over Every Team Member
     for poke in shell.teamMatesDict:
