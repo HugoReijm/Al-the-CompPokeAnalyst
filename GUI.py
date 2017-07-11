@@ -201,6 +201,11 @@ class AL:
                 self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
                 self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
                 self.spriteCanvas.create_image(2,2, anchor=NW, image=self.spriteCanvas.spriteFile)
+            #else:
+            #    self.spriteCanvas.spriteFile = PhotoImage(file=os.path.dirname(os.path.realpath(__file__)) + "/data/images/icons/Pokeball.png")
+            #    self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
+            #    self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
+            #    self.spriteCanvas.create_image(2, 2, anchor=NW, image=self.spriteCanvas.spriteFile)
         self.speciesLabelText.set(self.current["species"])
         if self.current["species"] != None:
             types = Pokedex.findPokemonTypes(self.current["species"])

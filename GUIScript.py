@@ -1827,6 +1827,12 @@ def process_csv(shell):
 
             for last, row in isLast(logreader):
                 line = "".join(row)
+                index = len(line)-1
+                for i in range(len(line)-1,0,-1):
+                    if line[i]!=" " and line[i]!=u"\xa0":
+                        index = i+1
+                        break
+                line=line[:index]
                 if line=="":
                     members.append(member)
                     member = []
