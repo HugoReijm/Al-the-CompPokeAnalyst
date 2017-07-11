@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-import math,Pokedex,Tools,threading,os,glob,GUIScript, TeamAnalyzer
+import math,Pokedex,Tools,threading,os,glob,GUIScript,TeamAnalyzer
 import urllib.request
 
 class AL:
@@ -354,7 +354,7 @@ class AL:
             self.move4PP.set("N/A")
             self.move4Acc.set("N/A")
 
-    def update(self,name,option):
+    def update(self,option):
         if option=="types":
             self.updateAnalyzer("species")
             types = Pokedex.findPokemonTypes(self.current["species"])
@@ -769,6 +769,7 @@ class AL:
         input_field.bind("<Return>", Enter_pressed)
 
         self.teamMatesDict = {}
+        self.teamMateNames = []
         self.current = {}
         self.current["species"] = None
         self.current["ability"] = None

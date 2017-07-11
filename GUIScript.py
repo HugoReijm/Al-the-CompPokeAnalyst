@@ -1,5 +1,5 @@
 from tkinter import *
-import Pokedex, MetaDex, Tools, random, datetime, os
+import Pokedex, MetaDex, Tools, random, datetime, os, csv
 
 def AI(shell):
     shell.yes = ["Y", "y", "Yes", "yes", "YES"]
@@ -14,188 +14,259 @@ def AI(shell):
     shell.tier = "gen7ou-1695"
     shell.tierfile = shell.tier+".json"
 
-    # Helping the User Start a New Team and Selecting First Team Member
-    #firstMemberGate = False
-    #while not firstMemberGate:
-    #    shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
-    #    shell.inputEvent.wait()
-    #    if shell.input_get in shell.yes:
-    #        firstMemberGate = True
-    #        shell.respond("Great! Innovation makes a great team!")
-    #    elif shell.input_get in shell.no:
-    #        firstMemberGate = True
-    #        shell.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
-    #        text = ""
-    #        for poke in Tools.rawCountTopFinds(shell.tierfile, 20):
-    #            pokeData = Pokedex.findPokemonData(poke[0])
-    #            if len(pokeData["types"]) == 1:
-    #                text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
-    #                    pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
-    #                    pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
-    #                    pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
-    #                    poke[1]) + "\n\n    "
-    #            elif len(pokeData["types"]) == 2:
-    #                text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
-    #                    1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
-    #                    pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
-    #                    pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
-    #                    pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
-    #        shell.respond(text[:-5])
-    #    else:
-    #        shell.respond("Um... I don't understand your response ")
-    #shell.teamMateNames = []
-    #teamAdder(shell)
-    #shell.updateAnalyzer("species")
-    #shell.updateAnalyzer("stats")
-    #shell.updateAnalyzer("physpec Offense")
-    #shell.updateAnalyzer("physpec Defense")
-
-    # Adding Other 5 Members
-    #for i in range(5):
-    #    showMemberOptions(shell)
-    #    teamAdder(shell)
-    #    shell.updateAnalyzer("species")
-    #    shell.updateAnalyzer("stats")
-    #    shell.updateAnalyzer("physpec Offense")
-    #    shell.updateAnalyzer("physpec Defense")
-
-    #switchMembers(shell)
-
-    # CLEAR THIS
-    shell.teamMateNames = ["Thundurus-Therian","Toxapex", "Charizard-Mega-X", "Skarmory", "Tapu Lele", "Dugtrio"]
-
-    #TODO: oh, something interesting...apparently having multiple of the same species messes with the program, cause it then works on all individuals simultaneously
-    #shell.teamMateNames = ["Blissey","Blissey","Blissey","Blissey","Blissey","Blissey"]
-
-    # Make Dictionary with All Necessary Info
-    for member in shell.teamMateNames:
-        dict = {}
-        dict["species"] = Pokedex.findPokemonSpecies(member)
-        dict["ability"] = None
-        dict["nature"] = None
-        dict["baseStats"] = {"hp": Pokedex.findPokemonHP(member), "atk": Pokedex.findPokemonAtk(member),
-                             "def": Pokedex.findPokemonDef(member), "spa": Pokedex.findPokemonSpA(member),
-                             "spd": Pokedex.findPokemonSpD(member), "spe": Pokedex.findPokemonSpe(member)}
-        dict["ivs"] = {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
-        dict["evs"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
-        dict["item"] = None
-        dict["gender"] = None
-        if member == "Rayquaza-Mega":
-            dict["moves"] = {"move1": "Dragon Ascent", "move2": None, "move3": None, "move4": None}
-        else:
-            dict["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
-        dict["happiness"] = 255
-        if "battlespot" in shell.tier or "vgc" in shell.tier:
-            dict["level"] = 50
-        else:
-            dict["level"] = 100
-        dict["shiny"] = None
-        shell.teamMatesDict[member] = dict
-
-    pokemon1_menu = Menu(shell.the_menu, tearoff=0)
-    pokemon1_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[0]))
-    # pokemon1_menu.add_command(label="Delete",command=lambda:shell.delete(shell.teamMateNames[0]))
-    shell.the_menu.add_cascade(label=shell.teamMateNames[0], menu=pokemon1_menu)
-
-    pokemon2_menu = Menu(shell.the_menu, tearoff=0)
-    pokemon2_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[1]))
-    # pokemon2_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[1]))
-    shell.the_menu.add_cascade(label=shell.teamMateNames[1], menu=pokemon2_menu)
-
-    pokemon3_menu = Menu(shell.the_menu, tearoff=0)
-    pokemon3_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[2]))
-    # pokemon3_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[2]))
-    shell.the_menu.add_cascade(label=shell.teamMateNames[2], menu=pokemon3_menu)
-
-    pokemon4_menu = Menu(shell.the_menu, tearoff=0)
-    pokemon4_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[3]))
-    # pokemon4_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[3]))
-    shell.the_menu.add_cascade(label=shell.teamMateNames[3], menu=pokemon4_menu)
-
-    pokemon5_menu = Menu(shell.the_menu, tearoff=0)
-    pokemon5_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[4]))
-    # pokemon5_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[4]))
-    shell.the_menu.add_cascade(label=shell.teamMateNames[4], menu=pokemon5_menu)
-
-    pokemon6_menu = Menu(shell.the_menu, tearoff=0)
-    pokemon6_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[5]))
-    # pokemon6_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[5]))
-    shell.the_menu.add_cascade(label=shell.teamMateNames[5], menu=pokemon6_menu)
-
-    shell.respond("I have uploaded your team members into the panel to your left. Have a look around!")
-
-    shell.updateAnalyzer("species")
-    shell.updateAnalyzer("stats")
-    shell.updateAnalyzer("physpec Offense")
-    shell.updateAnalyzer("physpec Defense")
-    shell.updateAnalyzer("")
-
-    # Iterate Over Every Team Member
-    for poke in shell.teamMatesDict:
-        spName = shell.teamMatesDict[poke]["species"]
-        shell.switch(spName)
-        if shell.teamMateNames.index(poke) == 0:
-            shell.respond("Let's start with %s." % spName)
-        else:
-            shell.respond("Now let's take a look at %s." % spName)
-        text = ""
-        text += spName + " has the following base stats.\n    "
-        for stat in shell.teamMatesDict[poke]["baseStats"]:
-            if stat == "hp":
-                text += stat + " : " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
-            else:
-                text += stat + ": " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
-        shell.respond(text[:-5])
-
-        chooseAbility(shell,poke)
-
-        shell.respond("Now that we have that decided, let's move on to IV spreads. Remember that if you want %s to have a certain Hidden Power, you can do that here or when selecting moves." % spName)
-
-        # Choosing IVs
-        chooseIVs(shell,poke)
-
-        # Choosing Natures and EVs
-        chooseNatureEVs(shell,poke)
-
-        # Selecting Gender
-        shell.respond("Ok, now we have to change gears a little. Time to talk about your Pokemon's gender")
-        chooseGender(shell,poke)
-
-        # Show Popular Moves
-        shell.respond("Alright, now hey comes the REALLY important part: selecting moves.\tI'll show you a few of the most common moves that %s can have." % spName)
-        chooseMoves(shell,poke)
-
-        # Selecting Items
-        shell.respond("Alright, it's time to look at items.")
-        chooseItem(shell,poke)
-
-        shell.respond("We are almost done with your %s. Just a few simple things to take care of." % spName)
-
-        # Selecting Happiness
-        shell.respond("Alright, let's move on to Happiness.")
-        chooseHappiness(shell,poke)
-
-        # Selecting Level
-        shell.respond("Ok, almost there. Time to chose what level your %s should be at." % spName)
-        chooseLevel(shell,poke)
-
-        # Selecting Shininess
-        shell.respond("And last but probably the most important, shininess!")
-        chooseShiny(shell,poke)
-
-        shell.analyzer.threats(shell)
-        if shell.teamMateNames.index(spName) < 5:
-            checkMember(shell,poke)
-        else:
-            finalCheck(shell)
-            shell.respond("And we are done! You have just successfulling made your very own competitive Pokemon team!")
-            doneGate = False
-            while not doneGate:
-                shell.respond("When you are completely done, type 'Done' so I can export your team.")
+    imp = False
+    newGate = False
+    while not newGate:
+        shell.respond("Would you start a completely new team? (Y/N)")
+        shell.inputEvent.wait()
+        if shell.input_get in shell.yes:
+            newGate = True
+        elif shell.input_get in shell.no:
+            importGate = False
+            while not importGate:
+                shell.respond("Would you rather import a previously-made team? (Y/N)")
                 shell.inputEvent.wait()
-                if shell.input_get in ["Done", "done", "DONE"]:
-                    export(shell)
-                    doneGate = True
+                if shell.input_get in shell.yes:
+                    newGate = True
+                    importGate = True
+                    imp = True
+                    #print("I'm sorry, this feature has not been added yet")
+                elif shell.input_get in shell.no:
+                    importGate = True
+                else:
+                    shell.respond("Um...I'd don't understand your response.")
+        else:
+            shell.respond("Um...I'd don't understand your response.")
+
+    if imp==False:
+        # Helping the User Start a New Team and Selecting First Team Member
+        firstMemberGate = False
+        while not firstMemberGate:
+            shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
+            shell.inputEvent.wait()
+            if shell.input_get in shell.yes:
+                firstMemberGate = True
+                shell.respond("Great! Innovation makes a great team!")
+            elif shell.input_get in shell.no:
+                firstMemberGate = True
+                shell.respond("That's ok. There are plenty of Pokemon to choose from. Let me give you a few suggestions.")
+                text = ""
+                for poke in Tools.rawCountTopFinds(shell.tierfile, 20):
+                    pokeData = Pokedex.findPokemonData(poke[0])
+                    if len(pokeData["types"]) == 1:
+                        text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
+                            pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
+                            pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
+                            pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
+                            poke[1]) + "\n\n    "
+                    elif len(pokeData["types"]) == 2:
+                        text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
+                            1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
+                            pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
+                            pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
+                            pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
+                shell.respond(text[:-5])
+            else:
+                shell.respond("Um... I don't understand your response ")
+        shell.teamMateNames = []
+        teamAdder(shell)
+        shell.updateAnalyzer("species")
+        shell.updateAnalyzer("stats")
+        shell.updateAnalyzer("physpec Offense")
+        shell.updateAnalyzer("physpec Defense")
+
+        # Adding Other 5 Members
+        for i in range(5):
+            showMemberOptions(shell)
+            teamAdder(shell)
+            shell.updateAnalyzer("species")
+            shell.updateAnalyzer("stats")
+            shell.updateAnalyzer("physpec Offense")
+            shell.updateAnalyzer("physpec Defense")
+
+        switchMembers(shell)
+
+        # CLEAR THIS
+        #shell.teamMateNames = ["Thundurus-Therian","Toxapex", "Charizard-Mega-X", "Skarmory", "Tapu Lele", "Dugtrio"]
+
+        #TODO: oh, something interesting...apparently having multiple of the same species messes with the program, cause it then works on all individuals simultaneously
+        #shell.teamMateNames = ["Blissey","Blissey","Blissey","Blissey","Blissey","Blissey"]
+
+        # Make Dictionary with All Necessary Info
+        for member in shell.teamMateNames:
+            dict = {}
+            dict["species"] = Pokedex.findPokemonSpecies(member)
+            dict["ability"] = None
+            dict["nature"] = None
+            dict["baseStats"] = {"hp": Pokedex.findPokemonHP(member), "atk": Pokedex.findPokemonAtk(member),
+                                 "def": Pokedex.findPokemonDef(member), "spa": Pokedex.findPokemonSpA(member),
+                                 "spd": Pokedex.findPokemonSpD(member), "spe": Pokedex.findPokemonSpe(member)}
+            dict["ivs"] = {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
+            dict["evs"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
+            dict["item"] = None
+            dict["gender"] = None
+            if member == "Rayquaza-Mega":
+                dict["moves"] = {"move1": "Dragon Ascent", "move2": None, "move3": None, "move4": None}
+            else:
+                dict["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
+            dict["happiness"] = 255
+            if "battlespot" in shell.tier or "vgc" in shell.tier:
+                dict["level"] = 50
+            else:
+                dict["level"] = 100
+            dict["shiny"] = None
+            shell.teamMatesDict[member] = dict
+
+        pokemon1_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon1_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[0]))
+        # pokemon1_menu.add_command(label="Delete",command=lambda:shell.delete(shell.teamMateNames[0]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[0], menu=pokemon1_menu)
+
+        pokemon2_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon2_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[1]))
+        # pokemon2_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[1]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[1], menu=pokemon2_menu)
+
+        pokemon3_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon3_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[2]))
+        # pokemon3_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[2]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[2], menu=pokemon3_menu)
+
+        pokemon4_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon4_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[3]))
+        # pokemon4_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[3]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[3], menu=pokemon4_menu)
+
+        pokemon5_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon5_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[4]))
+        # pokemon5_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[4]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[4], menu=pokemon5_menu)
+
+        pokemon6_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon6_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[5]))
+        # pokemon6_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[5]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[5], menu=pokemon6_menu)
+
+        shell.respond("I have uploaded your team members into the panel to your left. Have a look around!")
+
+        shell.updateAnalyzer("species")
+        shell.updateAnalyzer("stats")
+        shell.updateAnalyzer("physpec Offense")
+        shell.updateAnalyzer("physpec Defense")
+        shell.updateAnalyzer("")
+
+        # Iterate Over Every Team Member
+        for poke in shell.teamMatesDict:
+            spName = shell.teamMatesDict[poke]["species"]
+            shell.switch(spName)
+            if shell.teamMateNames.index(poke) == 0:
+                shell.respond("Let's start with %s." % spName)
+            else:
+                shell.respond("Now let's take a look at %s." % spName)
+            text = ""
+            text += spName + " has the following base stats.\n    "
+            for stat in shell.teamMatesDict[poke]["baseStats"]:
+                if stat == "hp":
+                    text += stat + " : " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
+                else:
+                    text += stat + ": " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
+            shell.respond(text[:-5])
+
+            chooseAbility(shell,poke)
+
+            shell.respond("Now that we have that decided, let's move on to IV spreads. Remember that if you want %s to have a certain Hidden Power, you can do that here or when selecting moves." % spName)
+
+            # Choosing IVs
+            chooseIVs(shell,poke)
+
+            # Choosing Natures and EVs
+            chooseNatureEVs(shell,poke)
+
+            # Selecting Gender
+            shell.respond("Ok, now we have to change gears a little. Time to talk about your Pokemon's gender")
+            chooseGender(shell,poke)
+
+            # Show Popular Moves
+            shell.respond("Alright, now hey comes the REALLY important part: selecting moves.\tI'll show you a few of the most common moves that %s can have." % spName)
+            chooseMoves(shell,poke)
+
+            # Selecting Items
+            shell.respond("Alright, it's time to look at items.")
+            chooseItem(shell,poke)
+
+            shell.respond("We are almost done with your %s. Just a few simple things to take care of." % spName)
+
+            # Selecting Happiness
+            shell.respond("Alright, let's move on to Happiness.")
+            chooseHappiness(shell,poke)
+
+            # Selecting Level
+            shell.respond("Ok, almost there. Time to chose what level your %s should be at." % spName)
+            chooseLevel(shell,poke)
+
+            # Selecting Shininess
+            shell.respond("And last but probably the most important, shininess!")
+            chooseShiny(shell,poke)
+
+            shell.analyzer.threats(shell)
+            if shell.teamMateNames.index(spName) < 5:
+                checkMember(shell,poke)
+            else:
+                finalCheck(shell)
+                shell.respond("And we are done! You have just successfulling made your very own competitive Pokemon team!")
+                doneGate = False
+                while not doneGate:
+                    shell.respond("When you are completely done, type 'Done' so I can export your team.")
+                    shell.inputEvent.wait()
+                    if shell.input_get in ["Done", "done", "DONE"]:
+                        export(shell)
+                        doneGate = True
+    else:
+        #TODO: make sure that the team that has been imported is legal for the chosen tier
+        importTeam(shell)
+        for string in ["species","moves","stats","physpec Offense","physpec Defense","checkAndCounters","threats"]:
+            shell.updateAnalyzer(string)
+        shell.switch(shell.teamMatesDict[list(shell.teamMatesDict.keys())[0]]["species"])
+
+        pokemon1_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon1_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[0]))
+        # pokemon1_menu.add_command(label="Delete",command=lambda:shell.delete(shell.teamMateNames[0]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[0], menu=pokemon1_menu)
+
+        pokemon2_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon2_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[1]))
+        # pokemon2_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[1]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[1], menu=pokemon2_menu)
+
+        pokemon3_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon3_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[2]))
+        # pokemon3_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[2]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[2], menu=pokemon3_menu)
+
+        pokemon4_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon4_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[3]))
+        # pokemon4_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[3]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[3], menu=pokemon4_menu)
+
+        pokemon5_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon5_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[4]))
+        # pokemon5_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[4]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[4], menu=pokemon5_menu)
+
+        pokemon6_menu = Menu(shell.the_menu, tearoff=0)
+        pokemon6_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[5]))
+        # pokemon6_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[5]))
+        shell.the_menu.add_cascade(label=shell.teamMateNames[5], menu=pokemon6_menu)
+
+        finalCheck(shell)
+        shell.respond("And we are done! You have just successfulling made your very own competitive Pokemon team!")
+        doneGate = False
+        while not doneGate:
+            shell.respond("When you are completely done, type 'Done' so I can export your team.")
+            shell.inputEvent.wait()
+            if shell.input_get in ["Done", "done", "DONE"]:
+                export(shell)
+                doneGate = True
 
 def chooseTier(shell):
     # Display All Tiers Downloaded Tiers
@@ -703,7 +774,7 @@ def chooseAbility(shell,poke):
                 spName, spName))
         shell.teamMatesDict[poke]["ability"] = abilities["0"]
     shell.respond("Done! Your %s now has the ability %s" % (spName, shell.teamMatesDict[poke]["ability"]))
-    shell.update(spName, "ability")
+    shell.update("ability")
 
 def chooseIVs(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -786,7 +857,7 @@ def chooseIVs(shell,poke):
         spName, shell.teamMatesDict[spName]["ivs"]["hp"], shell.teamMatesDict[spName]["ivs"]["atk"],
         shell.teamMatesDict[spName]["ivs"]["def"], shell.teamMatesDict[spName]["ivs"]["spa"],
         shell.teamMatesDict[spName]["ivs"]["spd"], shell.teamMatesDict[spName]["ivs"]["spe"]))
-    shell.update(spName, "ivs")
+    shell.update("ivs")
 
 def chooseNatureEVs(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -822,7 +893,7 @@ def chooseNatureEVs(shell,poke):
         else:
             shell.respond("Um...that's not a defined nature, so I can't assign that to %s. Try again." % spName)
     shell.respond("Excellent, now your %s has a %s nature!" % (spName, shell.teamMatesDict[spName]["nature"]))
-    shell.update(spName, "nature")
+    shell.update("nature")
     shell.respond("And now it's time for EVs.")
     topNatureSpread = None
     for i in range(len(sortedSpreads)):
@@ -883,7 +954,7 @@ def chooseNatureEVs(shell,poke):
         spName, shell.teamMatesDict[spName]["evs"]["hp"], shell.teamMatesDict[spName]["evs"]["atk"],
         shell.teamMatesDict[spName]["evs"]["def"], shell.teamMatesDict[spName]["evs"]["spa"],
         shell.teamMatesDict[spName]["evs"]["spd"], shell.teamMatesDict[spName]["evs"]["spe"]))
-    shell.update(spName, "evs")
+    shell.update("evs")
 
 def chooseGender(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -929,7 +1000,7 @@ def chooseGender(shell,poke):
         shell.respond("Done! Your %s is now a Female!" % spName)
     else:
         shell.respond("Done! Your %s has no gender at all!" % spName)
-    shell.update(spName, "gender")
+    shell.update("gender")
 
 def chooseMoves(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1014,7 +1085,7 @@ def chooseMoves(shell,poke):
                                         shell.teamMatesDict[spName]["ivs"]["spd"] = int(maxIVList[4])
                                         shell.teamMatesDict[spName]["ivs"]["spe"] = int(maxIVList[5])
                                         moves[moveIndex-1] = resName
-                                        shell.update(spName,"ivs")
+                                        shell.update("ivs")
                                         shell.respond("I've set your IVs to be the maximum they can be and still compatible with %s.\nIf you don't like this selection, you can always change it later when you import your team into Pokemon Showdown." % resName)
                                         moveGate = True
                                     except:
@@ -1152,7 +1223,7 @@ def chooseMoves(shell,poke):
                                         shell.teamMatesDict[spName]["ivs"]["spd"] = int(maxIVList[4])
                                         shell.teamMatesDict[spName]["ivs"]["spe"] = int(maxIVList[5])
                                         moves[moves.index(flipName)] = flopName
-                                        shell.update(spName,"ivs")
+                                        shell.update("ivs")
                                         shell.respond(
                                             "I've set your IVs to be the maximum they can be and still compatible with %s.\nIf you don't like this selection, you can always change it later when you import your team into Pokemon Showdown." % flopName)
                                         flopMoveGate = True
@@ -1178,7 +1249,7 @@ def chooseMoves(shell,poke):
     shell.teamMatesDict[spName]["moves"]["move3"] = moves[2]
     shell.teamMatesDict[spName]["moves"]["move4"] = moves[3]
     shell.respond("Excellent! Your %s now has moves!" % spName)
-    shell.update(spName, "moves")
+    shell.update("moves")
 
 def chooseItem(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1273,7 +1344,7 @@ def chooseItem(shell,poke):
         shell.teamMatesDict[spName]["item"] = Pokedex.findItemName(
             list(MetaDex.findPokemonTierItems(spName, shell.tierfile).keys())[0])
     shell.respond("Excellent! Your %s is now holding a %s!" % (spName, shell.teamMatesDict[spName]["item"]))
-    shell.update(spName, "item")
+    shell.update("item")
 
 def chooseHappiness(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1295,7 +1366,7 @@ def chooseHappiness(shell,poke):
         shell.respond(
             "In your case, happiness does not affect your Pokemon at all. So I'll just set it to max, as this is it's default value. If you REALLy want to change it, you can do so later.")
         shell.teamMatesDict[spName]["happiness"] = 255
-    shell.update(spName, "happiness")
+    shell.update("happiness")
 
 def chooseLevel(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1368,7 +1439,7 @@ def chooseLevel(shell,poke):
                 except:
                     shell.respond("Um...I don't understand that response...")
     shell.respond("Excellent! Your %s is now at Level %s" % (spName, shell.teamMatesDict[spName]["level"]))
-    shell.update(spName, "level")
+    shell.update("level")
 
 def chooseShiny(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1393,7 +1464,7 @@ def chooseShiny(shell,poke):
             shell.respond("I see that your %s can not be legally shiny. Maybe one day..." % spName)
             shell.teamMatesDict[spName]["shiny"] = "No"
             shinyGate = True
-    shell.update(spName, "shiny")
+    shell.update("shiny")
 
 def checkMember(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1570,7 +1641,7 @@ def checkMember(shell,poke):
                                         "I'm sorry, but Happiness can only range between 0 and 255. Try again.")
                             except:
                                 shell.respond("Um...I don't understand your response")
-                    shell.update(spName, "happiness")
+                    shell.update("happiness")
                     finalMemberChangeGate = True
                 elif Tools.compress(shell.input_get) == "level":
                     if "battlespot" in shell.tier and "vgc" in shell.tier:
@@ -1655,25 +1726,25 @@ def export(shell):
         evStringNeeded = False
         evString = ""
         if shell.teamMatesDict[poke]["evs"]["hp"] != 0:
-            evString = evString + str(shell.teamMatesDict[poke]["evs"]["hp"]) + " HP"
+            evString = evString + str(shell.teamMatesDict[poke]["evs"]["hp"]) + " HP" + " / "
             evStringNeeded = True
         if shell.teamMatesDict[poke]["evs"]["atk"] != 0:
-            evString = evString + " / " + str(shell.teamMatesDict[poke]["evs"]["atk"]) + " Atk"
+            evString = evString + str(shell.teamMatesDict[poke]["evs"]["atk"]) + " Atk" + " / "
             evStringNeeded = True
         if shell.teamMatesDict[poke]["evs"]["def"] != 0:
-            evString = evString + " / " + str(shell.teamMatesDict[poke]["evs"]["def"]) + " Def"
+            evString = evString + str(shell.teamMatesDict[poke]["evs"]["def"]) + " Def" + " / "
             evStringNeeded = True
         if shell.teamMatesDict[poke]["evs"]["spa"] != 0:
-            evString = evString + " / " + str(shell.teamMatesDict[poke]["evs"]["spa"]) + " SpA"
+            evString = evString + str(shell.teamMatesDict[poke]["evs"]["spa"]) + " SpA" + " / "
             evStringNeeded = True
         if shell.teamMatesDict[poke]["evs"]["spd"] != 0:
-            evString = evString + " / " + str(shell.teamMatesDict[poke]["evs"]["spd"]) + " SpD"
+            evString = evString + str(shell.teamMatesDict[poke]["evs"]["spd"]) + " SpD" + " / "
             evStringNeeded = True
         if shell.teamMatesDict[poke]["evs"]["spe"] != 0:
-            evString = evString + " / " + str(shell.teamMatesDict[poke]["evs"]["spe"]) + " Spe"
+            evString = evString + str(shell.teamMatesDict[poke]["evs"]["spe"]) + " Spe" + " / "
             evStringNeeded = True
         if evStringNeeded == True:
-            file.write("EVs: " + evString + "\n")
+            file.write("EVs: " + evString[:-3] + "\n")
             # shell.respond("EVs: "+evString)
 
         file.write(shell.teamMatesDict[poke]["nature"] + " Nature\n")
@@ -1682,29 +1753,34 @@ def export(shell):
         ivStringNeeded = False
         ivString = ""
         if shell.teamMatesDict[poke]["ivs"]["hp"] != 31:
-            ivString = ivString + str(shell.teamMatesDict[poke]["ivs"]["hp"]) + " HP"
+            ivString = ivString + str(shell.teamMatesDict[poke]["ivs"]["hp"]) + " HP" + " / "
             ivStringNeeded = True
         if shell.teamMatesDict[poke]["ivs"]["atk"] != 31:
-            ivString = ivString + " / " + str(shell.teamMatesDict[poke]["ivs"]["atk"]) + " Atk"
+            ivString = ivString + str(shell.teamMatesDict[poke]["ivs"]["atk"]) + " Atk" + " / "
             ivStringNeeded = True
         if shell.teamMatesDict[poke]["ivs"]["def"] != 31:
-            ivString = ivString + " / " + str(shell.teamMatesDict[poke]["ivs"]["def"]) + " Def"
+            ivString = ivString + str(shell.teamMatesDict[poke]["ivs"]["def"]) + " Def" + " / "
             ivStringNeeded = True
         if shell.teamMatesDict[poke]["ivs"]["spa"] != 31:
-            ivString = ivString + " / " + str(shell.teamMatesDict[poke]["ivs"]["spa"]) + " SpA"
+            ivString = ivString + str(shell.teamMatesDict[poke]["ivs"]["spa"]) + " SpA" + " / "
             ivStringNeeded = True
         if shell.teamMatesDict[poke]["ivs"]["spd"] != 31:
-            ivString = ivString + " / " + str(shell.teamMatesDict[poke]["ivs"]["spd"]) + " SpD"
+            ivString = ivString + str(shell.teamMatesDict[poke]["ivs"]["spd"]) + " SpD" + " / "
             ivStringNeeded = True
         if shell.teamMatesDict[poke]["ivs"]["spe"] != 31:
-            ivString = ivString + " / " + str(shell.teamMatesDict[poke]["ivs"]["spe"]) + " Spe"
+            ivString = ivString + str(shell.teamMatesDict[poke]["ivs"]["spe"]) + " Spe" + " / "
             ivStringNeeded = True
         if ivStringNeeded == True:
-            file.write("IVs: " + ivString + "\n")
+            file.write("IVs: " + ivString[:-3] + "\n")
             # shell.respond("IVs: " + ivString)
 
         for move in ["move1", "move2", "move3", "move4"]:
             if shell.teamMatesDict[poke]["moves"][move] != None:
+                if "Hidden Power" in shell.teamMatesDict[poke]["moves"][move]:
+                    moveList=list(shell.teamMatesDict[poke]["moves"][move])
+                    moveList[13]="["+moveList[13]
+                    moveList[len(moveList)-1]=moveList[len(moveList)-1]+"]"
+                    shell.teamMatesDict[poke]["moves"][move]="".join(moveList)
                 file.write("- " + shell.teamMatesDict[poke]["moves"][move] + "\n")
                 # shell.respond("- " + teamMatesDict[poke]["moves"][move])
         file.write("\n")
@@ -1734,3 +1810,188 @@ def export(shell):
     shell.respond("If the website doesn't show the team you wish to battle with, it means that your team hasn't been validated for that format. You must then go back to the Teambuilder, select your team, and validate it for the format/tier you wish to battle in.")
     shell.respond("Alright, your all set! Just press the 'Battle!' button and have fun! Note, it may take a few moments for the servers to find you an opponent. Please be patient.")
     shell.respond("glhf! Good luck and have fun!")
+
+def isLast(itr):
+    old = itr.__next__()
+    for new in itr:
+        yield False, old
+        old = new
+    yield True, old
+
+def process_csv(shell):
+    if shell.filename:
+        with open(shell.filename, newline="") as csvfile:
+            logreader = csv.reader(csvfile,delimiter=',',quotechar='|')
+            members = []
+            member = []
+
+            for last, row in isLast(logreader):
+                line = "".join(row)
+                if line=="":
+                    members.append(member)
+                    member = []
+                elif last:
+                    member.append(line)
+                    members.append(member)
+                else:
+                    member.append(line)
+
+        for member in members:
+            dict={}
+            dict["species"] = None
+            dict["ability"] = None
+            dict["nature"] = "Serious"
+            dict["baseStats"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
+            dict["ivs"] = {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
+            dict["evs"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
+            dict["item"] = None
+            dict["gender"] = None
+            dict["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
+            dict["happiness"] = 255
+            dict["level"] = 100
+            dict["shiny"] = "No"
+
+            if " (M) " in member[0]:
+                dict["gender"]="M"
+                if "(" in member[0].split(" (M) ")[0]:
+                    dict["species"] = member[0].split(" (M) ")[0].split("(")[1][:-1]
+                else:
+                    dict["species"] = member[0].split(" (M) ")[0]
+                if " @ " in member[0]:
+                    dict["item"]=member[0].split(" @ ")[1]
+                else:
+                    dict["item"]=None
+            elif " (F) " in member[0]:
+                dict["gender"]="F"
+                if "(" in member[0].split(" (F) ")[0]:
+                    dict["species"] = member[0].split(" (F) ")[0].split("(")[1][:-1]
+                else:
+                    dict["species"] = member[0].split(" (F) ")[0]
+                if " @ " in member[0]:
+                    dict["item"]=member[0].split(" @ ")[1]
+                else:
+                    dict["item"]=None
+            else:
+                dict["gender"] = None
+                if " @ " in member[0]:
+                    if "(" in member[0].split(" @ ")[0]:
+                        dict["species"] = member[0].split(" @ ")[0].split("(")[1][:-1]
+                    else:
+                        dict["species"] = member[0].split(" @ ")[0]
+                    dict["item"]=member[0].split(" @ ")[1]
+                else:
+                    if "(" in member[0]:
+                        dict["species"] = member[0].split("(")[1][:-1]
+                    else:
+                        dict["species"] = member[0]
+                    dict["item"] = None
+
+            baseStats = Pokedex.findPokemonBaseStats(dict["species"])
+            for stat in ["hp","atk","def","spa","spd","spe"]:
+                dict["baseStats"][stat]=baseStats[stat]
+
+            for i in range(1,len(member)):
+                if "Ability" in member[i]:
+                    dict["ability"]=member[i][9:]
+                elif "Level" in member[i]:
+                    try:
+                        dict["level"]=int(member[i][7:])
+                    except:
+                        if "vgc" in shell.tier or "battlespot" in shell.tier:
+                            dict["level"]=50
+                        else:
+                            dict["level"]=100
+                elif "Happiness" in member[i]:
+                    try:
+                        dict["happiness"]=int(member[3][11:])
+                    except:
+                        dict["happiness"]=255
+                elif "Shiny" in member[i]:
+                    dict["shiny"]="Yes"
+                elif "EVs:" in member[i]:
+                    evArray = member[i][5:].split(" / ")
+                    for e in evArray:
+                        if "HP" in e:
+                            try:
+                                dict["evs"]["hp"]=int(e[:-3])
+                            except:
+                                dict["evs"]["hp"]=0
+                        elif "Atk" in e:
+                            try:
+                                dict["evs"]["atk"]=int(e[:-4])
+                            except:
+                                dict["evs"]["atk"]=0
+                        elif "Def" in e:
+                            try:
+                                dict["evs"]["def"]=int(e[:-4])
+                            except:
+                                dict["evs"]["def"]=0
+                        elif "SpA" in e:
+                            try:
+                                dict["evs"]["spa"]=int(e[:-4])
+                            except:
+                                dict["evs"]["spa"]=0
+                        elif "SpD" in e:
+                            try:
+                                dict["evs"]["spd"]=int(e[:-4])
+                            except:
+                                dict["evs"]["spd"]=0
+                        elif "Spe" in e:
+                            try:
+                                dict["evs"]["spe"]=int(e[:-4])
+                            except:
+                                dict["evs"]["spe"]=0
+                elif "Nature" in member[i]:
+                    dict["nature"]=member[i][:-7]
+                elif "IVs:" in member[i]:
+                    ivArray = member[i][5:].split(" / ")
+                    for j in ivArray:
+                        if "HP" in j:
+                            try:
+                                dict["ivs"]["hp"]=int(j[:-3])
+                            except:
+                                dict["ivs"]["hp"]=31
+                        elif "Atk" in j:
+                            try:
+                                dict["ivs"]["atk"]=int(j[:-4])
+                            except:
+                                dict["ivs"]["atk"]=31
+                        elif "Def" in j:
+                            try:
+                                dict["ivs"]["def"]=int(j[:-4])
+                            except:
+                                dict["ivs"]["def"]=31
+                        elif "SpA" in j:
+                            try:
+                                dict["ivs"]["spa"]=int(j[:-4])
+                            except:
+                                dict["ivs"]["spa"]=31
+                        elif "SpD" in j:
+                            try:
+                                dict["ivs"]["spd"]=int(j[:-4])
+                            except:
+                                dict["ivs"]["spd"]=31
+                        elif "Spe" in j:
+                            try:
+                                dict["ivs"]["spe"]=int(j[:-4])
+                            except:
+                                dict["ivs"]["spe"]=31
+                elif "- " in member[i]:
+                    for move in dict["moves"]:
+                        if dict["moves"][move]==None:
+                            if "Hidden Power [" in member[i]:
+                                moveList = list(member[i])
+                                del moveList[moveList.index("[")]
+                                del moveList[moveList.index("]")]
+                                member[i]="".join(moveList)
+                            dict["moves"][move]=member[i][2:]
+                            break
+
+            shell.teamMateNames.append(dict["species"])
+            shell.teamMatesDict[dict["species"]]=dict
+
+def importTeam(shell):
+    from tkinter.filedialog import askopenfilename
+
+    shell.filename = askopenfilename()
+    process_csv(shell)
