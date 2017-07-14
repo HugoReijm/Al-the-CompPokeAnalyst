@@ -178,8 +178,10 @@ class AL:
         #return "break"
 
     def showAnalyzer(self):
-        if self.toplevel.state() in ["iconic","icon","withdrawn"]:
-            self.toplevel.deiconify()
+        pass
+        #if self.toplevel:
+        #   if self.toplevel.state() in ["iconic","icon","withdrawn"]:
+        #       self.toplevel.deiconify()
     
     def updateAnalyzer(self, option):
         if option in ["species","moves","stats","physpec Offense","physpec Defense"]:
@@ -431,6 +433,22 @@ class AL:
             self.genderLabelText.set(self.current["gender"])
         elif option == "happiness":
             self.happinessLabelText.set(self.current["happiness"])
+            if self.current["moves"]["move1"] == "Frustration":
+                self.move1BasePower.set(str(math.min(round((255 - self.current["happiness"]) / 2.5), 1)))
+            elif self.current["moves"]["move1"] == "Return":
+                self.move1BasePower.set(str(math.min(round((self.current["happiness"]) / 2.5), 1)))
+            if self.current["moves"]["move2"] == "Frustration":
+                self.move2BasePower.set(str(math.min(round((255 - self.current["happiness"]) / 2.5), 1)))
+            elif self.current["moves"]["move2"] == "Return":
+                self.move2BasePower.set(str(math.min(round((self.current["happiness"]) / 2.5), 1)))
+            if self.current["moves"]["move3"] == "Frustration":
+                self.move3BasePower.set(str(math.min(round((255 - self.current["happiness"]) / 2.5), 1)))
+            elif self.current["moves"]["move3"] == "Return":
+                self.move3BasePower.set(str(math.min(round((self.current["happiness"]) / 2.5), 1)))
+            if self.current["moves"]["move4"] == "Frustration":
+                self.move4BasePower.set(str(math.min(round((255 - self.current["happiness"]) / 2.5), 1)))
+            elif self.current["moves"]["move4"] == "Return":
+                self.move4BasePower.set(str(math.min(round((self.current["happiness"]) / 2.5), 1)))
         elif option == "shiny":
             self.shinyLabelText.set(self.current["shiny"])
         elif option == "ivs":
@@ -578,7 +596,12 @@ class AL:
             if move1Data != None:
                 self.move1Cat.set(move1Data["category"])
                 self.move1Type.set(move1Data["type"])
-                self.move1BasePower.set(str(move1Data["basePower"]))
+                if self.current["moves"]["move1"] == "Frustration":
+                    self.move1BasePower.set(str(math.min(round((255-self.current["happiness"])/2.5),1)))
+                elif self.current["moves"]["move1"] == "Return":
+                    self.move1BasePower.set(str(math.min(round((self.current["happiness"])/2.5),1)))
+                else:
+                    self.move1BasePower.set(str(move1Data["basePower"]))
                 self.move1PP.set(str(move1Data["pp"]))
                 if move1Data["accuracy"] != True:
                     self.move1Acc.set(str(move1Data["accuracy"]) + "%")
@@ -594,7 +617,12 @@ class AL:
             if move2Data != None:
                 self.move2Cat.set(move2Data["category"])
                 self.move2Type.set(move2Data["type"])
-                self.move2BasePower.set(str(move2Data["basePower"]))
+                if self.current["moves"]["move2"] == "Frustration":
+                    self.move2BasePower.set(str(math.min(round((255-self.current["happiness"])/2.5),1)))
+                elif self.current["moves"]["move2"] == "Return":
+                    self.move2BasePower.set(str(math.min(round((self.current["happiness"])/2.5),1)))
+                else:
+                    self.move2BasePower.set(str(move2Data["basePower"]))
                 self.move2PP.set(str(move2Data["pp"]))
                 if move2Data["accuracy"] != True:
                     self.move2Acc.set(str(move2Data["accuracy"]) + "%")
@@ -610,7 +638,12 @@ class AL:
             if move3Data != None:
                 self.move3Cat.set(move3Data["category"])
                 self.move3Type.set(move3Data["type"])
-                self.move3BasePower.set(str(move3Data["basePower"]))
+                if self.current["moves"]["move3"] == "Frustration":
+                    self.move3BasePower.set(str(math.min(round((255-self.current["happiness"])/2.5),1)))
+                elif self.current["moves"]["move3"] == "Return":
+                    self.move3BasePower.set(str(math.min(round((self.current["happiness"])/2.5),1)))
+                else:
+                    self.move3BasePower.set(str(move3Data["basePower"]))
                 self.move3PP.set(str(move3Data["pp"]))
                 if move3Data["accuracy"] != True:
                     self.move3Acc.set(str(move3Data["accuracy"]) + "%")
@@ -626,7 +659,12 @@ class AL:
             if move4Data != None:
                 self.move4Cat.set(move4Data["category"])
                 self.move4Type.set(move4Data["type"])
-                self.move4BasePower.set(str(move4Data["basePower"]))
+                if self.current["moves"]["move4"] == "Frustration":
+                    self.move4BasePower.set(str(math.min(round((255-self.current["happiness"])/2.5),1)))
+                elif self.current["moves"]["move4"] == "Return":
+                    self.move4BasePower.set(str(math.min(round((self.current["happiness"])/2.5),1)))
+                else:
+                    self.move4BasePower.set(str(move4Data["basePower"]))
                 self.move4PP.set(str(move4Data["pp"]))
                 if move4Data["accuracy"] != True:
                     self.move4Acc.set(str(move4Data["accuracy"]) + "%")
@@ -641,6 +679,7 @@ class AL:
         else:
             print("whoops, you should fix "+option)
 
+    #TODO: complete this
     def deletePopUp(self,name):
         top = Toplevel()
         top.config(width=30,height=30)

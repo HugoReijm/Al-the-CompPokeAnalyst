@@ -224,7 +224,8 @@ def AI(shell):
     else:
         #TODO: make sure that the team that has been imported is legal for the chosen tier
         importTeam(shell)
-        for string in ["species","moves","stats","physpec Offense","physpec Defense","checkAndCounters","threats"]:
+        #TODO: make sure that you dont update the same section twice or something
+        for string in ["species","moves","stats","physpec Offense", "physpec Defense" ,"checkAndCounters","threats"]:
             shell.updateAnalyzer(string)
         shell.switch(shell.teamMatesDict[list(shell.teamMatesDict.keys())[0]]["species"])
 
@@ -233,30 +234,35 @@ def AI(shell):
         # pokemon1_menu.add_command(label="Delete",command=lambda:shell.delete(shell.teamMateNames[0]))
         shell.the_menu.add_cascade(label=shell.teamMateNames[0], menu=pokemon1_menu)
 
-        pokemon2_menu = Menu(shell.the_menu, tearoff=0)
-        pokemon2_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[1]))
-        # pokemon2_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[1]))
-        shell.the_menu.add_cascade(label=shell.teamMateNames[1], menu=pokemon2_menu)
+        if len(shell.teamMatesDict)>1:
+            pokemon2_menu = Menu(shell.the_menu, tearoff=0)
+            pokemon2_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[1]))
+            # pokemon2_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[1]))
+            shell.the_menu.add_cascade(label=shell.teamMateNames[1], menu=pokemon2_menu)
 
-        pokemon3_menu = Menu(shell.the_menu, tearoff=0)
-        pokemon3_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[2]))
-        # pokemon3_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[2]))
-        shell.the_menu.add_cascade(label=shell.teamMateNames[2], menu=pokemon3_menu)
+        if len(shell.teamMatesDict)>2:
+            pokemon3_menu = Menu(shell.the_menu, tearoff=0)
+            pokemon3_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[2]))
+            # pokemon3_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[2]))
+            shell.the_menu.add_cascade(label=shell.teamMateNames[2], menu=pokemon3_menu)
 
-        pokemon4_menu = Menu(shell.the_menu, tearoff=0)
-        pokemon4_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[3]))
-        # pokemon4_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[3]))
-        shell.the_menu.add_cascade(label=shell.teamMateNames[3], menu=pokemon4_menu)
+        if len(shell.teamMatesDict)>3:
+            pokemon4_menu = Menu(shell.the_menu, tearoff=0)
+            pokemon4_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[3]))
+            # pokemon4_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[3]))
+            shell.the_menu.add_cascade(label=shell.teamMateNames[3], menu=pokemon4_menu)
 
-        pokemon5_menu = Menu(shell.the_menu, tearoff=0)
-        pokemon5_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[4]))
-        # pokemon5_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[4]))
-        shell.the_menu.add_cascade(label=shell.teamMateNames[4], menu=pokemon5_menu)
+        if len(shell.teamMatesDict)>4:
+            pokemon5_menu = Menu(shell.the_menu, tearoff=0)
+            pokemon5_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[4]))
+            # pokemon5_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[4]))
+            shell.the_menu.add_cascade(label=shell.teamMateNames[4], menu=pokemon5_menu)
 
-        pokemon6_menu = Menu(shell.the_menu, tearoff=0)
-        pokemon6_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[5]))
-        # pokemon6_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[5]))
-        shell.the_menu.add_cascade(label=shell.teamMateNames[5], menu=pokemon6_menu)
+        if len(shell.teamMatesDict)>5:
+            pokemon6_menu = Menu(shell.the_menu, tearoff=0)
+            pokemon6_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[5]))
+            # pokemon6_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[5]))
+            shell.the_menu.add_cascade(label=shell.teamMateNames[5], menu=pokemon6_menu)
 
         finalCheck(shell)
         shell.respond("And we are done! You have just successfulling made your very own competitive Pokemon team!")
@@ -1827,6 +1833,7 @@ def process_csv(shell):
 
             for last, row in isLast(logreader):
                 line = "".join(row)
+                #line=line.replace(u"\xa0"," ")
                 index = len(line)-1
                 for i in range(len(line)-1,0,-1):
                     if line[i]!=" " and line[i]!=u"\xa0":
@@ -1843,161 +1850,164 @@ def process_csv(shell):
                     member.append(line)
 
         for member in members:
-            dict={}
-            dict["species"] = None
-            dict["ability"] = None
-            dict["nature"] = "Serious"
-            dict["baseStats"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
-            dict["ivs"] = {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
-            dict["evs"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
-            dict["item"] = None
-            dict["gender"] = None
-            dict["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
-            dict["happiness"] = 255
-            dict["level"] = 100
-            dict["shiny"] = "No"
-
-            if " (M) " in member[0]:
-                dict["gender"]="M"
-                if "(" in member[0].split(" (M) ")[0]:
-                    dict["species"] = member[0].split(" (M) ")[0].split("(")[1][:-1]
-                else:
-                    dict["species"] = member[0].split(" (M) ")[0]
-                if " @ " in member[0]:
-                    dict["item"]=member[0].split(" @ ")[1]
-                else:
-                    dict["item"]=None
-            elif " (F) " in member[0]:
-                dict["gender"]="F"
-                if "(" in member[0].split(" (F) ")[0]:
-                    dict["species"] = member[0].split(" (F) ")[0].split("(")[1][:-1]
-                else:
-                    dict["species"] = member[0].split(" (F) ")[0]
-                if " @ " in member[0]:
-                    dict["item"]=member[0].split(" @ ")[1]
-                else:
-                    dict["item"]=None
-            else:
+            if member!=[]:
+                dict={}
+                dict["species"] = None
+                dict["ability"] = None
+                dict["nature"] = "Serious"
+                dict["baseStats"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
+                dict["ivs"] = {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
+                dict["evs"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
+                dict["item"] = None
                 dict["gender"] = None
-                if " @ " in member[0]:
-                    if "(" in member[0].split(" @ ")[0]:
-                        dict["species"] = member[0].split(" @ ")[0].split("(")[1][:-1]
+                dict["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
+                dict["happiness"] = 255
+                dict["level"] = 100
+                dict["shiny"] = "No"
+
+                if " (M) " in member[0]:
+                    dict["gender"]="M"
+                    if "(" in member[0].split(" (M) ")[0]:
+                        dict["species"] = member[0].split(" (M) ")[0].split("(")[1][:-1]
                     else:
-                        dict["species"] = member[0].split(" @ ")[0]
-                    dict["item"]=member[0].split(" @ ")[1]
+                        dict["species"] = member[0].split(" (M) ")[0]
+                    if " @ " in member[0]:
+                        dict["item"]=member[0].split(" @ ")[1]
+                    else:
+                        dict["item"]=None
+                elif " (F) " in member[0]:
+                    dict["gender"]="F"
+                    if "(" in member[0].split(" (F) ")[0]:
+                        dict["species"] = member[0].split(" (F) ")[0].split("(")[1][:-1]
+                    else:
+                        dict["species"] = member[0].split(" (F) ")[0]
+                    if " @ " in member[0]:
+                        dict["item"]=member[0].split(" @ ")[1]
+                    else:
+                        dict["item"]=None
                 else:
-                    if "(" in member[0]:
-                        dict["species"] = member[0].split("(")[1][:-1]
-                    else:
-                        dict["species"] = member[0]
-                    dict["item"] = None
-
-            baseStats = Pokedex.findPokemonBaseStats(dict["species"])
-            for stat in ["hp","atk","def","spa","spd","spe"]:
-                dict["baseStats"][stat]=baseStats[stat]
-
-            for i in range(1,len(member)):
-                if "Ability" in member[i]:
-                    dict["ability"]=member[i][9:]
-                elif "Level" in member[i]:
-                    try:
-                        dict["level"]=int(member[i][7:])
-                    except:
-                        if "vgc" in shell.tier or "battlespot" in shell.tier:
-                            dict["level"]=50
+                    dict["gender"] = None
+                    if " @ " in member[0]:
+                        if "(" in member[0].split(" @ ")[0]:
+                            dict["species"] = member[0].split(" @ ")[0].split("(")[1][:-1]
                         else:
-                            dict["level"]=100
-                elif "Happiness" in member[i]:
-                    try:
-                        dict["happiness"]=int(member[3][11:])
-                    except:
-                        dict["happiness"]=255
-                elif "Shiny" in member[i]:
-                    dict["shiny"]="Yes"
-                elif "EVs:" in member[i]:
-                    evArray = member[i][5:].split(" / ")
-                    for e in evArray:
-                        if "HP" in e:
-                            try:
-                                dict["evs"]["hp"]=int(e[:-3])
-                            except:
-                                dict["evs"]["hp"]=0
-                        elif "Atk" in e:
-                            try:
-                                dict["evs"]["atk"]=int(e[:-4])
-                            except:
-                                dict["evs"]["atk"]=0
-                        elif "Def" in e:
-                            try:
-                                dict["evs"]["def"]=int(e[:-4])
-                            except:
-                                dict["evs"]["def"]=0
-                        elif "SpA" in e:
-                            try:
-                                dict["evs"]["spa"]=int(e[:-4])
-                            except:
-                                dict["evs"]["spa"]=0
-                        elif "SpD" in e:
-                            try:
-                                dict["evs"]["spd"]=int(e[:-4])
-                            except:
-                                dict["evs"]["spd"]=0
-                        elif "Spe" in e:
-                            try:
-                                dict["evs"]["spe"]=int(e[:-4])
-                            except:
-                                dict["evs"]["spe"]=0
-                elif "Nature" in member[i]:
-                    dict["nature"]=member[i][:-7]
-                elif "IVs:" in member[i]:
-                    ivArray = member[i][5:].split(" / ")
-                    for j in ivArray:
-                        if "HP" in j:
-                            try:
-                                dict["ivs"]["hp"]=int(j[:-3])
-                            except:
-                                dict["ivs"]["hp"]=31
-                        elif "Atk" in j:
-                            try:
-                                dict["ivs"]["atk"]=int(j[:-4])
-                            except:
-                                dict["ivs"]["atk"]=31
-                        elif "Def" in j:
-                            try:
-                                dict["ivs"]["def"]=int(j[:-4])
-                            except:
-                                dict["ivs"]["def"]=31
-                        elif "SpA" in j:
-                            try:
-                                dict["ivs"]["spa"]=int(j[:-4])
-                            except:
-                                dict["ivs"]["spa"]=31
-                        elif "SpD" in j:
-                            try:
-                                dict["ivs"]["spd"]=int(j[:-4])
-                            except:
-                                dict["ivs"]["spd"]=31
-                        elif "Spe" in j:
-                            try:
-                                dict["ivs"]["spe"]=int(j[:-4])
-                            except:
-                                dict["ivs"]["spe"]=31
-                elif "- " in member[i]:
-                    for move in dict["moves"]:
-                        if dict["moves"][move]==None:
-                            if "Hidden Power [" in member[i]:
-                                moveList = list(member[i])
-                                del moveList[moveList.index("[")]
-                                del moveList[moveList.index("]")]
-                                member[i]="".join(moveList)
-                            dict["moves"][move]=member[i][2:]
-                            break
+                            dict["species"] = member[0].split(" @ ")[0]
+                        dict["item"]=member[0].split(" @ ")[1]
+                    else:
+                        if "(" in member[0]:
+                            dict["species"] = member[0].split("(")[1][:-1]
+                        else:
+                            dict["species"] = member[0]
+                        dict["item"] = None
 
-            shell.teamMateNames.append(dict["species"])
-            shell.teamMatesDict[dict["species"]]=dict
+                baseStats = Pokedex.findPokemonBaseStats(dict["species"])
+                for stat in ["hp","atk","def","spa","spd","spe"]:
+                    dict["baseStats"][stat]=baseStats[stat]
+
+                for i in range(1,len(member)):
+                    if "Ability" in member[i]:
+                        dict["ability"]=member[i][9:]
+                    elif "Level" in member[i]:
+                        try:
+                            dict["level"]=int(member[i][7:])
+                        except:
+                            if "vgc" in shell.tier or "battlespot" in shell.tier:
+                                dict["level"]=50
+                            else:
+                                dict["level"]=100
+                    elif "Happiness" in member[i]:
+                        try:
+                            dict["happiness"]=int(member[i][11:])
+                        except:
+                            #print(member[i][11:])
+                            dict["happiness"]=255
+                    elif "Shiny" in member[i]:
+                        dict["shiny"]="Yes"
+                    elif "EVs:" in member[i]:
+                        evArray = member[i][5:].split(" / ")
+                        for e in evArray:
+                            if "HP" in e:
+                                try:
+                                    dict["evs"]["hp"]=int(e[:-3])
+                                except:
+                                    dict["evs"]["hp"]=0
+                            elif "Atk" in e:
+                                try:
+                                    dict["evs"]["atk"]=int(e[:-4])
+                                except:
+                                    dict["evs"]["atk"]=0
+                            elif "Def" in e:
+                                try:
+                                    dict["evs"]["def"]=int(e[:-4])
+                                except:
+                                    dict["evs"]["def"]=0
+                            elif "SpA" in e:
+                                try:
+                                    dict["evs"]["spa"]=int(e[:-4])
+                                except:
+                                    dict["evs"]["spa"]=0
+                            elif "SpD" in e:
+                                try:
+                                    dict["evs"]["spd"]=int(e[:-4])
+                                except:
+                                    dict["evs"]["spd"]=0
+                            elif "Spe" in e:
+                                try:
+                                    dict["evs"]["spe"]=int(e[:-4])
+                                except:
+                                    dict["evs"]["spe"]=0
+                    elif "Nature" in member[i]:
+                        dict["nature"]=member[i][:-7]
+                    elif "IVs:" in member[i]:
+                        ivArray = member[i][5:].split(" / ")
+                        for j in ivArray:
+                            if "HP" in j:
+                                try:
+                                    dict["ivs"]["hp"]=int(j[:-3])
+                                except:
+                                    dict["ivs"]["hp"]=31
+                            elif "Atk" in j:
+                                try:
+                                    dict["ivs"]["atk"]=int(j[:-4])
+                                except:
+                                    dict["ivs"]["atk"]=31
+                            elif "Def" in j:
+                                try:
+                                    dict["ivs"]["def"]=int(j[:-4])
+                                except:
+                                    dict["ivs"]["def"]=31
+                            elif "SpA" in j:
+                                try:
+                                    dict["ivs"]["spa"]=int(j[:-4])
+                                except:
+                                    dict["ivs"]["spa"]=31
+                            elif "SpD" in j:
+                                try:
+                                    dict["ivs"]["spd"]=int(j[:-4])
+                                except:
+                                    dict["ivs"]["spd"]=31
+                            elif "Spe" in j:
+                                try:
+                                    dict["ivs"]["spe"]=int(j[:-4])
+                                except:
+                                    dict["ivs"]["spe"]=31
+                    elif "- " in member[i]:
+                        for move in dict["moves"]:
+                            if dict["moves"][move]==None:
+                                if "Hidden Power [" in member[i]:
+                                    moveList = list(member[i])
+                                    del moveList[moveList.index("[")]
+                                    del moveList[moveList.index("]")]
+                                    member[i]="".join(moveList)
+                                dict["moves"][move]=member[i][2:]
+                                break
+
+                shell.teamMateNames.append(dict["species"])
+                shell.teamMatesDict[dict["species"]]=dict
 
 def importTeam(shell):
     from tkinter.filedialog import askopenfilename
 
+    #TODO: user can't cancel. fix this
     shell.filename = askopenfilename()
     process_csv(shell)
