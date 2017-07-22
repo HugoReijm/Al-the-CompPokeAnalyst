@@ -45,7 +45,7 @@ def findPokemonMetaSpreads(name,tier,size):
                 return []
     return None
 
-def findPokemonMetaMoves(name,tier,size):
+def findPokemonMetaMoves(name,moveset,tier,size):
     if Pokedex.findPokemonData(name)!=None:
         if isinstance(tier,str):
             if isinstance(size,int) and size>0:
@@ -60,7 +60,7 @@ def findPokemonMetaMoves(name,tier,size):
                         scoredmoves.append(["Nothing", -100])
                     for k in range(len(moves)):
                         for i in range(len(scoredmoves)):
-                            if scoredmoves[i][1] < moves[k][1]:
+                            if scoredmoves[i][1] < moves[k][1] and Pokedex.findMoveName(moves[k][0]) not in moveset:
                                 for j in range(len(scoredmoves) - 1, i, -1):
                                     scoredmoves[j] = scoredmoves[j - 1]
                                 scoredmoves[i] = moves[k]

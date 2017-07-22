@@ -15,24 +15,27 @@ def AI(shell):
     shell.tierfile = shell.tier+".json"
 
     imp = False
-    newGate = False
-    while not newGate:
+    newTeamGate = False
+    while not newTeamGate:
         shell.respond("Would you start a completely new team? (Y/N)")
         shell.inputEvent.wait()
         if shell.input_get in shell.yes:
-            newGate = True
+            newTeamGate = True
+            imp=False
         elif shell.input_get in shell.no:
-            importGate = False
-            while not importGate:
+            importTeamGate = False
+            while not importTeamGate:
                 shell.respond("Would you rather import a previously-made team? (Y/N)")
                 shell.inputEvent.wait()
                 if shell.input_get in shell.yes:
-                    newGate = True
-                    importGate = True
-                    imp = True
-                    #print("I'm sorry, this feature has not been added yet")
+                    if importTeam(shell):
+                        newTeamGate = True
+                        importTeamGate = True
+                        imp=True
+                    else:
+                        importTeamGate = False
                 elif shell.input_get in shell.no:
-                    importGate = True
+                    importTeamGate = True
                 else:
                     shell.respond("Um...I'd don't understand your response.")
         else:
@@ -42,7 +45,7 @@ def AI(shell):
         # Helping the User Start a New Team and Selecting First Team Member
         firstMemberGate = False
         while not firstMemberGate:
-            shell.respond("So, do you know which Pokemon you want to start your team with? (Y/N)")
+            shell.respond("Do you know which Pokemon you want to start your team with? (Y/N)")
             shell.inputEvent.wait()
             if shell.input_get in shell.yes:
                 firstMemberGate = True
@@ -70,19 +73,11 @@ def AI(shell):
                 shell.respond("Um... I don't understand your response ")
         shell.teamMateNames = []
         teamAdder(shell)
-        shell.updateAnalyzer("species")
-        shell.updateAnalyzer("stats")
-        shell.updateAnalyzer("physpec Offense")
-        shell.updateAnalyzer("physpec Defense")
 
         # Adding Other 5 Members
         for i in range(5):
             showMemberOptions(shell)
             teamAdder(shell)
-            shell.updateAnalyzer("species")
-            shell.updateAnalyzer("stats")
-            shell.updateAnalyzer("physpec Offense")
-            shell.updateAnalyzer("physpec Defense")
 
         switchMembers(shell)
 
@@ -93,9 +88,12 @@ def AI(shell):
         #shell.teamMateNames = ["Blissey","Blissey","Blissey","Blissey","Blissey","Blissey"]
 
         # Make Dictionary with All Necessary Info
+        i=0
         for member in shell.teamMateNames:
             dict = {}
             dict["species"] = Pokedex.findPokemonSpecies(member)
+            #dict["index"] = i
+            i+=1
             dict["ability"] = None
             dict["nature"] = None
             dict["baseStats"] = {"hp": Pokedex.findPokemonHP(member), "atk": Pokedex.findPokemonAtk(member),
@@ -153,7 +151,6 @@ def AI(shell):
         shell.updateAnalyzer("stats")
         shell.updateAnalyzer("physpec Offense")
         shell.updateAnalyzer("physpec Defense")
-        shell.updateAnalyzer("")
 
         # Iterate Over Every Team Member
         for poke in shell.teamMatesDict:
@@ -208,8 +205,11 @@ def AI(shell):
             shell.respond("And last but probably the most important, shininess!")
             chooseShiny(shell,poke)
 
-            shell.analyzer.threats(shell)
+            shell.updateAnalyzer("threats")
+            shell.updateAnalyzer("checkAndCounters")
+
             if shell.teamMateNames.index(spName) < 5:
+                shell.respond("Take a moment to look at your %s and how it fits with your team." % spName)
                 checkMember(shell,poke)
             else:
                 finalCheck(shell)
@@ -222,10 +222,8 @@ def AI(shell):
                         export(shell)
                         doneGate = True
     else:
-        #TODO: make sure that the team that has been imported is legal for the chosen tier
-        importTeam(shell)
-        #TODO: make sure that you dont update the same section twice or something
-        for string in ["species","moves","stats","physpec Offense", "physpec Defense" ,"checkAndCounters","threats"]:
+        for string in ["species", "moves", "stats", "physpec Offense", "physpec Defense", "checkAndCounters",
+                       "threats"]:
             shell.updateAnalyzer(string)
         shell.switch(shell.teamMatesDict[list(shell.teamMatesDict.keys())[0]]["species"])
 
@@ -234,31 +232,31 @@ def AI(shell):
         # pokemon1_menu.add_command(label="Delete",command=lambda:shell.delete(shell.teamMateNames[0]))
         shell.the_menu.add_cascade(label=shell.teamMateNames[0], menu=pokemon1_menu)
 
-        if len(shell.teamMatesDict)>1:
+        if len(shell.teamMatesDict) > 1:
             pokemon2_menu = Menu(shell.the_menu, tearoff=0)
             pokemon2_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[1]))
             # pokemon2_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[1]))
             shell.the_menu.add_cascade(label=shell.teamMateNames[1], menu=pokemon2_menu)
 
-        if len(shell.teamMatesDict)>2:
+        if len(shell.teamMatesDict) > 2:
             pokemon3_menu = Menu(shell.the_menu, tearoff=0)
             pokemon3_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[2]))
             # pokemon3_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[2]))
             shell.the_menu.add_cascade(label=shell.teamMateNames[2], menu=pokemon3_menu)
 
-        if len(shell.teamMatesDict)>3:
+        if len(shell.teamMatesDict) > 3:
             pokemon4_menu = Menu(shell.the_menu, tearoff=0)
             pokemon4_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[3]))
             # pokemon4_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[3]))
             shell.the_menu.add_cascade(label=shell.teamMateNames[3], menu=pokemon4_menu)
 
-        if len(shell.teamMatesDict)>4:
+        if len(shell.teamMatesDict) > 4:
             pokemon5_menu = Menu(shell.the_menu, tearoff=0)
             pokemon5_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[4]))
             # pokemon5_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[4]))
             shell.the_menu.add_cascade(label=shell.teamMateNames[4], menu=pokemon5_menu)
 
-        if len(shell.teamMatesDict)>5:
+        if len(shell.teamMatesDict) > 5:
             pokemon6_menu = Menu(shell.the_menu, tearoff=0)
             pokemon6_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[5]))
             # pokemon6_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[5]))
@@ -439,6 +437,11 @@ def teamAdder(shell):
         else:
             shell.respond("Um...I don't understand your response...")
 
+    shell.updateAnalyzer("species")
+    shell.updateAnalyzer("stats")
+    shell.updateAnalyzer("physpec Offense")
+    shell.updateAnalyzer("physpec Defense")
+
 def teamAdjuster(shell,index):
     teamAdderGate = False
     while not teamAdderGate:
@@ -524,8 +527,12 @@ def teamAdjuster(shell,index):
         else:
             shell.respond("Um...I don't understand your response...")
 
+    shell.updateAnalyzer("species")
+    shell.updateAnalyzer("stats")
+    shell.updateAnalyzer("physpec Offense")
+    shell.updateAnalyzer("physpec Defense")
+
 def showMemberOptions(shell):
-    # TODO: include the species clause when showing new pokes
     shell.respond("Ok, let me suggest some team-mates. How many suggestions would you like to see? (Int)")
     memberSelectGate = False
     while not memberSelectGate:
@@ -715,6 +722,12 @@ def switchMembers(shell):
                             "Either way, I suggest chosing another Pokemon. That way I have the data necessary to help you")
                 else:
                     shell.respond("The inputted Pokemon is not an actual Pokemon! Try again")
+
+    shell.updateAnalyzer("species")
+    shell.updateAnalyzer("stats")
+    shell.updateAnalyzer("physpec Offense")
+    shell.updateAnalyzer("physpec Defense")
+
     shell.respond("Your team is coming along great. Let's move on to the individual team members.")
 
 def chooseAbility(shell,poke):
@@ -781,13 +794,14 @@ def chooseAbility(shell,poke):
         shell.teamMatesDict[poke]["ability"] = abilities["0"]
     shell.respond("Done! Your %s now has the ability %s" % (spName, shell.teamMatesDict[poke]["ability"]))
     shell.update("ability")
+    shell.updateAnalyzer("species")
 
 def chooseIVs(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
     shell.respond(
         "First thing's first: I propose to give your %s the following IV spread: 31/31/31/31/31/31" % spName)
     shell.respond(
-        "This is by far the most common IV spread for Pokemon. However, if you have something more specific in mind, you might want a different IV spread")
+        "This is by far the most common IV spread for Pokemon. However, if you have something more specific in mind, you might want a different IV spread.")
     ivGate = False
     while not ivGate:
         shell.respond("Do you want to use this IV spread?")
@@ -864,6 +878,7 @@ def chooseIVs(shell,poke):
         shell.teamMatesDict[spName]["ivs"]["def"], shell.teamMatesDict[spName]["ivs"]["spa"],
         shell.teamMatesDict[spName]["ivs"]["spd"], shell.teamMatesDict[spName]["ivs"]["spe"]))
     shell.update("ivs")
+    shell.updateAnalyzer("stats")
 
 def chooseNatureEVs(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -961,6 +976,7 @@ def chooseNatureEVs(shell,poke):
         shell.teamMatesDict[spName]["evs"]["def"], shell.teamMatesDict[spName]["evs"]["spa"],
         shell.teamMatesDict[spName]["evs"]["spd"], shell.teamMatesDict[spName]["evs"]["spe"]))
     shell.update("evs")
+    shell.updateAnalyzer("stats")
 
 def chooseGender(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1008,6 +1024,7 @@ def chooseGender(shell,poke):
         shell.respond("Done! Your %s has no gender at all!" % spName)
     shell.update("gender")
 
+#TODO: nature's madness fix it
 def chooseMoves(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
     moves = [shell.teamMatesDict[spName]["moves"]["move1"], shell.teamMatesDict[spName]["moves"]["move2"],
@@ -1045,7 +1062,7 @@ def chooseMoves(shell,poke):
             try:
                 shell.inputEvent.wait()
                 moveAmount = int(shell.input_get)
-                sortedMoves = Tools.findPokemonMetaMoves(spName, shell.tierfile, moveAmount)
+                sortedMoves = Tools.findPokemonMetaMoves(spName, moves, shell.tierfile, moveAmount)
                 showMovesGate = True
             except:
                 shell.respond("How can I show you that many Moves? Try again")
@@ -1115,6 +1132,7 @@ def chooseMoves(shell,poke):
             shell.respond(
                 "Due to meeting various requirements, this move for your %s has already been chosen to be %s. So that's already done!" % (
                     spName, moves[moveIndex - 1]))
+    shell.updateAnalyzer("moves")
 
     # Switching Moves Around
     movesCheckGate = False
@@ -1170,8 +1188,7 @@ def chooseMoves(shell,poke):
                     shell.inputEvent.wait()
                     swapAmount = int(shell.input_get)
                     if swapAmount >= 0:
-                        # TODO: Implement the inability to chose already chosen moves
-                        sortedMoves = Tools.findPokemonMetaMovesExc(spName, shell.tierfile, swapAmount, moves)
+                        sortedMoves = Tools.findPokemonMetaMoves(spName, moves, shell.tierfile, swapAmount)
                         flipAmountGate = True
                     else:
                         shell.respond("Well I can't suggest that many suggestions, now can I?")
@@ -1256,6 +1273,7 @@ def chooseMoves(shell,poke):
     shell.teamMatesDict[spName]["moves"]["move4"] = moves[3]
     shell.respond("Excellent! Your %s now has moves!" % spName)
     shell.update("moves")
+    shell.updateAnalyzer("moves")
 
 def chooseItem(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1351,6 +1369,10 @@ def chooseItem(shell,poke):
             list(MetaDex.findPokemonTierItems(spName, shell.tierfile).keys())[0])
     shell.respond("Excellent! Your %s is now holding a %s!" % (spName, shell.teamMatesDict[spName]["item"]))
     shell.update("item")
+    shell.updateAnalyzer("moves")
+    shell.updateAnalyzer("stats")
+    shell.updateAnalyzer("physpec Offense")
+    shell.updateAnalyzer("physpec Defense")
 
 def chooseHappiness(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
@@ -1446,13 +1468,16 @@ def chooseLevel(shell,poke):
                     shell.respond("Um...I don't understand that response...")
     shell.respond("Excellent! Your %s is now at Level %s" % (spName, shell.teamMatesDict[spName]["level"]))
     shell.update("level")
+    shell.updateAnalyzer("stats")
+    shell.updateAnalyzer("physpec Offense")
+    shell.updateAnalyzer("physpec Defense")
 
 def chooseShiny(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
     shinyGate = False
     while not shinyGate:
         if spName not in ["Celebi", "Victini", "Keldeo", "Meloetta", "Meloetta-Pirouette", "Zygarde", "Hoopa",
-                          "Hoopa-Unbound", "Volcanion", "Tapu Koko", "Tapu Fini", "Tapu Bulu", "Tapu Lele",
+                          "Hoopa-Unbound", "Volcanion", "Tapu Fini", "Tapu Bulu", "Tapu Lele",
                           "Cosmog", "Cosmoem", "Solgaleo", "Lunala", "Nihilego", "Buzzwole", "Pheromosa",
                           "Xurkitree", "Celesteela", "Kartana", "Guzzlord", "Necrozma", "Magearna",
                           "Marshadow"]:
@@ -1474,7 +1499,6 @@ def chooseShiny(shell,poke):
 
 def checkMember(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
-    shell.respond("And we're done! your %s is finished! Take a moment to look at your %s and how it fits with your team." % (spName,spName))
     finalMemberGate=False
     while not finalMemberGate:
         shell.respond("Would you like to change anything? (Y/N)")
@@ -1665,6 +1689,8 @@ def checkMember(shell,poke):
                     finalMemberGate = True
                 else:
                     shell.respond("Um...I don't understand your response")
+            shell.updateAnalyzer("threats")
+            shell.updateAnalyzer("checkAndCounters")
 
 def finalCheck(shell):
     finalGate = False
@@ -1825,8 +1851,8 @@ def isLast(itr):
     yield True, old
 
 def process_csv(shell):
-    if shell.filename:
-        with open(shell.filename, newline="") as csvfile:
+    if shell.importFileName:
+        with open(shell.importFileName, newline="") as csvfile:
             logreader = csv.reader(csvfile,delimiter=',',quotechar='|')
             members = []
             member = []
@@ -1886,7 +1912,6 @@ def process_csv(shell):
                     else:
                         dict["item"]=None
                 else:
-                    dict["gender"] = None
                     if " @ " in member[0]:
                         if "(" in member[0].split(" @ ")[0]:
                             dict["species"] = member[0].split(" @ ")[0].split("(")[1][:-1]
@@ -1899,6 +1924,9 @@ def process_csv(shell):
                         else:
                             dict["species"] = member[0]
                         dict["item"] = None
+                    dict["gender"] = Pokedex.findPokemonGender(dict["species"])
+                    if dict["gender"]==None:
+                        dict["gender"]="M"
 
                 baseStats = Pokedex.findPokemonBaseStats(dict["species"])
                 for stat in ["hp","atk","def","spa","spd","spe"]:
@@ -2002,12 +2030,89 @@ def process_csv(shell):
                                 dict["moves"][move]=member[i][2:]
                                 break
 
-                shell.teamMateNames.append(dict["species"])
-                shell.teamMatesDict[dict["species"]]=dict
+                #Species Legality Check
+                if dict["species"] in MetaDex.findTierData(shell.tierfile):
+                    # Item Legality Check
+                    if Tools.compress(dict["item"]) not in MetaDex.findPokemonTierItems(dict["species"],shell.tierfile):
+                        print(
+                            "The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." %
+                            dict["species"])
+                        dict["item"] = None
+                    # Ability Legality Check
+                    baseSpecies = Pokedex.findPokemonBaseSpecies(dict["species"])
+                    if baseSpecies!=None:
+                        baseAbilities=[]
+                        baseAbilitiesData = Pokedex.findPokemonAbilities(baseSpecies)
+                        for ab in baseAbilitiesData:
+                            baseAbilities.append(baseAbilitiesData[ab])
+                        if Tools.compress(dict["ability"]) not in MetaDex.findPokemonTierAbilities(dict["species"],shell.tierfile) and dict["ability"] not in baseAbilities:
+                            print(
+                                "The %s in your team you want to import has an ability that is either illegal or never used. Since I don't know which, I'm going to delete this ability and import the rest" %
+                                dict["species"])
+                            dict["ability"] = None
+                    else:
+                        if Tools.compress(dict["ability"]) not in MetaDex.findPokemonTierAbilities(dict["species"],shell.tierfile):
+                            print(
+                                "The %s in your team you want to import has an ability that is either illegal or never used. Since I don't know which, I'm going to delete this ability and import the rest" %
+                                dict["species"])
+                            dict["ability"] = None
+                    # Move 1 Legality Check
+                    if Tools.compress(dict["moves"]["move1"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move1"]==None:
+                        print(
+                            "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
+                            dict["species"])
+                        dict["moves"]["move1"] = None
+                    # Move 2 Legality Check
+                    if Tools.compress(dict["moves"]["move2"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move2"] == None:
+                        print(
+                            "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
+                            dict["species"])
+                        dict["moves"]["move2"] = None
+                    # Move 3 Legality Check
+                    if Tools.compress(dict["moves"]["move3"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move3"] == None:
+                        print(
+                            "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
+                            dict["species"])
+                        dict["moves"]["move3"] = None
+                    # Move 4 Legality Check
+                    if Tools.compress(dict["moves"]["move4"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move4"] == None:
+                        print(
+                            "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
+                            dict["species"])
+                        dict["moves"]["move4"] = None
+                    # Level Legality Check
+                    evoLevel = Pokedex.findPokemonEvoLevel(dict["species"])
+                    if evoLevel == None:
+                        evoLevel = 0
+                    tierLevel = 100
+                    if "vgc" in shell.tierfile or "battlespot" in shell.tierfile:
+                        tierLevel = 50
+                    if dict["level"]<evoLevel and dict["level"]!=tierLevel:
+                        print(
+                            "The %s in your team you want to import is at an impossible level. I'm going to set the level to %s and import the rest." % (
+                            dict["species"], tierLevel))
+                        dict["level"] = tierLevel
+                    # Gender Legality Check
+                    gender = Pokedex.findPokemonGender(dict["species"])
+                    if gender!=None:
+                        if dict["gender"]!=gender:
+                            print(
+                                "The %s in your team you want to import has the wrong gender. I'm going to delete the gender and import the rest" %
+                                dict["species"])
+                            dict["gender"] = None
+
+                    shell.teamMateNames.append(dict["species"])
+                    shell.teamMatesDict[dict["species"]] = dict
+                else:
+                    print("The %s in your team you want to import is either illegal or never used in your chosen tier, which is %s. I can't import this Team Member." % (dict["species"],shell.tier))
+        return True
+    else:
+        return False
 
 def importTeam(shell):
     from tkinter.filedialog import askopenfilename
 
     #TODO: user can't cancel. fix this
-    shell.filename = askopenfilename()
-    process_csv(shell)
+    shell.importFileName = askopenfilename()
+    return process_csv(shell)
+

@@ -1,6 +1,6 @@
 import math, Pokedex
 
-name = "galvantula"
+name = "sigilyph"
 baseHP = Pokedex.findPokemonHP(name)
 baseDef = Pokedex.findPokemonDef(name)
 defNature = 1.0

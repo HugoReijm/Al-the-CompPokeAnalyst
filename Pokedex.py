@@ -665,28 +665,3 @@ def findAbilityShortDesc(name):
         return ability["shortDesc"]
     else:
         return None
-
-#items = loadItems()
-#for str in ["num","fling"]:
-#    print("All moves without "+str)
-#    for p in items:
-#        if str not in items[p]:
-#            print(p)
-#    print()
-
-#ability = loadAbilities()
-#for str in ["desc","shortDesc","id","name","rating","num"]:
-#    print("All abilities without "+str)
-#    for a in ability:
-#        if str not in ability[a]:
-#            print(a)
-#    print()
-
-#l1 = ["helo", "hello","hi","cheese"]
-#l2=[]
-#for i in range(len(l1)):
-#    l2.append(l1[i])
-#del l2[l2.index("cheese")]
-#print(l1)
-
-#print(findMoveShortDesc("Transform"))
