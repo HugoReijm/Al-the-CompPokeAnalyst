@@ -160,8 +160,7 @@ def AI(shell):
                 shell.respond("Let's start with %s." % spName)
             else:
                 shell.respond("Now let's take a look at %s." % spName)
-            text = ""
-            text += spName + " has the following base stats.\n    "
+            text = spName + " has the following base stats.\n    "
             for stat in shell.teamMatesDict[poke]["baseStats"]:
                 if stat == "hp":
                     text += stat + " : " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
@@ -207,6 +206,7 @@ def AI(shell):
 
             shell.updateAnalyzer("threats")
             shell.updateAnalyzer("checkAndCounters")
+            shell.updateAnalyzer("advice")
 
             if shell.teamMateNames.index(spName) < 5:
                 shell.respond("Take a moment to look at your %s and how it fits with your team." % spName)
@@ -214,16 +214,10 @@ def AI(shell):
             else:
                 finalCheck(shell)
                 shell.respond("And we are done! You have just successfulling made your very own competitive Pokemon team!")
-                doneGate = False
-                while not doneGate:
-                    shell.respond("When you are completely done, type 'Done' so I can export your team.")
-                    shell.inputEvent.wait()
-                    if shell.input_get in ["Done", "done", "DONE"]:
-                        export(shell)
-                        doneGate = True
+                export(shell)
     else:
         for string in ["species", "moves", "stats", "physpec Offense", "physpec Defense", "checkAndCounters",
-                       "threats"]:
+                       "threats","advice"]:
             shell.updateAnalyzer(string)
         shell.switch(shell.teamMatesDict[list(shell.teamMatesDict.keys())[0]]["species"])
 
@@ -262,15 +256,129 @@ def AI(shell):
             # pokemon6_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[5]))
             shell.the_menu.add_cascade(label=shell.teamMateNames[5], menu=pokemon6_menu)
 
+        #Adding Members to Team if Team not Full
+        if len(shell.teamMatesDict)<6:
+            for i in range(len(shell.teamMatesDict),6):
+                showMemberOptions(shell)
+                teamAdder(shell)
+
+                dict = {}
+                dict["species"] = Pokedex.findPokemonSpecies(shell.teamMateNames[len(shell.teamMateNames)-1])
+                dict["ability"] = None
+                dict["nature"] = None
+                dict["baseStats"] = {"hp": Pokedex.findPokemonHP(shell.teamMateNames[len(shell.teamMateNames)-1]), "atk": Pokedex.findPokemonAtk(shell.teamMateNames[len(shell.teamMateNames)-1]),
+                                     "def": Pokedex.findPokemonDef(shell.teamMateNames[len(shell.teamMateNames)-1]), "spa": Pokedex.findPokemonSpA(shell.teamMateNames[len(shell.teamMateNames)-1]),
+                                     "spd": Pokedex.findPokemonSpD(shell.teamMateNames[len(shell.teamMateNames)-1]), "spe": Pokedex.findPokemonSpe(shell.teamMateNames[len(shell.teamMateNames)-1])}
+                dict["ivs"] = {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
+                dict["evs"] = {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0}
+                dict["item"] = None
+                dict["gender"] = None
+                if shell.teamMateNames[len(shell.teamMateNames)-1] == "Rayquaza-Mega":
+                    dict["moves"] = {"move1": "Dragon Ascent", "move2": None, "move3": None, "move4": None}
+                else:
+                    dict["moves"] = {"move1": None, "move2": None, "move3": None, "move4": None}
+                dict["happiness"] = 255
+                if "battlespot" in shell.tier or "vgc" in shell.tier:
+                    dict["level"] = 50
+                else:
+                    dict["level"] = 100
+                dict["shiny"] = None
+                shell.teamMatesDict[shell.teamMateNames[len(shell.teamMateNames)-1]] = dict
+
+                if i==0:
+                    pokemon1_menu = Menu(shell.the_menu, tearoff=0)
+                    pokemon1_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[0]))
+                    # pokemon1_menu.add_command(label="Delete",command=lambda:shell.delete(shell.teamMateNames[0]))
+                    shell.the_menu.add_cascade(label=shell.teamMateNames[0], menu=pokemon1_menu)
+
+                elif i==1:
+                    pokemon2_menu = Menu(shell.the_menu, tearoff=0)
+                    pokemon2_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[1]))
+                    # pokemon2_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[1]))
+                    shell.the_menu.add_cascade(label=shell.teamMateNames[1], menu=pokemon2_menu)
+
+                elif i==2:
+                    pokemon3_menu = Menu(shell.the_menu, tearoff=0)
+                    pokemon3_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[2]))
+                    # pokemon3_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[2]))
+                    shell.the_menu.add_cascade(label=shell.teamMateNames[2], menu=pokemon3_menu)
+
+                elif i==3:
+                    pokemon4_menu = Menu(shell.the_menu, tearoff=0)
+                    pokemon4_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[3]))
+                    # pokemon4_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[3]))
+                    shell.the_menu.add_cascade(label=shell.teamMateNames[3], menu=pokemon4_menu)
+
+                elif i==4:
+                    pokemon5_menu = Menu(shell.the_menu, tearoff=0)
+                    pokemon5_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[4]))
+                    # pokemon5_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[4]))
+                    shell.the_menu.add_cascade(label=shell.teamMateNames[4], menu=pokemon5_menu)
+
+                elif i==5:
+                    pokemon6_menu = Menu(shell.the_menu, tearoff=0)
+                    pokemon6_menu.add_command(label="View", command=lambda: shell.switch(shell.teamMateNames[5]))
+                    # pokemon6_menu.add_command(label="Delete", command=lambda:shell.delete(shell.teamMateNames[5]))
+                    shell.the_menu.add_cascade(label=shell.teamMateNames[5], menu=pokemon6_menu)
+
+                poke = shell.teamMateNames[len(shell.teamMateNames)-1]
+                spName = shell.teamMatesDict[poke]["species"]
+                shell.switch(spName)
+                text = spName + " has the following base stats.\n    "
+                for stat in shell.teamMatesDict[poke]["baseStats"]:
+                    if stat == "hp":
+                        text += stat + " : " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
+                    else:
+                        text += stat + ": " + str(shell.teamMatesDict[poke]["baseStats"][stat]) + "\n    "
+                shell.respond(text[:-5])
+
+                chooseAbility(shell, poke)
+
+                shell.respond(
+                    "Now that we have that decided, let's move on to IV spreads. Remember that if you want %s to have a certain Hidden Power, you can do that here or when selecting moves." % spName)
+
+                # Choosing IVs
+                chooseIVs(shell, poke)
+
+                # Choosing Natures and EVs
+                chooseNatureEVs(shell, poke)
+
+                # Selecting Gender
+                shell.respond("Ok, now we have to change gears a little. Time to talk about your Pokemon's gender")
+                chooseGender(shell, poke)
+
+                # Show Popular Moves
+                shell.respond(
+                    "Alright, now hey comes the REALLY important part: selecting moves.\tI'll show you a few of the most common moves that %s can have." % spName)
+                chooseMoves(shell, poke)
+
+                # Selecting Items
+                shell.respond("Alright, it's time to look at items.")
+                chooseItem(shell, poke)
+
+                shell.respond("We are almost done with your %s. Just a few simple things to take care of." % spName)
+
+                # Selecting Happiness
+                shell.respond("Alright, let's move on to Happiness.")
+                chooseHappiness(shell, poke)
+
+                # Selecting Level
+                shell.respond("Ok, almost there. Time to chose what level your %s should be at." % spName)
+                chooseLevel(shell, poke)
+
+                # Selecting Shininess
+                shell.respond("And last but probably the most important, shininess!")
+                chooseShiny(shell, poke)
+
+                shell.updateAnalyzer("threats")
+                shell.updateAnalyzer("checkAndCounters")
+
+                shell.respond("Take a moment to look at your %s and how it fits with your team." % spName)
+                checkMember(shell, poke)
+
         finalCheck(shell)
         shell.respond("And we are done! You have just successfulling made your very own competitive Pokemon team!")
-        doneGate = False
-        while not doneGate:
-            shell.respond("When you are completely done, type 'Done' so I can export your team.")
-            shell.inputEvent.wait()
-            if shell.input_get in ["Done", "done", "DONE"]:
-                export(shell)
-                doneGate = True
+        export(shell)
 
 def chooseTier(shell):
     # Display All Tiers Downloaded Tiers
@@ -1480,7 +1588,7 @@ def chooseShiny(shell,poke):
                           "Hoopa-Unbound", "Volcanion", "Tapu Fini", "Tapu Bulu", "Tapu Lele",
                           "Cosmog", "Cosmoem", "Solgaleo", "Lunala", "Nihilego", "Buzzwole", "Pheromosa",
                           "Xurkitree", "Celesteela", "Kartana", "Guzzlord", "Necrozma", "Magearna",
-                          "Marshadow"]:
+                          "Marshadow","Greninja-Ash"]:
             shell.respond("Do you want %s to be shiny? (Y/N)" % spName)
             shell.inputEvent.wait()
             if shell.input_get in shell.yes:
@@ -1695,7 +1803,7 @@ def checkMember(shell,poke):
 def finalCheck(shell):
     finalGate = False
     while not finalGate:
-        shell.respond("Would you like to change anything about your team? (Y/N)")
+        shell.respond("Time for a final check. Would you like to change anything at all about your team? (Y/N)")
         shell.inputEvent.wait()
         if shell.input_get in shell.no:
             finalGate = True
@@ -2032,79 +2140,93 @@ def process_csv(shell):
 
                 #Species Legality Check
                 if dict["species"] in MetaDex.findTierData(shell.tierfile):
-                    # Item Legality Check
-                    if Tools.compress(dict["item"]) not in MetaDex.findPokemonTierItems(dict["species"],shell.tierfile):
-                        print(
-                            "The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." %
-                            dict["species"])
-                        dict["item"] = None
-                    # Ability Legality Check
-                    baseSpecies = Pokedex.findPokemonBaseSpecies(dict["species"])
-                    if baseSpecies!=None:
-                        baseAbilities=[]
-                        baseAbilitiesData = Pokedex.findPokemonAbilities(baseSpecies)
-                        for ab in baseAbilitiesData:
-                            baseAbilities.append(baseAbilitiesData[ab])
-                        if Tools.compress(dict["ability"]) not in MetaDex.findPokemonTierAbilities(dict["species"],shell.tierfile) and dict["ability"] not in baseAbilities:
+                    if "anythinggoes" not in shell.tierfile and dict["species"] not in shell.teamMatesDict:
+                        # Item Legality Check
+                        if "battlespot" in shell.tier or "vgc" in shell.tier:
+                            items = []
+                            for i in shell.teamMatesDict:
+                                items.append(shell.teamMatesDict[i]["item"])
+                            if Tools.compress(dict["item"]) not in MetaDex.findPokemonTierItems(dict["species"],shell.tierfile):
+                                print("The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." % dict["species"])
+                                dict["item"] = None
+                            elif dict["item"] in items:
+                                print("The %s in your team you want to import has an item that is already used in your team. In the %s tier, this is illegal. I'm going to delete this item and import the rest." % (dict["species"],shell.tier))
+                                dict["item"] = None
+                        else:
+                            if Tools.compress(dict["item"]) not in MetaDex.findPokemonTierItems(dict["species"],shell.tierfile):
+                                print(
+                                    "The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." %
+                                    dict["species"])
+                                dict["item"] = None
+                        # Ability Legality Check
+                        baseSpecies = Pokedex.findPokemonBaseSpecies(dict["species"])
+                        if baseSpecies!=None:
+                            baseAbilities=[]
+                            baseAbilitiesData = Pokedex.findPokemonAbilities(baseSpecies)
+                            for ab in baseAbilitiesData:
+                                baseAbilities.append(baseAbilitiesData[ab])
+                            if Tools.compress(dict["ability"]) not in MetaDex.findPokemonTierAbilities(dict["species"],shell.tierfile) and dict["ability"] not in baseAbilities:
+                                print(
+                                    "The %s in your team you want to import has an ability that is either illegal or never used. Since I don't know which, I'm going to delete this ability and import the rest" %
+                                    dict["species"])
+                                dict["ability"] = None
+                        else:
+                            if Tools.compress(dict["ability"]) not in MetaDex.findPokemonTierAbilities(dict["species"],shell.tierfile):
+                                print(
+                                    "The %s in your team you want to import has an ability that is either illegal or never used. Since I don't know which, I'm going to delete this ability and import the rest" %
+                                    dict["species"])
+                                dict["ability"] = None
+                        # Move 1 Legality Check
+                        if Tools.compress(dict["moves"]["move1"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move1"]==None:
                             print(
-                                "The %s in your team you want to import has an ability that is either illegal or never used. Since I don't know which, I'm going to delete this ability and import the rest" %
+                                "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
                                 dict["species"])
-                            dict["ability"] = None
-                    else:
-                        if Tools.compress(dict["ability"]) not in MetaDex.findPokemonTierAbilities(dict["species"],shell.tierfile):
+                            dict["moves"]["move1"] = None
+                        # Move 2 Legality Check
+                        if Tools.compress(dict["moves"]["move2"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move2"] == None:
                             print(
-                                "The %s in your team you want to import has an ability that is either illegal or never used. Since I don't know which, I'm going to delete this ability and import the rest" %
+                                "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
                                 dict["species"])
-                            dict["ability"] = None
-                    # Move 1 Legality Check
-                    if Tools.compress(dict["moves"]["move1"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move1"]==None:
-                        print(
-                            "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
-                            dict["species"])
-                        dict["moves"]["move1"] = None
-                    # Move 2 Legality Check
-                    if Tools.compress(dict["moves"]["move2"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move2"] == None:
-                        print(
-                            "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
-                            dict["species"])
-                        dict["moves"]["move2"] = None
-                    # Move 3 Legality Check
-                    if Tools.compress(dict["moves"]["move3"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move3"] == None:
-                        print(
-                            "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
-                            dict["species"])
-                        dict["moves"]["move3"] = None
-                    # Move 4 Legality Check
-                    if Tools.compress(dict["moves"]["move4"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move4"] == None:
-                        print(
-                            "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
-                            dict["species"])
-                        dict["moves"]["move4"] = None
-                    # Level Legality Check
-                    evoLevel = Pokedex.findPokemonEvoLevel(dict["species"])
-                    if evoLevel == None:
-                        evoLevel = 0
-                    tierLevel = 100
-                    if "vgc" in shell.tierfile or "battlespot" in shell.tierfile:
-                        tierLevel = 50
-                    if dict["level"]<evoLevel and dict["level"]!=tierLevel:
-                        print(
-                            "The %s in your team you want to import is at an impossible level. I'm going to set the level to %s and import the rest." % (
-                            dict["species"], tierLevel))
-                        dict["level"] = tierLevel
-                    # Gender Legality Check
-                    gender = Pokedex.findPokemonGender(dict["species"])
-                    if gender!=None:
-                        if dict["gender"]!=gender:
+                            dict["moves"]["move2"] = None
+                        # Move 3 Legality Check
+                        if Tools.compress(dict["moves"]["move3"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move3"] == None:
                             print(
-                                "The %s in your team you want to import has the wrong gender. I'm going to delete the gender and import the rest" %
+                                "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
                                 dict["species"])
-                            dict["gender"] = None
+                            dict["moves"]["move3"] = None
+                        # Move 4 Legality Check
+                        if Tools.compress(dict["moves"]["move4"]) not in MetaDex.findPokemonTierMoves(dict["species"],shell.tierfile) or dict["moves"]["move4"] == None:
+                            print(
+                                "The %s in your team you want to import has a move that is either illegal or never used. Since I don't know which, I'm going to delete this move and import the rest." %
+                                dict["species"])
+                            dict["moves"]["move4"] = None
+                        # Level Legality Check
+                        evoLevel = Pokedex.findPokemonEvoLevel(dict["species"])
+                        if evoLevel == None:
+                            evoLevel = 0
+                        tierLevel = 100
+                        if "vgc" in shell.tierfile or "battlespot" in shell.tierfile:
+                            tierLevel = 50
+                        if dict["level"]<evoLevel and dict["level"]!=tierLevel:
+                            print(
+                                "The %s in your team you want to import is at an impossible level. I'm going to set the level to %s and import the rest." % (
+                                dict["species"], tierLevel))
+                            dict["level"] = tierLevel
+                        # Gender Legality Check
+                        gender = Pokedex.findPokemonGender(dict["species"])
+                        if gender!=None:
+                            if dict["gender"]!=gender:
+                                print(
+                                    "The %s in your team you want to import has the wrong gender. I'm going to delete the gender and import the rest" %
+                                    dict["species"])
+                                dict["gender"] = None
 
-                    shell.teamMateNames.append(dict["species"])
-                    shell.teamMatesDict[dict["species"]] = dict
+                        shell.teamMateNames.append(dict["species"])
+                        shell.teamMatesDict[dict["species"]] = dict
+                    else:
+                        print("Your team contains multiple %s, which is illegal in the %s tier. I will only import the first %s in your team." % (dict["species"],shell.tier,dict["species"]))
                 else:
-                    print("The %s in your team you want to import is either illegal or never used in your chosen tier, which is %s. I can't import this Team Member." % (dict["species"],shell.tier))
+                    print("The %s in your team you want to import is either illegal or never used in your chosen tier, which is %s. Since I don't know which, I can't import this Team Member." % (dict["species"],shell.tier))
         return True
     else:
         return False

@@ -1476,29 +1476,70 @@ class TeamAnalyzer:
         if typeArray[0]==0:
             fourDef.config(bg="gray95")
 
+    def respond(self,text):
+        self.adviceMssngr.config(state=NORMAL)
+        self.adviceMssngr.insert(END,"%s\n\n" % text)
+        self.adviceMssngr.see(END)
+        self.adviceMssngr.config(state=DISABLED)
+
+    def resistancesText(self,type,teamTwoWeaknessesArray,teamWeaknessesArray):
+        text=""
+        res = Pokedex.findTypeData(type)["resistances"]
+        im = Pokedex.findTypeData(type)["immunities"]
+        for i in teamTwoWeaknessesArray:
+            if i in res or i in im:
+                if text=="":
+                    text+=i
+                else:
+                    text+=", "+i
+        for i in teamWeaknessesArray:
+            if i in res or i in im:
+                if text=="":
+                    text+=i
+                else:
+                    text+=", "+i
+        return "(Covers "+text+")"
+
+    def superEffectiveText(self,type,teamTwoNVEArray,teamNVEArray):
+        text = ""
+        se = Pokedex.findTypeData(type)["superEffective"]
+        for i in teamTwoNVEArray:
+            if i in se:
+                if text == "":
+                    text += i
+                else:
+                    text += ", " + i
+        for i in teamNVEArray:
+            if i in se:
+                if text == "":
+                    text += i
+                else:
+                    text += ", " + i
+        return "(Covers " + text + ")"
+
     def update(self,shell,option):
         if self.toplevel.state() in ["iconic","icon","withdrawn"]:
             self.toplevel.deiconify()
 
         if option=="species":
-            normalArray = [0, 0, 0, 0, 0]
-            fireArray = [0, 0, 0, 0, 0]
-            waterArray = [0, 0, 0, 0, 0]
-            electricArray = [0, 0, 0, 0, 0]
-            grassArray = [0, 0, 0, 0, 0]
-            iceArray = [0, 0, 0, 0, 0]
-            fightingArray = [0, 0, 0, 0, 0]
-            poisonArray = [0, 0, 0, 0, 0]
-            groundArray = [0, 0, 0, 0, 0]
-            flyingArray = [0, 0, 0, 0, 0]
-            psychicArray = [0, 0, 0, 0, 0]
-            bugArray = [0, 0, 0, 0, 0]
-            rockArray = [0, 0, 0, 0, 0]
-            ghostArray = [0, 0, 0, 0, 0]
-            dragonArray = [0, 0, 0, 0, 0]
-            darkArray = [0, 0, 0, 0, 0]
-            steelArray = [0, 0, 0, 0, 0]
-            fairyArray = [0, 0, 0, 0, 0]
+            self.normalDefArray = [0, 0, 0, 0, 0]
+            self.fireDefArray = [0, 0, 0, 0, 0]
+            self.waterDefArray = [0, 0, 0, 0, 0]
+            self.electricDefArray = [0, 0, 0, 0, 0]
+            self.grassDefArray = [0, 0, 0, 0, 0]
+            self.iceDefArray = [0, 0, 0, 0, 0]
+            self.fightingDefArray = [0, 0, 0, 0, 0]
+            self.poisonDefArray = [0, 0, 0, 0, 0]
+            self.groundDefArray = [0, 0, 0, 0, 0]
+            self.flyingDefArray = [0, 0, 0, 0, 0]
+            self.psychicDefArray = [0, 0, 0, 0, 0]
+            self.bugDefArray = [0, 0, 0, 0, 0]
+            self.rockDefArray = [0, 0, 0, 0, 0]
+            self.ghostDefArray = [0, 0, 0, 0, 0]
+            self.dragonDefArray = [0, 0, 0, 0, 0]
+            self.darkDefArray = [0, 0, 0, 0, 0]
+            self.steelDefArray = [0, 0, 0, 0, 0]
+            self.fairyDefArray = [0, 0, 0, 0, 0]
 
             typesDict = Pokedex.loadTypes()
 
@@ -1510,361 +1551,361 @@ class TeamAnalyzer:
                     wriplus = self.defCombineTypes(typesList,False)
                     for wType in wriplus[0]:
                         if wType == "Normal":
-                            normalArray[0]+=1
+                            self.normalDefArray[0]+=1
                         elif wType == "Fire":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
-                                    fireArray[4]+=1
+                                    self.fireDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Thick Fat", "Water Bubble", "Drizzle"]:
-                                    fireArray[1]+=1
+                                    self.fireDefArray[1]+=1
                                 else:
-                                    fireArray[0] += 1
+                                    self.fireDefArray[0] += 1
                             else:
-                                fireArray[0]+=1
+                                self.fireDefArray[0]+=1
                         elif wType == "Water":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Storm Drain", "Water Absorb", "Desolate Land","Dry Skin"]:
-                                    waterArray[4]+=1
+                                    self.waterDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Drought"]:
-                                    waterArray[1]+=1
+                                    self.waterDefArray[1]+=1
                                 else:
-                                    waterArray[0] += 1
+                                    self.waterDefArray[0] += 1
                             else:
-                                waterArray[0]+=1
+                                self.waterDefArray[0]+=1
                         elif wType == "Electric":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Lightning Rod", "Volt Absorb","Motor Drive"]:
-                                    electricArray[4]+=1
+                                    self.electricDefArray[4]+=1
                                 else:
-                                    electricArray[0] += 1
+                                    self.electricDefArray[0] += 1
                             else:
-                                electricArray[0]+=1
+                                self.electricDefArray[0]+=1
                         elif wType == "Grass":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Sap Sipper"]:
-                                    grassArray[4]+=1
+                                    self.grassDefArray[4]+=1
                                 else:
-                                    grassArray[0] += 1
+                                    self.grassDefArray[0] += 1
                             else:
-                                grassArray[0]+=1
+                                self.grassDefArray[0]+=1
                         elif wType == "Ice":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Thick Fat"]:
-                                    iceArray[1]+=1
+                                    self.iceDefArray[1]+=1
                                 else:
-                                    iceArray[0] += 1
+                                    self.iceDefArray[0] += 1
                             else:
-                                iceArray[0]+=1
+                                self.iceDefArray[0]+=1
                         elif wType == "Fighting":
-                            fightingArray[0]+=1
+                            self.fightingDefArray[0]+=1
                         elif wType == "Poison":
-                            poisonArray[0]+=1
+                            self.poisonDefArray[0]+=1
                         elif wType == "Ground":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Levitate"]:
-                                    groundArray[4]+=1
+                                    self.groundDefArray[4]+=1
                                 else:
-                                    groundArray[0]+=1
+                                    self.groundDefArray[0]+=1
                             else:
-                                groundArray[0]+=1
+                                self.groundDefArray[0]+=1
                         elif wType == "Flying":
-                            flyingArray[0]+=1
+                            self.flyingDefArray[0]+=1
                         elif wType == "Psychic":
-                            psychicArray[0]+=1
+                            self.psychicDefArray[0]+=1
                         elif wType == "Bug":
-                            bugArray[0]+=1
+                            self.bugDefArray[0]+=1
                         elif wType == "Rock":
-                            rockArray[0]+=1
+                            self.rockDefArray[0]+=1
                         elif wType == "Ghost":
-                            ghostArray[0]+=1
+                            self.ghostDefArray[0]+=1
                         elif wType == "Dragon":
-                            dragonArray[0]+=1
+                            self.dragonDefArray[0]+=1
                         elif wType == "Dark":
-                            darkArray[0]+=1
+                            self.darkDefArray[0]+=1
                         elif wType == "Steel":
-                            steelArray[0]+=1
+                            self.steelDefArray[0]+=1
                         elif wType == "Fairy":
-                            fairyArray[0]+=1
+                            self.fairyDefArray[0]+=1
                         elif wType == "":
                             pass
                         else:
                             print("An error occurred when registering Double Weaknesses")
                     for wType in wriplus[1]:
                         if wType == "Normal":
-                            normalArray[1]+=1
+                            self.normalDefArray[1]+=1
                         elif wType == "Fire":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
-                                    fireArray[4]+=1
+                                    self.fireDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Thick Fat", "Water Bubble", "Drizzle"]:
                                     pass
                                 elif shell.teamMatesDict[member]["ability"] in ["Fluffy"]:
-                                    fireArray[0]+=1
+                                    self.fireDefArray[0]+=1
                                 else:
-                                    fireArray[1]+=1
+                                    self.fireDefArray[1]+=1
                             else:
-                                fireArray[1]+=1
+                                self.fireDefArray[1]+=1
                         elif wType == "Water":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Storm Drain", "Water Absorb", "Desolate Land","Dry Skin"]:
-                                    waterArray[4]+=1
+                                    self.waterDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Drought"]:
                                     pass
                                 else:
-                                    waterArray[1]+=1
+                                    self.waterDefArray[1]+=1
                             else:
-                                waterArray[1]+=1
+                                self.waterDefArray[1]+=1
                         elif wType == "Electric":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Lightning Rod", "Volt Absorb", "Motor Drive"]:
-                                    electricArray[4]+=1
+                                    self.electricDefArray[4]+=1
                                 else:
-                                    electricArray[1]+=1
+                                    self.electricDefArray[1]+=1
                             else:
-                                electricArray[1]+=1
+                                self.electricDefArray[1]+=1
                         elif wType == "Grass":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Sap Sipper"]:
-                                    grassArray[4]+=1
+                                    self.grassDefArray[4]+=1
                                 else:
-                                    grassArray[1]+=1
+                                    self.grassDefArray[1]+=1
                             else:
-                                grassArray[1]+=1
+                                self.grassDefArray[1]+=1
                         elif wType == "Ice":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Thick Fat"]:
                                     pass
                                 else:
-                                    iceArray[1]+=1
+                                    self.iceDefArray[1]+=1
                             else:
-                                iceArray[1]+=1
+                                self.iceDefArray[1]+=1
                         elif wType == "Fighting":
-                            fightingArray[1]+=1
+                            self.fightingDefArray[1]+=1
                         elif wType == "Poison":
-                            poisonArray[1]+=1
+                            self.poisonDefArray[1]+=1
                         elif wType == "Ground":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Levitate"]:
-                                    groundArray[4]+=1
+                                    self.groundDefArray[4]+=1
                                 else:
-                                    groundArray[1]+=1
+                                    self.groundDefArray[1]+=1
                             else:
-                                groundArray[1]+=1
+                                self.groundDefArray[1]+=1
                         elif wType == "Flying":
-                            flyingArray[1]+=1
+                            self.flyingDefArray[1]+=1
                         elif wType == "Psychic":
-                            psychicArray[1]+=1
+                            self.psychicDefArray[1]+=1
                         elif wType == "Bug":
-                            bugArray[1]+=1
+                            self.bugDefArray[1]+=1
                         elif wType == "Rock":
-                            rockArray[1]+=1
+                            self.rockDefArray[1]+=1
                         elif wType == "Ghost":
-                            ghostArray[1]+=1
+                            self.ghostDefArray[1]+=1
                         elif wType == "Dragon":
-                            dragonArray[1]+=1
+                            self.dragonDefArray[1]+=1
                         elif wType == "Dark":
-                            darkArray[1]+=1
+                            self.darkDefArray[1]+=1
                         elif wType == "Steel":
-                            steelArray[1]+=1
+                            self.steelDefArray[1]+=1
                         elif wType == "Fairy":
-                            fairyArray[1]+=1
+                            self.fairyDefArray[1]+=1
                         elif wType == "":
                             pass
                         else:
                             print("An error occurred when registering Weaknesses")
                     for rType in wriplus[2]:
                         if rType == "Normal":
-                            normalArray[2]+=1
+                            self.normalDefArray[2]+=1
                         elif rType == "Fire":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
-                                    fireArray[4]+=1
+                                    self.fireDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Thick Fat", "Water Bubble", "Drizzle"]:
-                                    fireArray[3]+=1
+                                    self.fireDefArray[3]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Fluffy"]:
                                     pass
                                 else:
-                                    fireArray[2]+=1
+                                    self.fireDefArray[2]+=1
                             else:
-                                fireArray[2]+=1
+                                self.fireDefArray[2]+=1
                         elif rType == "Water":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Storm Drain", "Water Absorb", "Desolate Land","Dry Skin"]:
-                                    waterArray[4]+=1
+                                    self.waterDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Drought"]:
-                                    waterArray[3]+=1
+                                    self.waterDefArray[3]+=1
                                 else:
-                                    waterArray[2]+=1
+                                    self.waterDefArray[2]+=1
                             else:
-                                waterArray[2]+=1
+                                self.waterDefArray[2]+=1
                         elif rType == "Electric":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Lightning Rod", "Volt Absorb", "Motor Drive"]:
-                                    electricArray[4]+=1
+                                    self.electricDefArray[4]+=1
                                 else:
-                                    electricArray[2]+=1
+                                    self.electricDefArray[2]+=1
                             else:
-                                electricArray[2]+=1
+                                self.electricDefArray[2]+=1
                         elif rType == "Grass":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Sap Sipper"]:
-                                    grassArray[4]+=1
+                                    self.grassDefArray[4]+=1
                                 else:
-                                    grassArray[2]+=1
+                                    self.grassDefArray[2]+=1
                             else:
-                                grassArray[2]+=1
+                                self.grassDefArray[2]+=1
                         elif rType == "Ice":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Thick Fat"]:
-                                    iceArray[3]+=1
+                                    self.iceDefArray[3]+=1
                                 else:
-                                    iceArray[2]+=1
+                                    self.iceDefArray[2]+=1
                             else:
-                                iceArray[2]+=1
+                                self.iceDefArray[2]+=1
                         elif rType == "Fighting":
-                            fightingArray[2]+=1
+                            self.fightingDefArray[2]+=1
                         elif rType == "Poison":
-                            poisonArray[2]+=1
+                            self.poisonDefArray[2]+=1
                         elif rType == "Ground":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Levitate"]:
-                                    groundArray[4]+=1
+                                    self.groundDefArray[4]+=1
                                 else:
-                                    groundArray[2]+=1
+                                    self.groundDefArray[2]+=1
                             else:
-                                groundArray[2]+=1
+                                self.groundDefArray[2]+=1
                         elif rType == "Flying":
-                            flyingArray[2]+=1
+                            self.flyingDefArray[2]+=1
                         elif rType == "Psychic":
-                            psychicArray[2]+=1
+                            self.psychicDefArray[2]+=1
                         elif rType == "Bug":
-                            bugArray[2]+=1
+                            self.bugDefArray[2]+=1
                         elif rType == "Rock":
-                            rockArray[2]+=1
+                            self.rockDefArray[2]+=1
                         elif rType == "Ghost":
-                            ghostArray[2]+=1
+                            self.ghostDefArray[2]+=1
                         elif rType == "Dragon":
-                            dragonArray[2]+=1
+                            self.dragonDefArray[2]+=1
                         elif rType == "Dark":
-                            darkArray[2]+=1
+                            self.darkDefArray[2]+=1
                         elif rType == "Steel":
-                            steelArray[2]+=1
+                            self.steelDefArray[2]+=1
                         elif rType == "Fairy":
-                            fairyArray[2]+=1
+                            self.fairyDefArray[2]+=1
                         elif rType == "":
                             pass
                         else:
                             print("An error occurred when registering Resistances")
                     for rType in wriplus[3]:
                         if rType == "Normal":
-                            normalArray[3]+=1
+                            self.normalDefArray[3]+=1
                         elif rType == "Fire":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
-                                    fireArray[4]+=1
+                                    self.fireDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Fluffy"]:
-                                    fireArray[2]+=1
+                                    self.fireDefArray[2]+=1
                                 else:
-                                    fireArray[3]+=1
+                                    self.fireDefArray[3]+=1
                             else:
-                                fireArray[3]+=1
+                                self.fireDefArray[3]+=1
                         elif rType == "Water":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Storm Drain", "Water Absorb", "Desolate Land","Dry Skin"]:
-                                    waterArray[4]+=1
+                                    self.waterDefArray[4]+=1
                                 else:
-                                    waterArray[3]+=1
+                                    self.waterDefArray[3]+=1
                             else:
-                                waterArray[3]+=1
+                                self.waterDefArray[3]+=1
                         elif rType == "Electric":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Lightning Rod", "Volt Absorb", "Motor Drive"]:
-                                    electricArray[4]+=1
+                                    self.electricDefArray[4]+=1
                                 else:
-                                    electricArray[3]+=1
+                                    self.electricDefArray[3]+=1
                             else:
-                                electricArray[3]+=1
+                                self.electricDefArray[3]+=1
                         elif rType == "Grass":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Sap Sipper"]:
-                                    grassArray[4]+=1
+                                    self.grassDefArray[4]+=1
                                 else:
-                                    grassArray[3]+=1
+                                    self.grassDefArray[3]+=1
                             else:
-                                grassArray[3]+=1
+                                self.grassDefArray[3]+=1
                         elif rType == "Ice":
-                            iceArray[3]+=1
+                            self.iceDefArray[3]+=1
                         elif rType == "Fighting":
-                            fightingArray[3]+=1
+                            self.fightingDefArray[3]+=1
                         elif rType == "Poison":
-                            poisonArray[3]+=1
+                            self.poisonDefArray[3]+=1
                         elif rType == "Ground":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Levitate"]:
-                                    groundArray[4]+=1
+                                    self.groundDefArray[4]+=1
                                 else:
-                                    groundArray[3]+=1
+                                    self.groundDefArray[3]+=1
                             else:
-                                groundArray[3]+=1
+                                self.groundDefArray[3]+=1
                         elif rType == "Flying":
-                            flyingArray[3]+=1
+                            self.flyingDefArray[3]+=1
                         elif rType == "Psychic":
-                            psychicArray[3]+=1
+                            self.psychicDefArray[3]+=1
                         elif rType == "Bug":
-                            bugArray[3]+=1
+                            self.bugDefArray[3]+=1
                         elif rType == "Rock":
-                            rockArray[3]+=1
+                            self.rockDefArray[3]+=1
                         elif rType == "Ghost":
-                            ghostArray[3]+=1
+                            self.ghostDefArray[3]+=1
                         elif rType == "Dragon":
-                            dragonArray[3]+=1
+                            self.dragonDefArray[3]+=1
                         elif rType == "Dark":
-                            darkArray[3]+=1
+                            self.darkDefArray[3]+=1
                         elif rType == "Steel":
-                            steelArray[3]+=1
+                            self.steelDefArray[3]+=1
                         elif rType == "Fairy":
-                            fairyArray[3]+=1
+                            self.fairyDefArray[3]+=1
                         elif rType == "":
                             pass
                         else:
                             print("An error occurred when registering Double Resistances")
                     for iType in wriplus[4]:
                         if iType == "Normal":
-                            normalArray[4]+=1
+                            self.normalDefArray[4]+=1
                         elif iType == "Fire":
-                            fireArray[4]+=1
+                            self.fireDefArray[4]+=1
                         elif iType == "Water":
-                            waterArray[4]+=1
+                            self.waterDefArray[4]+=1
                         elif iType == "Electric":
-                            electricArray[4]+=1
+                            self.electricDefArray[4]+=1
                         elif iType == "Grass":
-                            grassArray[4]+=1
+                            self.grassDefArray[4]+=1
                         elif iType == "Ice":
-                            iceArray[4]+=1
+                            self.iceDefArray[4]+=1
                         elif iType == "Fighting":
-                            fightingArray[4]+=1
+                            self.fightingDefArray[4]+=1
                         elif iType == "Poison":
-                            poisonArray[4]+=1
+                            self.poisonDefArray[4]+=1
                         elif iType == "Ground":
-                            groundArray[4]+=1
+                            self.groundDefArray[4]+=1
                         elif iType == "Flying":
-                            flyingArray[4]+=1
+                            self.flyingDefArray[4]+=1
                         elif iType == "Psychic":
-                            psychicArray[4]+=1
+                            self.psychicDefArray[4]+=1
                         elif iType == "Bug":
-                            bugArray[4]+=1
+                            self.bugDefArray[4]+=1
                         elif iType == "Rock":
-                            rockArray[4]+=1
+                            self.rockDefArray[4]+=1
                         elif iType == "Ghost":
-                            ghostArray[4]+=1
+                            self.ghostDefArray[4]+=1
                         elif iType == "Dragon":
-                            dragonArray[4]+=1
+                            self.dragonDefArray[4]+=1
                         elif iType == "Dark":
-                            darkArray[4]+=1
+                            self.darkDefArray[4]+=1
                         elif iType == "Steel":
-                            steelArray[4]+=1
+                            self.steelDefArray[4]+=1
                         elif iType == "Fairy":
-                            fairyArray[4]+=1
+                            self.fairyDefArray[4]+=1
                         elif iType == "":
                             pass
                         else:
@@ -1873,83 +1914,83 @@ class TeamAnalyzer:
                     w = typesDict[typesList[0]]["weaknesses"]
                     for wType in w:
                         if wType == "Normal":
-                            normalArray[1]+=1
+                            self.normalDefArray[1]+=1
                         elif wType == "Fire":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
-                                    fireArray[4]+=1
+                                    self.fireDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Thick Fat", "Water Bubble", "Drizzle"]:
                                     pass
                                 elif shell.teamMatesDict[member]["ability"] in ["Fluffy"]:
-                                    fireArray[0]+=1
+                                    self.fireDefArray[0]+=1
                                 else:
-                                    fireArray[1]+=1
+                                    self.fireDefArray[1]+=1
                             else:
-                                fireArray[1]+=1
+                                self.fireDefArray[1]+=1
                         elif wType == "Water":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Storm Drain", "Water Absorb", "Desolate Land", "Dry Skin"]:
-                                    waterArray[4]+=1
+                                    self.waterDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Drought"]:
                                     pass
                                 else:
-                                    waterArray[1]+=1
+                                    self.waterDefArray[1]+=1
                             else:
-                                waterArray[1]+=1
+                                self.waterDefArray[1]+=1
                         elif wType == "Electric":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Lightning Rod", "Volt Absorb", "Motor Drive"]:
-                                    electricArray[4]+=1
+                                    self.electricDefArray[4]+=1
                                 else:
-                                    electricArray[1]+=1
+                                    self.electricDefArray[1]+=1
                             else:
-                                electricArray[1]+=1
+                                self.electricDefArray[1]+=1
                         elif wType == "Grass":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Sap Sipper"]:
-                                    grassArray[4]+=1
+                                    self.grassDefArray[4]+=1
                                 else:
-                                    grassArray[1]+=1
+                                    self.grassDefArray[1]+=1
                             else:
-                                grassArray[1]+=1
+                                self.grassDefArray[1]+=1
                         elif wType == "Ice":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Thick Fat"]:
                                     pass
                                 else:
-                                    iceArray[1]+=1
+                                    self.iceDefArray[1]+=1
                             else:
-                                iceArray[1]+=1
+                                self.iceDefArray[1]+=1
                         elif wType == "Fighting":
-                            fightingArray[1]+=1
+                            self.fightingDefArray[1]+=1
                         elif wType == "Poison":
-                            poisonArray[1]+=1
+                            self.poisonDefArray[1]+=1
                         elif wType == "Ground":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Levitate"]:
-                                    groundArray[4]+=1
+                                    self.groundDefArray[4]+=1
                                 else:
-                                    groundArray[1]+=1
+                                    self.groundDefArray[1]+=1
                             else:
-                                groundArray[1]+=1
+                                self.groundDefArray[1]+=1
                         elif wType == "Flying":
-                            flyingArray[1]+=1
+                            self.flyingDefArray[1]+=1
                         elif wType == "Psychic":
-                            psychicArray[1]+=1
+                            self.psychicDefArray[1]+=1
                         elif wType == "Bug":
-                            bugArray[1]+=1
+                            self.bugDefArray[1]+=1
                         elif wType == "Rock":
-                            rockArray[1]+=1
+                            self.rockDefArray[1]+=1
                         elif wType == "Ghost":
-                            ghostArray[1]+=1
+                            self.ghostDefArray[1]+=1
                         elif wType == "Dragon":
-                            dragonArray[1]+=1
+                            self.dragonDefArray[1]+=1
                         elif wType == "Dark":
-                            darkArray[1]+=1
+                            self.darkDefArray[1]+=1
                         elif wType == "Steel":
-                            steelArray[1]+=1
+                            self.steelDefArray[1]+=1
                         elif wType == "Fairy":
-                            fairyArray[1]+=1
+                            self.fairyDefArray[1]+=1
                         elif wType == "":
                             pass
                         else:
@@ -1957,83 +1998,83 @@ class TeamAnalyzer:
                     r = typesDict[typesList[0]]["resistances"]
                     for rType in r:
                         if rType == "Normal":
-                            normalArray[2]+=1
+                            self.normalDefArray[2]+=1
                         elif rType == "Fire":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Flash Fire", "Primordial Sea"]:
-                                    fireArray[4]+=1
+                                    self.fireDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Thick Fat", "Water Bubble", "Drizzle"]:
-                                    fireArray[3]+=1
+                                    self.fireDefArray[3]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Fluffy"]:
                                     pass
                                 else:
-                                    fireArray[2]+=1
+                                    self.fireDefArray[2]+=1
                             else:
-                                fireArray[2]+=1
+                                self.fireDefArray[2]+=1
                         elif rType == "Water":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Storm Drain", "Water Absorb", "Desolate Land","Dry Skin"]:
-                                    waterArray[4]+=1
+                                    self.waterDefArray[4]+=1
                                 elif shell.teamMatesDict[member]["ability"] in ["Drought"]:
-                                    waterArray[3]+=1
+                                    self.waterDefArray[3]+=1
                                 else:
-                                    waterArray[2]+=1
+                                    self.waterDefArray[2]+=1
                             else:
-                                waterArray[2]+=1
+                                self.waterDefArray[2]+=1
                         elif rType == "Electric":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Lightning Rod", "Volt Absorb", "Motor Drive"]:
-                                    electricArray[4]+=1
+                                    self.electricDefArray[4]+=1
                                 else:
-                                    electricArray[2]+=1
+                                    self.electricDefArray[2]+=1
                             else:
-                                electricArray[2]+=1
+                                self.electricDefArray[2]+=1
                         elif rType == "Grass":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Sap Sipper"]:
-                                    grassArray[4]+=1
+                                    self.grassDefArray[4]+=1
                                 else:
-                                    grassArray[2]+=1
+                                    self.grassDefArray[2]+=1
                             else:
-                                grassArray[2]+=1
+                                self.grassDefArray[2]+=1
                         elif rType == "Ice":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Thick Fat"]:
-                                    iceArray[3]+=1
+                                    self.iceDefArray[3]+=1
                                 else:
-                                    iceArray[2]+=1
+                                    self.iceDefArray[2]+=1
                             else:
-                                iceArray[2]+=1
+                                self.iceDefArray[2]+=1
                         elif rType == "Fighting":
-                            fightingArray[2]+=1
+                            self.fightingDefArray[2]+=1
                         elif rType == "Poison":
-                            poisonArray[2]+=1
+                            self.poisonDefArray[2]+=1
                         elif rType == "Ground":
                             if member in shell.teamMatesDict:
                                 if shell.teamMatesDict[member]["ability"] in ["Levitate"]:
-                                    groundArray[4]+=1
+                                    self.groundDefArray[4]+=1
                                 else:
-                                    groundArray[2]+=1
+                                    self.groundDefArray[2]+=1
                             else:
-                                groundArray[2]+=1
+                                self.groundDefArray[2]+=1
                         elif rType == "Flying":
-                            flyingArray[2]+=1
+                            self.flyingDefArray[2]+=1
                         elif rType == "Psychic":
-                            psychicArray[2]+=1
+                            self.psychicDefArray[2]+=1
                         elif rType == "Bug":
-                            bugArray[2]+=1
+                            self.bugDefArray[2]+=1
                         elif rType == "Rock":
-                            rockArray[2]+=1
+                            self.rockDefArray[2]+=1
                         elif rType == "Ghost":
-                            ghostArray[2]+=1
+                            self.ghostDefArray[2]+=1
                         elif rType == "Dragon":
-                            dragonArray[2]+=1
+                            self.dragonDefArray[2]+=1
                         elif rType == "Dark":
-                            darkArray[2]+=1
+                            self.darkDefArray[2]+=1
                         elif rType == "Steel":
-                            steelArray[2]+=1
+                            self.steelDefArray[2]+=1
                         elif rType == "Fairy":
-                            fairyArray[2]+=1
+                            self.fairyDefArray[2]+=1
                         elif rType == "":
                             pass
                         else:
@@ -2041,209 +2082,209 @@ class TeamAnalyzer:
                     i = typesDict[typesList[0]]["immunities"]
                     for iType in i:
                         if iType == "Normal":
-                            normalArray[4]+=1
+                            self.normalDefArray[4]+=1
                         elif iType == "Fire":
-                            fireArray[4]+=1
+                            self.fireDefArray[4]+=1
                         elif iType == "Water":
-                            waterArray[4]+=1
+                            self.waterDefArray[4]+=1
                         elif iType == "Electric":
-                            electricArray[4]+=1
+                            self.electricDefArray[4]+=1
                         elif iType == "Grass":
-                            grassArray[4]+=1
+                            self.grassDefArray[4]+=1
                         elif iType == "Ice":
-                            iceArray[4]+=1
+                            self.iceDefArray[4]+=1
                         elif iType == "Fighting":
-                            fightingArray[4]+=1
+                            self.fightingDefArray[4]+=1
                         elif iType == "Poison":
-                            poisonArray[4]+=1
+                            self.poisonDefArray[4]+=1
                         elif iType == "Ground":
-                            groundArray[4]+=1
+                            self.groundDefArray[4]+=1
                         elif iType == "Flying":
-                            flyingArray[4]+=1
+                            self.flyingDefArray[4]+=1
                         elif iType == "Psychic":
-                            psychicArray[4]+=1
+                            self.psychicDefArray[4]+=1
                         elif iType == "Bug":
-                            bugArray[4]+=1
+                            self.bugDefArray[4]+=1
                         elif iType == "Rock":
-                            rockArray[4]+=1
+                            self.rockDefArray[4]+=1
                         elif iType == "Ghost":
-                            ghostArray[4]+=1
+                            self.ghostDefArray[4]+=1
                         elif iType == "Dragon":
-                            dragonArray[4]+=1
+                            self.dragonDefArray[4]+=1
                         elif iType == "Dark":
-                            darkArray[4]+=1
+                            self.darkDefArray[4]+=1
                         elif iType == "Steel":
-                            steelArray[4]+=1
+                            self.steelDefArray[4]+=1
                         elif iType == "Fairy":
-                            fairyArray[4]+=1
+                            self.fairyDefArray[4]+=1
                         elif iType == "":
                             pass
                         else:
                             print("An error occurred when registering Immunities")
 
-            self.normalzeroDefText.set(normalArray[4])
-            self.normalquarterDefText.set(normalArray[3])
-            self.normalhalfDefText.set(normalArray[2])
-            self.normaloneDefText.set(len(shell.teamMateNames)-normalArray[4]-normalArray[3]-normalArray[2]-normalArray[1]-normalArray[0])
-            self.normaltwoDefText.set(normalArray[1])
-            self.normalfourDefText.set(normalArray[0])
-            self.defTypeColor(normalArray,self.normalzeroDefLabel,self.normalquarterDefLabel,self.normalhalfDefLabel,self.normaltwoDefLabel,self.normalfourDefLabel)
+            self.normalzeroDefText.set(self.normalDefArray[4])
+            self.normalquarterDefText.set(self.normalDefArray[3])
+            self.normalhalfDefText.set(self.normalDefArray[2])
+            self.normaloneDefText.set(len(shell.teamMateNames)-self.normalDefArray[4]-self.normalDefArray[3]-self.normalDefArray[2]-self.normalDefArray[1]-self.normalDefArray[0])
+            self.normaltwoDefText.set(self.normalDefArray[1])
+            self.normalfourDefText.set(self.normalDefArray[0])
+            self.defTypeColor(self.normalDefArray,self.normalzeroDefLabel,self.normalquarterDefLabel,self.normalhalfDefLabel,self.normaltwoDefLabel,self.normalfourDefLabel)
 
-            self.firezeroDefText.set(fireArray[4])
-            self.firequarterDefText.set(fireArray[3])
-            self.firehalfDefText.set(fireArray[2])
-            self.fireoneDefText.set(len(shell.teamMateNames)-fireArray[4]-fireArray[3]-fireArray[2]-fireArray[1]-fireArray[0])
-            self.firetwoDefText.set(fireArray[1])
-            self.firefourDefText.set(fireArray[0])
-            self.defTypeColor(fireArray, self.firezeroDefLabel, self.firequarterDefLabel, self.firehalfDefLabel,self.firetwoDefLabel, self.firefourDefLabel)
+            self.firezeroDefText.set(self.fireDefArray[4])
+            self.firequarterDefText.set(self.fireDefArray[3])
+            self.firehalfDefText.set(self.fireDefArray[2])
+            self.fireoneDefText.set(len(shell.teamMateNames)-self.fireDefArray[4]-self.fireDefArray[3]-self.fireDefArray[2]-self.fireDefArray[1]-self.fireDefArray[0])
+            self.firetwoDefText.set(self.fireDefArray[1])
+            self.firefourDefText.set(self.fireDefArray[0])
+            self.defTypeColor(self.fireDefArray, self.firezeroDefLabel, self.firequarterDefLabel, self.firehalfDefLabel,self.firetwoDefLabel, self.firefourDefLabel)
 
-            self.waterzeroDefText.set(waterArray[4])
-            self.waterquarterDefText.set(waterArray[3])
-            self.waterhalfDefText.set(waterArray[2])
-            self.wateroneDefText.set(len(shell.teamMateNames)-waterArray[4]-waterArray[3]-waterArray[2]-waterArray[1]-waterArray[0])
-            self.watertwoDefText.set(waterArray[1])
-            self.waterfourDefText.set(waterArray[0])
-            self.defTypeColor(waterArray, self.waterzeroDefLabel, self.waterquarterDefLabel, self.waterhalfDefLabel,self.watertwoDefLabel, self.waterfourDefLabel)
+            self.waterzeroDefText.set(self.waterDefArray[4])
+            self.waterquarterDefText.set(self.waterDefArray[3])
+            self.waterhalfDefText.set(self.waterDefArray[2])
+            self.wateroneDefText.set(len(shell.teamMateNames)-self.waterDefArray[4]-self.waterDefArray[3]-self.waterDefArray[2]-self.waterDefArray[1]-self.waterDefArray[0])
+            self.watertwoDefText.set(self.waterDefArray[1])
+            self.waterfourDefText.set(self.waterDefArray[0])
+            self.defTypeColor(self.waterDefArray, self.waterzeroDefLabel, self.waterquarterDefLabel, self.waterhalfDefLabel,self.watertwoDefLabel, self.waterfourDefLabel)
 
-            self.electriczeroDefText.set(electricArray[4])
-            self.electricquarterDefText.set(electricArray[3])
-            self.electrichalfDefText.set(electricArray[2])
-            self.electriconeDefText.set(len(shell.teamMateNames)-electricArray[4]-electricArray[3]-electricArray[2]-electricArray[1]-electricArray[0])
-            self.electrictwoDefText.set(electricArray[1])
-            self.electricfourDefText.set(electricArray[0])
-            self.defTypeColor(electricArray, self.electriczeroDefLabel, self.electricquarterDefLabel, self.electrichalfDefLabel,self.electrictwoDefLabel, self.electricfourDefLabel)
+            self.electriczeroDefText.set(self.electricDefArray[4])
+            self.electricquarterDefText.set(self.electricDefArray[3])
+            self.electrichalfDefText.set(self.electricDefArray[2])
+            self.electriconeDefText.set(len(shell.teamMateNames)-self.electricDefArray[4]-self.electricDefArray[3]-self.electricDefArray[2]-self.electricDefArray[1]-self.electricDefArray[0])
+            self.electrictwoDefText.set(self.electricDefArray[1])
+            self.electricfourDefText.set(self.electricDefArray[0])
+            self.defTypeColor(self.electricDefArray, self.electriczeroDefLabel, self.electricquarterDefLabel, self.electrichalfDefLabel,self.electrictwoDefLabel, self.electricfourDefLabel)
 
-            self.grasszeroDefText.set(grassArray[4])
-            self.grassquarterDefText.set(grassArray[3])
-            self.grasshalfDefText.set(grassArray[2])
-            self.grassoneDefText.set(len(shell.teamMateNames)-grassArray[4]-grassArray[3]-grassArray[2]-grassArray[1]-grassArray[0])
-            self.grasstwoDefText.set(grassArray[1])
-            self.electricfourDefText.set(grassArray[0])
-            self.defTypeColor(grassArray, self.grasszeroDefLabel, self.grassquarterDefLabel, self.grasshalfDefLabel,self.grasstwoDefLabel, self.grassfourDefLabel)
+            self.grasszeroDefText.set(self.grassDefArray[4])
+            self.grassquarterDefText.set(self.grassDefArray[3])
+            self.grasshalfDefText.set(self.grassDefArray[2])
+            self.grassoneDefText.set(len(shell.teamMateNames)-self.grassDefArray[4]-self.grassDefArray[3]-self.grassDefArray[2]-self.grassDefArray[1]-self.grassDefArray[0])
+            self.grasstwoDefText.set(self.grassDefArray[1])
+            self.electricfourDefText.set(self.grassDefArray[0])
+            self.defTypeColor(self.grassDefArray, self.grasszeroDefLabel, self.grassquarterDefLabel, self.grasshalfDefLabel,self.grasstwoDefLabel, self.grassfourDefLabel)
 
-            self.icezeroDefText.set(iceArray[4])
-            self.icequarterDefText.set(iceArray[3])
-            self.icehalfDefText.set(iceArray[2])
-            self.iceoneDefText.set(len(shell.teamMateNames)-iceArray[4]-iceArray[3]-iceArray[2]-iceArray[1]-iceArray[0])
-            self.icetwoDefText.set(iceArray[1])
-            self.icefourDefText.set(iceArray[0])
-            self.defTypeColor(iceArray, self.icezeroDefLabel, self.icequarterDefLabel, self.icehalfDefLabel,self.icetwoDefLabel, self.icefourDefLabel)
+            self.icezeroDefText.set(self.iceDefArray[4])
+            self.icequarterDefText.set(self.iceDefArray[3])
+            self.icehalfDefText.set(self.iceDefArray[2])
+            self.iceoneDefText.set(len(shell.teamMateNames)-self.iceDefArray[4]-self.iceDefArray[3]-self.iceDefArray[2]-self.iceDefArray[1]-self.iceDefArray[0])
+            self.icetwoDefText.set(self.iceDefArray[1])
+            self.icefourDefText.set(self.iceDefArray[0])
+            self.defTypeColor(self.iceDefArray, self.icezeroDefLabel, self.icequarterDefLabel, self.icehalfDefLabel,self.icetwoDefLabel, self.icefourDefLabel)
 
-            self.fightingzeroDefText.set(fightingArray[4])
-            self.fightingquarterDefText.set(fightingArray[3])
-            self.fightinghalfDefText.set(fightingArray[2])
-            self.fightingoneDefText.set(len(shell.teamMateNames)-fightingArray[4]-fightingArray[3]-fightingArray[2]-fightingArray[1]-fightingArray[0])
-            self.fightingtwoDefText.set(fightingArray[1])
-            self.fightingfourDefText.set(fightingArray[0])
-            self.defTypeColor(fightingArray, self.fightingzeroDefLabel, self.fightingquarterDefLabel, self.fightinghalfDefLabel,self.fightingtwoDefLabel, self.fightingfourDefLabel)
+            self.fightingzeroDefText.set(self.fightingDefArray[4])
+            self.fightingquarterDefText.set(self.fightingDefArray[3])
+            self.fightinghalfDefText.set(self.fightingDefArray[2])
+            self.fightingoneDefText.set(len(shell.teamMateNames)-self.fightingDefArray[4]-self.fightingDefArray[3]-self.fightingDefArray[2]-self.fightingDefArray[1]-self.fightingDefArray[0])
+            self.fightingtwoDefText.set(self.fightingDefArray[1])
+            self.fightingfourDefText.set(self.fightingDefArray[0])
+            self.defTypeColor(self.fightingDefArray, self.fightingzeroDefLabel, self.fightingquarterDefLabel, self.fightinghalfDefLabel,self.fightingtwoDefLabel, self.fightingfourDefLabel)
 
-            self.poisonzeroDefText.set(poisonArray[4])
-            self.poisonquarterDefText.set(poisonArray[3])
-            self.poisonhalfDefText.set(poisonArray[2])
-            self.poisononeDefText.set(len(shell.teamMateNames)-poisonArray[4]-poisonArray[3]-poisonArray[2]-poisonArray[1]-poisonArray[0])
-            self.poisontwoDefText.set(poisonArray[1])
-            self.poisonfourDefText.set(poisonArray[0])
-            self.defTypeColor(poisonArray, self.poisonzeroDefLabel, self.poisonquarterDefLabel, self.poisonhalfDefLabel,self.poisontwoDefLabel, self.poisonfourDefLabel)
+            self.poisonzeroDefText.set(self.poisonDefArray[4])
+            self.poisonquarterDefText.set(self.poisonDefArray[3])
+            self.poisonhalfDefText.set(self.poisonDefArray[2])
+            self.poisononeDefText.set(len(shell.teamMateNames)-self.poisonDefArray[4]-self.poisonDefArray[3]-self.poisonDefArray[2]-self.poisonDefArray[1]-self.poisonDefArray[0])
+            self.poisontwoDefText.set(self.poisonDefArray[1])
+            self.poisonfourDefText.set(self.poisonDefArray[0])
+            self.defTypeColor(self.poisonDefArray, self.poisonzeroDefLabel, self.poisonquarterDefLabel, self.poisonhalfDefLabel,self.poisontwoDefLabel, self.poisonfourDefLabel)
 
-            self.groundzeroDefText.set(groundArray[4])
-            self.groundquarterDefText.set(groundArray[3])
-            self.groundhalfDefText.set(groundArray[2])
-            self.groundoneDefText.set(len(shell.teamMateNames)-groundArray[4]-groundArray[3]-groundArray[2]-groundArray[1]-groundArray[0])
-            self.groundtwoDefText.set(groundArray[1])
-            self.groundfourDefText.set(groundArray[0])
-            self.defTypeColor(groundArray, self.groundzeroDefLabel, self.groundquarterDefLabel, self.groundhalfDefLabel,self.groundtwoDefLabel, self.groundfourDefLabel)
+            self.groundzeroDefText.set(self.groundDefArray[4])
+            self.groundquarterDefText.set(self.groundDefArray[3])
+            self.groundhalfDefText.set(self.groundDefArray[2])
+            self.groundoneDefText.set(len(shell.teamMateNames)-self.groundDefArray[4]-self.groundDefArray[3]-self.groundDefArray[2]-self.groundDefArray[1]-self.groundDefArray[0])
+            self.groundtwoDefText.set(self.groundDefArray[1])
+            self.groundfourDefText.set(self.groundDefArray[0])
+            self.defTypeColor(self.groundDefArray, self.groundzeroDefLabel, self.groundquarterDefLabel, self.groundhalfDefLabel,self.groundtwoDefLabel, self.groundfourDefLabel)
 
-            self.flyingzeroDefText.set(flyingArray[4])
-            self.flyingquarterDefText.set(flyingArray[3])
-            self.flyinghalfDefText.set(flyingArray[2])
-            self.flyingoneDefText.set(len(shell.teamMateNames)-flyingArray[4]-flyingArray[3]-flyingArray[2]-flyingArray[1]-flyingArray[0])
-            self.flyingtwoDefText.set(flyingArray[1])
-            self.flyingfourDefText.set(flyingArray[0])
-            self.defTypeColor(flyingArray, self.flyingzeroDefLabel, self.flyingquarterDefLabel, self.flyinghalfDefLabel,self.flyingtwoDefLabel, self.flyingfourDefLabel)
+            self.flyingzeroDefText.set(self.flyingDefArray[4])
+            self.flyingquarterDefText.set(self.flyingDefArray[3])
+            self.flyinghalfDefText.set(self.flyingDefArray[2])
+            self.flyingoneDefText.set(len(shell.teamMateNames)-self.flyingDefArray[4]-self.flyingDefArray[3]-self.flyingDefArray[2]-self.flyingDefArray[1]-self.flyingDefArray[0])
+            self.flyingtwoDefText.set(self.flyingDefArray[1])
+            self.flyingfourDefText.set(self.flyingDefArray[0])
+            self.defTypeColor(self.flyingDefArray, self.flyingzeroDefLabel, self.flyingquarterDefLabel, self.flyinghalfDefLabel,self.flyingtwoDefLabel, self.flyingfourDefLabel)
 
-            self.psychiczeroDefText.set(psychicArray[4])
-            self.psychicquarterDefText.set(psychicArray[3])
-            self.psychichalfDefText.set(psychicArray[2])
-            self.psychiconeDefText.set(len(shell.teamMateNames)-psychicArray[4]-psychicArray[3]-psychicArray[2]-psychicArray[1]-psychicArray[0])
-            self.psychictwoDefText.set(psychicArray[1])
-            self.psychicfourDefText.set(psychicArray[0])
-            self.defTypeColor(psychicArray, self.psychiczeroDefLabel, self.psychicquarterDefLabel, self.psychichalfDefLabel,self.psychictwoDefLabel, self.psychicfourDefLabel)
+            self.psychiczeroDefText.set(self.psychicDefArray[4])
+            self.psychicquarterDefText.set(self.psychicDefArray[3])
+            self.psychichalfDefText.set(self.psychicDefArray[2])
+            self.psychiconeDefText.set(len(shell.teamMateNames)-self.psychicDefArray[4]-self.psychicDefArray[3]-self.psychicDefArray[2]-self.psychicDefArray[1]-self.psychicDefArray[0])
+            self.psychictwoDefText.set(self.psychicDefArray[1])
+            self.psychicfourDefText.set(self.psychicDefArray[0])
+            self.defTypeColor(self.psychicDefArray, self.psychiczeroDefLabel, self.psychicquarterDefLabel, self.psychichalfDefLabel,self.psychictwoDefLabel, self.psychicfourDefLabel)
 
-            self.bugzeroDefText.set(bugArray[4])
-            self.bugquarterDefText.set(bugArray[3])
-            self.bughalfDefText.set(bugArray[2])
-            self.bugoneDefText.set(len(shell.teamMateNames)-bugArray[4]-bugArray[3]-bugArray[2]-bugArray[1]-bugArray[0])
-            self.bugtwoDefText.set(bugArray[1])
-            self.bugfourDefText.set(bugArray[0])
-            self.defTypeColor(bugArray, self.bugzeroDefLabel, self.bugquarterDefLabel, self.bughalfDefLabel,self.bugtwoDefLabel, self.bugfourDefLabel)
+            self.bugzeroDefText.set(self.bugDefArray[4])
+            self.bugquarterDefText.set(self.bugDefArray[3])
+            self.bughalfDefText.set(self.bugDefArray[2])
+            self.bugoneDefText.set(len(shell.teamMateNames)-self.bugDefArray[4]-self.bugDefArray[3]-self.bugDefArray[2]-self.bugDefArray[1]-self.bugDefArray[0])
+            self.bugtwoDefText.set(self.bugDefArray[1])
+            self.bugfourDefText.set(self.bugDefArray[0])
+            self.defTypeColor(self.bugDefArray, self.bugzeroDefLabel, self.bugquarterDefLabel, self.bughalfDefLabel,self.bugtwoDefLabel, self.bugfourDefLabel)
 
-            self.rockzeroDefText.set(rockArray[4])
-            self.rockquarterDefText.set(rockArray[3])
-            self.rockhalfDefText.set(rockArray[2])
-            self.rockoneDefText.set(len(shell.teamMateNames)-rockArray[4]-rockArray[3]-rockArray[2]-rockArray[1]-rockArray[0])
-            self.rocktwoDefText.set(rockArray[1])
-            self.rockfourDefText.set(rockArray[0])
-            self.defTypeColor(rockArray, self.rockzeroDefLabel, self.rockquarterDefLabel, self.rockhalfDefLabel,self.rocktwoDefLabel, self.rockfourDefLabel)
+            self.rockzeroDefText.set(self.rockDefArray[4])
+            self.rockquarterDefText.set(self.rockDefArray[3])
+            self.rockhalfDefText.set(self.rockDefArray[2])
+            self.rockoneDefText.set(len(shell.teamMateNames)-self.rockDefArray[4]-self.rockDefArray[3]-self.rockDefArray[2]-self.rockDefArray[1]-self.rockDefArray[0])
+            self.rocktwoDefText.set(self.rockDefArray[1])
+            self.rockfourDefText.set(self.rockDefArray[0])
+            self.defTypeColor(self.rockDefArray, self.rockzeroDefLabel, self.rockquarterDefLabel, self.rockhalfDefLabel,self.rocktwoDefLabel, self.rockfourDefLabel)
 
-            self.ghostzeroDefText.set(ghostArray[4])
-            self.ghostquarterDefText.set(ghostArray[3])
-            self.ghosthalfDefText.set(ghostArray[2])
-            self.ghostoneDefText.set(len(shell.teamMateNames)-ghostArray[4]-ghostArray[3]-ghostArray[2]-ghostArray[1]-ghostArray[0])
-            self.ghosttwoDefText.set(ghostArray[1])
-            self.ghostfourDefText.set(ghostArray[0])
-            self.defTypeColor(ghostArray, self.ghostzeroDefLabel, self.ghostquarterDefLabel, self.ghosthalfDefLabel,self.ghosttwoDefLabel, self.ghostfourDefLabel)
+            self.ghostzeroDefText.set(self.ghostDefArray[4])
+            self.ghostquarterDefText.set(self.ghostDefArray[3])
+            self.ghosthalfDefText.set(self.ghostDefArray[2])
+            self.ghostoneDefText.set(len(shell.teamMateNames)-self.ghostDefArray[4]-self.ghostDefArray[3]-self.ghostDefArray[2]-self.ghostDefArray[1]-self.ghostDefArray[0])
+            self.ghosttwoDefText.set(self.ghostDefArray[1])
+            self.ghostfourDefText.set(self.ghostDefArray[0])
+            self.defTypeColor(self.ghostDefArray, self.ghostzeroDefLabel, self.ghostquarterDefLabel, self.ghosthalfDefLabel,self.ghosttwoDefLabel, self.ghostfourDefLabel)
 
-            self.dragonzeroDefText.set(dragonArray[4])
-            self.dragonquarterDefText.set(dragonArray[3])
-            self.dragonhalfDefText.set(dragonArray[2])
-            self.dragononeDefText.set(len(shell.teamMateNames)-dragonArray[4]-dragonArray[3]-dragonArray[2]-dragonArray[1]-dragonArray[0])
-            self.dragontwoDefText.set(dragonArray[1])
-            self.dragonfourDefText.set(dragonArray[0])
-            self.defTypeColor(dragonArray, self.dragonzeroDefLabel, self.dragonquarterDefLabel, self.dragonhalfDefLabel,self.dragontwoDefLabel, self.dragonfourDefLabel)
+            self.dragonzeroDefText.set(self.dragonDefArray[4])
+            self.dragonquarterDefText.set(self.dragonDefArray[3])
+            self.dragonhalfDefText.set(self.dragonDefArray[2])
+            self.dragononeDefText.set(len(shell.teamMateNames)-self.dragonDefArray[4]-self.dragonDefArray[3]-self.dragonDefArray[2]-self.dragonDefArray[1]-self.dragonDefArray[0])
+            self.dragontwoDefText.set(self.dragonDefArray[1])
+            self.dragonfourDefText.set(self.dragonDefArray[0])
+            self.defTypeColor(self.dragonDefArray, self.dragonzeroDefLabel, self.dragonquarterDefLabel, self.dragonhalfDefLabel,self.dragontwoDefLabel, self.dragonfourDefLabel)
 
-            self.darkzeroDefText.set(darkArray[4])
-            self.darkquarterDefText.set(darkArray[3])
-            self.darkhalfDefText.set(darkArray[2])
-            self.darkoneDefText.set(len(shell.teamMateNames)-darkArray[4]-darkArray[3]-darkArray[2]-darkArray[1]-darkArray[0])
-            self.darktwoDefText.set(darkArray[1])
-            self.darkfourDefText.set(darkArray[0])
-            self.defTypeColor(darkArray, self.darkzeroDefLabel, self.darkquarterDefLabel, self.darkhalfDefLabel,self.darktwoDefLabel, self.darkfourDefLabel)
+            self.darkzeroDefText.set(self.darkDefArray[4])
+            self.darkquarterDefText.set(self.darkDefArray[3])
+            self.darkhalfDefText.set(self.darkDefArray[2])
+            self.darkoneDefText.set(len(shell.teamMateNames)-self.darkDefArray[4]-self.darkDefArray[3]-self.darkDefArray[2]-self.darkDefArray[1]-self.darkDefArray[0])
+            self.darktwoDefText.set(self.darkDefArray[1])
+            self.darkfourDefText.set(self.darkDefArray[0])
+            self.defTypeColor(self.darkDefArray, self.darkzeroDefLabel, self.darkquarterDefLabel, self.darkhalfDefLabel,self.darktwoDefLabel, self.darkfourDefLabel)
 
-            self.steelzeroDefText.set(steelArray[4])
-            self.steelquarterDefText.set(steelArray[3])
-            self.steelhalfDefText.set(steelArray[2])
-            self.steeloneDefText.set(len(shell.teamMateNames)-steelArray[4]-steelArray[3]-steelArray[2]-steelArray[1]-steelArray[0])
-            self.steeltwoDefText.set(steelArray[1])
-            self.steelfourDefText.set(steelArray[0])
-            self.defTypeColor(steelArray, self.steelzeroDefLabel, self.steelquarterDefLabel, self.steelhalfDefLabel,self.steeltwoDefLabel, self.steelfourDefLabel)
+            self.steelzeroDefText.set(self.steelDefArray[4])
+            self.steelquarterDefText.set(self.steelDefArray[3])
+            self.steelhalfDefText.set(self.steelDefArray[2])
+            self.steeloneDefText.set(len(shell.teamMateNames)-self.steelDefArray[4]-self.steelDefArray[3]-self.steelDefArray[2]-self.steelDefArray[1]-self.steelDefArray[0])
+            self.steeltwoDefText.set(self.steelDefArray[1])
+            self.steelfourDefText.set(self.steelDefArray[0])
+            self.defTypeColor(self.steelDefArray, self.steelzeroDefLabel, self.steelquarterDefLabel, self.steelhalfDefLabel,self.steeltwoDefLabel, self.steelfourDefLabel)
 
-            self.fairyzeroDefText.set(fairyArray[4])
-            self.fairyquarterDefText.set(fairyArray[3])
-            self.fairyhalfDefText.set(fairyArray[2])
-            self.fairyoneDefText.set(len(shell.teamMateNames)-fairyArray[4]-fairyArray[3]-fairyArray[2]-fairyArray[1]-fairyArray[0])
-            self.fairytwoDefText.set(fairyArray[1])
-            self.fairyfourDefText.set(fairyArray[0])
-            self.defTypeColor(fairyArray, self.fairyzeroDefLabel, self.fairyquarterDefLabel, self.fairyhalfDefLabel,self.fairytwoDefLabel, self.fairyfourDefLabel)
+            self.fairyzeroDefText.set(self.fairyDefArray[4])
+            self.fairyquarterDefText.set(self.fairyDefArray[3])
+            self.fairyhalfDefText.set(self.fairyDefArray[2])
+            self.fairyoneDefText.set(len(shell.teamMateNames)-self.fairyDefArray[4]-self.fairyDefArray[3]-self.fairyDefArray[2]-self.fairyDefArray[1]-self.fairyDefArray[0])
+            self.fairytwoDefText.set(self.fairyDefArray[1])
+            self.fairyfourDefText.set(self.fairyDefArray[0])
+            self.defTypeColor(self.fairyDefArray, self.fairyzeroDefLabel, self.fairyquarterDefLabel, self.fairyhalfDefLabel,self.fairytwoDefLabel, self.fairyfourDefLabel)
 
         elif option=="moves":
-            normalArray = [0,0,0]
-            fireArray = [0,0,0]
-            waterArray = [0,0,0]
-            electricArray = [0,0,0]
-            grassArray = [0,0,0]
-            iceArray = [0,0,0]
-            fightingArray = [0,0,0]
-            poisonArray = [0,0,0]
-            groundArray = [0,0,0]
-            flyingArray = [0,0,0]
-            psychicArray = [0,0,0]
-            bugArray = [0,0,0]
-            rockArray = [0,0,0]
-            ghostArray = [0,0,0]
-            dragonArray = [0,0,0]
-            darkArray = [0,0,0]
-            steelArray = [0,0,0]
-            fairyArray = [0,0,0]
+            self.normalOffArray = [0,0,0]
+            self.fireOffArray = [0,0,0]
+            self.waterOffArray = [0,0,0]
+            self.electricOffArray = [0,0,0]
+            self.grassOffArray = [0,0,0]
+            self.iceOffArray = [0,0,0]
+            self.fightingOffArray = [0,0,0]
+            self.poisonOffArray = [0,0,0]
+            self.groundOffArray = [0,0,0]
+            self.flyingOffArray = [0,0,0]
+            self.psychicOffArray = [0,0,0]
+            self.bugOffArray = [0,0,0]
+            self.rockOffArray = [0,0,0]
+            self.ghostOffArray = [0,0,0]
+            self.dragonOffArray = [0,0,0]
+            self.darkOffArray = [0,0,0]
+            self.steelOffArray = [0,0,0]
+            self.fairyOffArray = [0,0,0]
 
             typesDict = Pokedex.loadTypes()
 
@@ -2256,41 +2297,41 @@ class TeamAnalyzer:
                         se = typesDict[type]["superEffective"]
                         for seType in se:
                             if seType == "Normal":
-                                normalArray[0]+=1
+                                self.normalOffArray[0]+=1
                             elif seType == "Fire":
-                                fireArray[0]+=1
+                                self.fireOffArray[0]+=1
                             elif seType == "Water":
-                                waterArray[0]+=1
+                                self.waterOffArray[0]+=1
                             elif seType == "Electric":
-                                electricArray[0]+=1
+                                self.electricOffArray[0]+=1
                             elif seType == "Grass":
-                                grassArray[0]+=1
+                                self.grassOffArray[0]+=1
                             elif seType == "Ice":
-                                iceArray[0]+=1
+                                self.iceOffArray[0]+=1
                             elif seType == "Fighting":
-                                fightingArray[0]+=1
+                                self.fightingOffArray[0]+=1
                             elif seType == "Poison":
-                                poisonArray[0]+=1
+                                self.poisonOffArray[0]+=1
                             elif seType == "Ground":
-                                groundArray[0]+=1
+                                self.groundOffArray[0]+=1
                             elif seType == "Flying":
-                                flyingArray[0]+=1
+                                self.flyingOffArray[0]+=1
                             elif seType == "Psychic":
-                                psychicArray[0]+=1
+                                self.psychicOffArray[0]+=1
                             elif seType == "Bug":
-                                bugArray[0]+=1
+                                self.bugOffArray[0]+=1
                             elif seType == "Rock":
-                                rockArray[0]+=1
+                                self.rockOffArray[0]+=1
                             elif seType == "Ghost":
-                                ghostArray[0]+=1
+                                self.ghostOffArray[0]+=1
                             elif seType == "Dragon":
-                                dragonArray[0]+=1
+                                self.dragonOffArray[0]+=1
                             elif seType == "Dark":
-                                darkArray[0]+=1
+                                self.darkOffArray[0]+=1
                             elif seType == "Steel":
-                                steelArray[0]+=1
+                                self.steelOffArray[0]+=1
                             elif seType == "Fairy":
-                                fairyArray[0]+=1
+                                self.fairyOffArray[0]+=1
                             elif seType == "":
                                 pass
                             else:
@@ -2298,41 +2339,41 @@ class TeamAnalyzer:
                         nve = typesDict[type]["notVeryEffective"]
                         for nveType in nve:
                             if nveType == "Normal":
-                                normalArray[1]+=1
+                                self.normalOffArray[1]+=1
                             elif nveType == "Fire":
-                                fireArray[1]+=1
+                                self.fireOffArray[1]+=1
                             elif nveType == "Water":
-                                waterArray[1]+=1
+                                self.waterOffArray[1]+=1
                             elif nveType == "Electric":
-                                electricArray[1]+=1
+                                self.electricOffArray[1]+=1
                             elif nveType == "Grass":
-                                grassArray[1]+=1
+                                self.grassOffArray[1]+=1
                             elif nveType == "Ice":
-                                iceArray[1]+=1
+                                self.iceOffArray[1]+=1
                             elif nveType == "Fighting":
-                                fightingArray[1]+=1
+                                self.fightingOffArray[1]+=1
                             elif nveType == "Poison":
-                                poisonArray[1]+=1
+                                self.poisonOffArray[1]+=1
                             elif nveType == "Ground":
-                                groundArray[1]+=1
+                                self.groundOffArray[1]+=1
                             elif nveType == "Flying":
-                                flyingArray[1]+=1
+                                self.flyingOffArray[1]+=1
                             elif nveType == "Psychic":
-                                psychicArray[1]+=1
+                                self.psychicOffArray[1]+=1
                             elif nveType == "Bug":
-                                bugArray[1]+=1
+                                self.bugOffArray[1]+=1
                             elif nveType == "Rock":
-                                rockArray[1]+=1
+                                self.rockOffArray[1]+=1
                             elif nveType == "Ghost":
-                                ghostArray[1]+=1
+                                self.ghostOffArray[1]+=1
                             elif nveType == "Dragon":
-                                dragonArray[1]+=1
+                                self.dragonOffArray[1]+=1
                             elif nveType == "Dark":
-                                darkArray[1]+=1
+                                self.darkOffArray[1]+=1
                             elif nveType == "Steel":
-                                steelArray[1]+=1
+                                self.steelOffArray[1]+=1
                             elif nveType == "Fairy":
-                                fairyArray[1]+=1
+                                self.fairyOffArray[1]+=1
                             elif nveType == "":
                                 pass
                             else:
@@ -2340,153 +2381,153 @@ class TeamAnalyzer:
                         ne = typesDict[type]["notEffective"]
                         for neType in ne:
                             if neType == "Normal":
-                                normalArray[2]+=1
+                                self.normalOffArray[2]+=1
                             elif neType == "Fire":
-                                fireArray[2]+=1
+                                self.fireOffArray[2]+=1
                             elif neType == "Water":
-                                waterArray[2]+=1
+                                self.waterOffArray[2]+=1
                             elif neType == "Electric":
-                                electricArray[2]+=1
+                                self.electricOffArray[2]+=1
                             elif neType == "Grass":
-                                grassArray[2]+=1
+                                self.grassOffArray[2]+=1
                             elif neType == "Ice":
-                                iceArray[2]+=1
+                                self.iceOffArray[2]+=1
                             elif neType == "Fighting":
-                                fightingArray[2]+=1
+                                self.fightingOffArray[2]+=1
                             elif neType == "Poison":
-                                poisonArray[2]+=1
+                                self.poisonOffArray[2]+=1
                             elif neType == "Ground":
-                                groundArray[2]+=1
+                                self.groundOffArray[2]+=1
                             elif neType == "Flying":
-                                flyingArray[2]+=1
+                                self.flyingOffArray[2]+=1
                             elif neType == "Psychic":
-                                psychicArray[2]+=1
+                                self.psychicOffArray[2]+=1
                             elif neType == "Bug":
-                                bugArray[2]+=1
+                                self.bugOffArray[2]+=1
                             elif neType == "Rock":
-                                rockArray[2]+=1
+                                self.rockOffArray[2]+=1
                             elif neType == "Ghost":
-                                ghostArray[2]+=1
+                                self.ghostOffArray[2]+=1
                             elif neType == "Dragon":
-                                dragonArray[2]+=1
+                                self.dragonOffArray[2]+=1
                             elif neType == "Dark":
-                                darkArray[2]+=1
+                                self.darkOffArray[2]+=1
                             elif neType == "Steel":
-                                steelArray[2]+=1
+                                self.steelOffArray[2]+=1
                             elif neType == "Fairy":
-                                fairyArray[2]+=1
+                                self.fairyOffArray[2]+=1
                             elif neType == "":
                                 pass
                             else:
                                 print("An error occurred when registering No-Effectivenesses")
 
-            self.normalzeroOffText.set(normalArray[2])
-            self.normalhalfOffText.set(normalArray[1])
-            self.normaloneOffText.set(k-normalArray[2]-normalArray[1]-normalArray[0])
-            self.normaltwoOffText.set(normalArray[0])
-            self.offTypeColor(normalArray,k,self.normalzeroOffLabel,self.normalhalfOffLabel,self.normaltwoOffLabel)
+            self.normalzeroOffText.set(self.normalOffArray[2])
+            self.normalhalfOffText.set(self.normalOffArray[1])
+            self.normaloneOffText.set(k-self.normalOffArray[2]-self.normalOffArray[1]-self.normalOffArray[0])
+            self.normaltwoOffText.set(self.normalOffArray[0])
+            self.offTypeColor(self.normalOffArray,k,self.normalzeroOffLabel,self.normalhalfOffLabel,self.normaltwoOffLabel)
 
-            self.firezeroOffText.set(fireArray[2])
-            self.firehalfOffText.set(fireArray[1])
-            self.fireoneOffText.set(k-fireArray[2]-fireArray[1]-fireArray[0])
-            self.firetwoOffText.set(fireArray[0])
-            self.offTypeColor(fireArray, k, self.firezeroOffLabel, self.firehalfOffLabel, self.firetwoOffLabel)
+            self.firezeroOffText.set(self.fireOffArray[2])
+            self.firehalfOffText.set(self.fireOffArray[1])
+            self.fireoneOffText.set(k-self.fireOffArray[2]-self.fireOffArray[1]-self.fireOffArray[0])
+            self.firetwoOffText.set(self.fireOffArray[0])
+            self.offTypeColor(self.fireOffArray, k, self.firezeroOffLabel, self.firehalfOffLabel, self.firetwoOffLabel)
 
-            self.waterzeroOffText.set(waterArray[2])
-            self.waterhalfOffText.set(waterArray[1])
-            self.wateroneOffText.set(k-waterArray[2]-waterArray[1]-waterArray[0])
-            self.watertwoOffText.set(waterArray[0])
-            self.offTypeColor(waterArray, k, self.waterzeroOffLabel, self.waterhalfOffLabel, self.watertwoOffLabel)
+            self.waterzeroOffText.set(self.waterOffArray[2])
+            self.waterhalfOffText.set(self.waterOffArray[1])
+            self.wateroneOffText.set(k-self.waterOffArray[2]-self.waterOffArray[1]-self.waterOffArray[0])
+            self.watertwoOffText.set(self.waterOffArray[0])
+            self.offTypeColor(self.waterOffArray, k, self.waterzeroOffLabel, self.waterhalfOffLabel, self.watertwoOffLabel)
 
-            self.electriczeroOffText.set(electricArray[2])
-            self.electrichalfOffText.set(electricArray[1])
-            self.electriconeOffText.set(k-electricArray[2]-electricArray[1]-electricArray[0])
-            self.electrictwoOffText.set(electricArray[0])
-            self.offTypeColor(electricArray, k, self.electriczeroOffLabel, self.electrichalfOffLabel, self.electrictwoOffLabel)
+            self.electriczeroOffText.set(self.electricOffArray[2])
+            self.electrichalfOffText.set(self.electricOffArray[1])
+            self.electriconeOffText.set(k-self.electricOffArray[2]-self.electricOffArray[1]-self.electricOffArray[0])
+            self.electrictwoOffText.set(self.electricOffArray[0])
+            self.offTypeColor(self.electricOffArray, k, self.electriczeroOffLabel, self.electrichalfOffLabel, self.electrictwoOffLabel)
 
-            self.grasszeroOffText.set(grassArray[2])
-            self.grasshalfOffText.set(grassArray[1])
-            self.grassoneOffText.set(k-grassArray[2]-grassArray[1]-grassArray[0])
-            self.grasstwoOffText.set(grassArray[0])
-            self.offTypeColor(grassArray, k, self.grasszeroOffLabel, self.grasshalfOffLabel, self.grasstwoOffLabel)
+            self.grasszeroOffText.set(self.grassOffArray[2])
+            self.grasshalfOffText.set(self.grassOffArray[1])
+            self.grassoneOffText.set(k-self.grassOffArray[2]-self.grassOffArray[1]-self.grassOffArray[0])
+            self.grasstwoOffText.set(self.grassOffArray[0])
+            self.offTypeColor(self.grassOffArray, k, self.grasszeroOffLabel, self.grasshalfOffLabel, self.grasstwoOffLabel)
 
-            self.icezeroOffText.set(iceArray[2])
-            self.icehalfOffText.set(iceArray[1])
-            self.iceoneOffText.set(k-iceArray[2]-iceArray[1]-iceArray[0])
-            self.icetwoOffText.set(iceArray[0])
-            self.offTypeColor(iceArray, k, self.icezeroOffLabel, self.icehalfOffLabel, self.icetwoOffLabel)
+            self.icezeroOffText.set(self.iceOffArray[2])
+            self.icehalfOffText.set(self.iceOffArray[1])
+            self.iceoneOffText.set(k-self.iceOffArray[2]-self.iceOffArray[1]-self.iceOffArray[0])
+            self.icetwoOffText.set(self.iceOffArray[0])
+            self.offTypeColor(self.iceOffArray, k, self.icezeroOffLabel, self.icehalfOffLabel, self.icetwoOffLabel)
 
-            self.fightingzeroOffText.set(fightingArray[2])
-            self.fightinghalfOffText.set(fightingArray[1])
-            self.fightingoneOffText.set(k-fightingArray[2]-fightingArray[1]-fightingArray[0])
-            self.fightingtwoOffText.set(fightingArray[0])
-            self.offTypeColor(fightingArray, k, self.fightingzeroOffLabel, self.fightinghalfOffLabel, self.fightingtwoOffLabel)
+            self.fightingzeroOffText.set(self.fightingOffArray[2])
+            self.fightinghalfOffText.set(self.fightingOffArray[1])
+            self.fightingoneOffText.set(k-self.fightingOffArray[2]-self.fightingOffArray[1]-self.fightingOffArray[0])
+            self.fightingtwoOffText.set(self.fightingOffArray[0])
+            self.offTypeColor(self.fightingOffArray, k, self.fightingzeroOffLabel, self.fightinghalfOffLabel, self.fightingtwoOffLabel)
 
-            self.poisonzeroOffText.set(poisonArray[2])
-            self.poisonhalfOffText.set(poisonArray[1])
-            self.poisononeOffText.set(k-poisonArray[2]-poisonArray[1]-poisonArray[0])
-            self.poisontwoOffText.set(poisonArray[0])
-            self.offTypeColor(poisonArray, k, self.poisonzeroOffLabel, self.poisonhalfOffLabel, self.poisontwoOffLabel)
+            self.poisonzeroOffText.set(self.poisonOffArray[2])
+            self.poisonhalfOffText.set(self.poisonOffArray[1])
+            self.poisononeOffText.set(k-self.poisonOffArray[2]-self.poisonOffArray[1]-self.poisonOffArray[0])
+            self.poisontwoOffText.set(self.poisonOffArray[0])
+            self.offTypeColor(self.poisonOffArray, k, self.poisonzeroOffLabel, self.poisonhalfOffLabel, self.poisontwoOffLabel)
 
-            self.groundzeroOffText.set(groundArray[2])
-            self.groundhalfOffText.set(groundArray[1])
-            self.groundoneOffText.set(k-groundArray[2]-groundArray[1]-groundArray[0])
-            self.groundtwoOffText.set(groundArray[0])
-            self.offTypeColor(groundArray, k, self.groundzeroOffLabel, self.groundhalfOffLabel, self.groundtwoOffLabel)
+            self.groundzeroOffText.set(self.groundOffArray[2])
+            self.groundhalfOffText.set(self.groundOffArray[1])
+            self.groundoneOffText.set(k-self.groundOffArray[2]-self.groundOffArray[1]-self.groundOffArray[0])
+            self.groundtwoOffText.set(self.groundOffArray[0])
+            self.offTypeColor(self.groundOffArray, k, self.groundzeroOffLabel, self.groundhalfOffLabel, self.groundtwoOffLabel)
 
-            self.flyingzeroOffText.set(flyingArray[2])
-            self.flyinghalfOffText.set(flyingArray[1])
-            self.flyingoneOffText.set(k-flyingArray[2]-flyingArray[1]-flyingArray[0])
-            self.flyingtwoOffText.set(flyingArray[0])
-            self.offTypeColor(flyingArray, k, self.flyingzeroOffLabel, self.flyinghalfOffLabel, self.flyingtwoOffLabel)
+            self.flyingzeroOffText.set(self.flyingOffArray[2])
+            self.flyinghalfOffText.set(self.flyingOffArray[1])
+            self.flyingoneOffText.set(k-self.flyingOffArray[2]-self.flyingOffArray[1]-self.flyingOffArray[0])
+            self.flyingtwoOffText.set(self.flyingOffArray[0])
+            self.offTypeColor(self.flyingOffArray, k, self.flyingzeroOffLabel, self.flyinghalfOffLabel, self.flyingtwoOffLabel)
 
-            self.psychiczeroOffText.set(psychicArray[2])
-            self.psychichalfOffText.set(psychicArray[1])
-            self.psychiconeOffText.set(k-psychicArray[2]-psychicArray[1]-psychicArray[0])
-            self.psychictwoOffText.set(psychicArray[0])
-            self.offTypeColor(psychicArray, k, self.psychiczeroOffLabel, self.psychichalfOffLabel, self.psychictwoOffLabel)
+            self.psychiczeroOffText.set(self.psychicOffArray[2])
+            self.psychichalfOffText.set(self.psychicOffArray[1])
+            self.psychiconeOffText.set(k-self.psychicOffArray[2]-self.psychicOffArray[1]-self.psychicOffArray[0])
+            self.psychictwoOffText.set(self.psychicOffArray[0])
+            self.offTypeColor(self.psychicOffArray, k, self.psychiczeroOffLabel, self.psychichalfOffLabel, self.psychictwoOffLabel)
 
-            self.bugzeroOffText.set(bugArray[2])
-            self.bughalfOffText.set(bugArray[1])
-            self.bugoneOffText.set(k-bugArray[2]-bugArray[1]-bugArray[0])
-            self.bugtwoOffText.set(bugArray[0])
-            self.offTypeColor(bugArray, k, self.bugzeroOffLabel, self.bughalfOffLabel, self.bugtwoOffLabel)
+            self.bugzeroOffText.set(self.bugOffArray[2])
+            self.bughalfOffText.set(self.bugOffArray[1])
+            self.bugoneOffText.set(k-self.bugOffArray[2]-self.bugOffArray[1]-self.bugOffArray[0])
+            self.bugtwoOffText.set(self.bugOffArray[0])
+            self.offTypeColor(self.bugOffArray, k, self.bugzeroOffLabel, self.bughalfOffLabel, self.bugtwoOffLabel)
 
-            self.rockzeroOffText.set(rockArray[2])
-            self.rockhalfOffText.set(rockArray[1])
-            self.rockoneOffText.set(k-rockArray[2]-rockArray[1]-rockArray[0])
-            self.rocktwoOffText.set(rockArray[0])
-            self.offTypeColor(rockArray, k, self.rockzeroOffLabel, self.rockhalfOffLabel, self.rocktwoOffLabel)
+            self.rockzeroOffText.set(self.rockOffArray[2])
+            self.rockhalfOffText.set(self.rockOffArray[1])
+            self.rockoneOffText.set(k-self.rockOffArray[2]-self.rockOffArray[1]-self.rockOffArray[0])
+            self.rocktwoOffText.set(self.rockOffArray[0])
+            self.offTypeColor(self.rockOffArray, k, self.rockzeroOffLabel, self.rockhalfOffLabel, self.rocktwoOffLabel)
 
-            self.ghostzeroOffText.set(ghostArray[2])
-            self.ghosthalfOffText.set(ghostArray[1])
-            self.ghostoneOffText.set(k-ghostArray[2]-ghostArray[1]-ghostArray[0])
-            self.ghosttwoOffText.set(ghostArray[0])
-            self.offTypeColor(ghostArray, k, self.ghostzeroOffLabel, self.ghosthalfOffLabel, self.ghosttwoOffLabel)
+            self.ghostzeroOffText.set(self.ghostOffArray[2])
+            self.ghosthalfOffText.set(self.ghostOffArray[1])
+            self.ghostoneOffText.set(k-self.ghostOffArray[2]-self.ghostOffArray[1]-self.ghostOffArray[0])
+            self.ghosttwoOffText.set(self.ghostOffArray[0])
+            self.offTypeColor(self.ghostOffArray, k, self.ghostzeroOffLabel, self.ghosthalfOffLabel, self.ghosttwoOffLabel)
 
-            self.dragonzeroOffText.set(dragonArray[2])
-            self.dragonhalfOffText.set(dragonArray[1])
-            self.dragononeOffText.set(k-dragonArray[2]-dragonArray[1]-dragonArray[0])
-            self.dragontwoOffText.set(dragonArray[0])
-            self.offTypeColor(dragonArray, k, self.dragonzeroOffLabel, self.dragonhalfOffLabel, self.dragontwoOffLabel)
+            self.dragonzeroOffText.set(self.dragonOffArray[2])
+            self.dragonhalfOffText.set(self.dragonOffArray[1])
+            self.dragononeOffText.set(k-self.dragonOffArray[2]-self.dragonOffArray[1]-self.dragonOffArray[0])
+            self.dragontwoOffText.set(self.dragonOffArray[0])
+            self.offTypeColor(self.dragonOffArray, k, self.dragonzeroOffLabel, self.dragonhalfOffLabel, self.dragontwoOffLabel)
 
-            self.darkzeroOffText.set(darkArray[2])
-            self.darkhalfOffText.set(darkArray[1])
-            self.darkoneOffText.set(k-darkArray[2]-darkArray[1]-darkArray[0])
-            self.darktwoOffText.set(darkArray[0])
-            self.offTypeColor(darkArray, k, self.darkzeroOffLabel, self.darkhalfOffLabel, self.darktwoOffLabel)
+            self.darkzeroOffText.set(self.darkOffArray[2])
+            self.darkhalfOffText.set(self.darkOffArray[1])
+            self.darkoneOffText.set(k-self.darkOffArray[2]-self.darkOffArray[1]-self.darkOffArray[0])
+            self.darktwoOffText.set(self.darkOffArray[0])
+            self.offTypeColor(self.darkOffArray, k, self.darkzeroOffLabel, self.darkhalfOffLabel, self.darktwoOffLabel)
 
-            self.steelzeroOffText.set(steelArray[2])
-            self.steelhalfOffText.set(steelArray[1])
-            self.steeloneOffText.set(k-steelArray[2]-steelArray[1]-steelArray[0])
-            self.steeltwoOffText.set(steelArray[0])
-            self.offTypeColor(steelArray, k, self.steelzeroOffLabel, self.steelhalfOffLabel, self.steeltwoOffLabel)
+            self.steelzeroOffText.set(self.steelOffArray[2])
+            self.steelhalfOffText.set(self.steelOffArray[1])
+            self.steeloneOffText.set(k-self.steelOffArray[2]-self.steelOffArray[1]-self.steelOffArray[0])
+            self.steeltwoOffText.set(self.steelOffArray[0])
+            self.offTypeColor(self.steelOffArray, k, self.steelzeroOffLabel, self.steelhalfOffLabel, self.steeltwoOffLabel)
 
-            self.fairyzeroOffText.set(fairyArray[2])
-            self.fairyhalfOffText.set(fairyArray[1])
-            self.fairyoneOffText.set(k-fairyArray[2]-fairyArray[1]-fairyArray[0])
-            self.fairytwoOffText.set(fairyArray[0])
-            self.offTypeColor(fairyArray, k, self.fairyzeroOffLabel, self.fairyhalfOffLabel, self.fairytwoOffLabel)
+            self.fairyzeroOffText.set(self.fairyOffArray[2])
+            self.fairyhalfOffText.set(self.fairyOffArray[1])
+            self.fairyoneOffText.set(k-self.fairyOffArray[2]-self.fairyOffArray[1]-self.fairyOffArray[0])
+            self.fairytwoOffText.set(self.fairyOffArray[0])
+            self.offTypeColor(self.fairyOffArray, k, self.fairyzeroOffLabel, self.fairyhalfOffLabel, self.fairytwoOffLabel)
 
         elif option=="stats":
             scale=150/714
@@ -2579,9 +2620,9 @@ class TeamAnalyzer:
                     physSum += shell.atkStatCalc(Pokedex.findPokemonBaseStats(member)["atk"],0,31,50,"Serious")
                     specSum += shell.spaStatCalc(Pokedex.findPokemonBaseStats(member)["spa"],0,31,50,"Serious")
 
-            balance=physSum/(physSum+specSum)*self.physpecOffCanvas.winfo_reqwidth()
-            self.physpecOffCanvas.coords(self.physOffBar,0,0,int(balance),20)
-            self.physpecOffCanvas.coords(self.specOffBar,int(balance),0,self.physpecOffCanvas.winfo_reqwidth(), 20)
+            self.offBalance=physSum/(physSum+specSum)*self.physpecOffCanvas.winfo_reqwidth()
+            self.physpecOffCanvas.coords(self.physOffBar,0,0,int(self.offBalance),20)
+            self.physpecOffCanvas.coords(self.specOffBar,int(self.offBalance),0,self.physpecOffCanvas.winfo_reqwidth(), 20)
 
         elif option=="physpec Defense":
             physSum = 0
@@ -2598,9 +2639,209 @@ class TeamAnalyzer:
                     physSum += shell.defStatCalc(Pokedex.findPokemonBaseStats(member)["def"],0,31,level,"Serious")
                     specSum += shell.spdStatCalc(Pokedex.findPokemonBaseStats(member)["spd"],0,31,level,"Serious")
 
-            balance = physSum / (physSum + specSum) * self.physpecDefCanvas.winfo_reqwidth()
-            self.physpecDefCanvas.coords(self.physOffBar, 0, 0, int(balance), 20)
-            self.physpecDefCanvas.coords(self.specOffBar, int(balance), 0, self.physpecDefCanvas.winfo_reqwidth(), 20)
+            self.defBalance = physSum / (physSum + specSum) * self.physpecDefCanvas.winfo_reqwidth()
+            print(self.physpecDefCanvas.winfo_reqwidth())
+            self.physpecDefCanvas.coords(self.physOffBar, 0, 0, int(self.defBalance), 20)
+            self.physpecDefCanvas.coords(self.specOffBar, int(self.defBalance), 0, self.physpecDefCanvas.winfo_reqwidth(), 20)
+            
+        elif option=="advice":
+            self.respond("Let's take a look at your team...")
+
+            #Defensive Coverage
+            self.respond("First, Defensive Type Coverage")
+            defTypeArrays = [self.normalDefArray, self.fireDefArray, self.waterDefArray, self.electricDefArray,
+                             self.grassDefArray, self.iceDefArray, self.fightingDefArray, self.poisonDefArray,
+                             self.groundDefArray, self.flyingDefArray, self.psychicDefArray, self.bugDefArray,
+                             self.rockDefArray, self.ghostDefArray, self.dragonDefArray, self.darkDefArray,
+                             self.steelDefArray, self.fairyDefArray]
+            typeStrings = ["Normal","Fire","Water","Electric","Grass","Ice","Fighting","Poison","Ground","Flying","Psychic","Bug","Rock","Ghost","Dragon","Dark","Steel","Fairy"]
+            teamWeaknessesArray = []
+            teamTwoWeaknessesArray = []
+            for i in range(len(defTypeArrays)):
+                score = 2*defTypeArrays[i][4]+2*defTypeArrays[i][3]+defTypeArrays[i][2]-defTypeArrays[i][1]-2*defTypeArrays[i][0]
+                if score<=-2:
+                    teamTwoWeaknessesArray.append(typeStrings[i])
+                elif score==-1:
+                    teamWeaknessesArray.append(typeStrings[i])
+
+            bestTypes = []
+            for type in typeStrings:
+                res = Pokedex.findTypeData(type)["resistances"]
+                im = Pokedex.findTypeData(type)["immunities"]
+                score=0
+                for string in teamTwoWeaknessesArray:
+                    if string in res or string in im:
+                        score+=2
+                for string in teamWeaknessesArray:
+                    if string in res or string in im:
+                        score+=1
+                if score>0:
+                    bestTypes.append([type,score])
+            for i in range(len(bestTypes)):
+                for j in range(i,len(bestTypes)):
+                    if bestTypes[i][1]<bestTypes[j][1]:
+                        temp = bestTypes[i]
+                        bestTypes[i]=bestTypes[j]
+                        bestTypes[j]=temp
+            firstChoice = []
+            for i in range(len(bestTypes)):
+                if bestTypes[i][1]!=bestTypes[0][1]:
+                    break
+                else:
+                    firstChoice.append(bestTypes[i])
+            for i in firstChoice:
+                del bestTypes[bestTypes.index(i)]
+            secondChoice = []
+            for i in range(len(bestTypes)):
+                if bestTypes[i][1]!=bestTypes[0][1]:
+                    break
+                else:
+                    secondChoice.append(bestTypes[i])
+            for i in secondChoice:
+                del bestTypes[bestTypes.index(i)]
+
+            #text = "Considering that you are still weak to the following move types:"
+            #for string in teamTwoWeaknessesArray:
+            #    text+="\n    "+string
+            #if len(teamTwoWeaknessesArray)!=0:
+            #    text+="\nAnd that you may experience annoyance with the following move types:"
+            #for string in teamWeaknessesArray:
+            #    text+="\n    "+string
+            if len(firstChoice)>0:
+                text="I suggest to add a Pokemon with one of the following types:"
+                for type in firstChoice:
+                    text+="\n    "+type[0]+" "+self.resistancesText(type[0],teamTwoWeaknessesArray,teamWeaknessesArray)
+                if len(secondChoice)>0:
+                    text+="\n\nHowever, if you need some more ideas, you could also choose a Pokemon with one of the following types"
+                    for type in secondChoice:
+                        text+="\n    "+type[0]+" "+self.resistancesText(type[0],teamTwoWeaknessesArray,teamWeaknessesArray)
+            elif len(secondChoice)>0:
+                text = "I suggest to maybe add a Pokemon with one of the following types:"
+                for type in secondChoice:
+                    text += "\n    " + type[0] + " " + self.resistancesText(type[0], teamTwoWeaknessesArray,
+                                                                        teamWeaknessesArray)
+            else:
+                text="Everything is looking good!"
+            #if len(teamTwoWeaknessesArray)<=1 and len(teamWeaknessesArray)<=2 and len(teamTwoWeaknessesArray)+len(teamTwoWeaknessesArray)<=2:
+            #    text+="\n\nHowever, this isn't a huge problem. Your team will probably be fine if you don't"
+            self.respond(text)
+
+            self.respond("")
+
+            #Offensive Coverage
+            self.respond("Next, Offensive Type Coverage")
+            offTypeArrays = [self.normalOffArray, self.fireOffArray, self.waterOffArray, self.electricOffArray,
+                             self.grassOffArray, self.iceOffArray, self.fightingOffArray, self.poisonOffArray,
+                             self.groundOffArray, self.flyingOffArray, self.psychicOffArray, self.bugOffArray,
+                             self.rockOffArray, self.ghostOffArray, self.dragonOffArray, self.darkOffArray,
+                             self.steelOffArray, self.fairyOffArray]
+            typeStrings = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
+                           "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"]
+            k = 0
+            for member in shell.teamMatesDict:
+                for move in shell.teamMatesDict[member]["moves"]:
+                    if shell.teamMatesDict[member]["moves"][move] != None and Pokedex.findMoveCategory(
+                            shell.teamMatesDict[member]["moves"][move]) != "Status":
+                        k += 1
+            teamNVEArray = []
+            teamTwoNVEArray = []
+            for i in range(len(offTypeArrays)):
+                score = offTypeArrays[i][0] + (k - offTypeArrays[i][0] - offTypeArrays[i][1] - offTypeArrays[i][2]) / 2 - offTypeArrays[i][1] - 2 * offTypeArrays[i][2]
+                if score <= -2:
+                    teamTwoNVEArray.append(typeStrings[i])
+                elif score == -1:
+                    teamNVEArray.append(typeStrings[i])
+
+            bestTypes = []
+            for type in typeStrings:
+                se = Pokedex.findTypeData(type)["superEffective"]
+                score = 0
+                for string in teamTwoNVEArray:
+                    if string in se:
+                        score += 2
+                for string in teamNVEArray:
+                    if string in se:
+                        score += 1
+                if score > 0:
+                    bestTypes.append([type, score])
+            for i in range(len(bestTypes)):
+                for j in range(i, len(bestTypes)):
+                    if bestTypes[i][1] < bestTypes[j][1]:
+                        temp = bestTypes[i]
+                        bestTypes[i] = bestTypes[j]
+                        bestTypes[j] = temp
+
+            firstChoice = []
+            for i in range(len(bestTypes)):
+                if bestTypes[i][1] != bestTypes[0][1]:
+                    break
+                else:
+                    firstChoice.append(bestTypes[i])
+            for i in firstChoice:
+                del bestTypes[bestTypes.index(i)]
+            secondChoice = []
+            for i in range(len(bestTypes)):
+                if bestTypes[i][1] != bestTypes[0][1]:
+                    break
+                else:
+                    secondChoice.append(bestTypes[i])
+            for i in secondChoice:
+                del bestTypes[bestTypes.index(i)]
+
+            #text = "Considering that you can't hit the following types Super Effectively:"
+            #for string in teamTwoNVEArray:
+            #    text += "\n    " + string
+            #if len(teamTwoNVEArray) != 0:
+            #    text += "\nAnd that you may experience annoyance with the following types:"
+            #for string in teamNVEArray:
+            #    text += "\n    " + string
+            if len(firstChoice)>0:
+                text = "I suggest to add a move of the following types:"
+                for type in firstChoice:
+                    text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
+                                                                            teamNVEArray)
+                if len(secondChoice)>0:
+                    text += "\n\nHowever, if you need some more ideas, you could also choose a move of the following types"
+                    for type in secondChoice:
+                        text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
+                                                                                teamNVEArray)
+            elif len(secondChoice)>0:
+                text = "I suggest to maybe add a move of the following types:"
+                for type in secondChoice:
+                    text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
+                                                                           teamNVEArray)
+            else:
+                text="Everything is looking good!"
+
+            #if len(teamTwoNVEArray) <= 1 and len(teamNVEArray) <= 2 and len(teamTwoNVEArray) + len(
+            #        teamTwoNVEArray) <= 2:
+            #    text += "\n\nHowever, this isn't a huge problem. Your team will probably be fine if you don't"
+            self.respond(text)
+
+            #Offensive and Defensive Balance
+            self.respond("Next, Offensive and Defensive Balance")
+            if len(shell.teamMatesDict)>2:
+                if self.offBalance<60:
+                    self.respond("Whoa, your offensive balance is WAY off. Add some physical attackers to your team so that you don't get countered by a specially defensive wall!")
+                elif self.offBalance<120:
+                    self.respond("Mmmmm you seem to be leaning towards the specially offensive side of the spectrum. Depending on your team, this can be fine, but I would still suggest to add a physical attacker.")
+                elif self.offBalance<180:
+                    self.respond("You have some nice offensive balance in this team!")
+                elif self.offBalance<240:
+                    self.respond("Mmmmm you seem to be leaning towards the physically offensive side of the spectrum. Depending on your team, this can be fine, but I would still suggest to add a special attacker.")
+                elif self.offBalance<=300:
+                    self.respond("Whoa, your offensive balance is WAY off. Add some special attackers to your team so that you don't get countered by a physically defensive wall!")
+
+                if self.defBalance<60:
+                    self.respond("Whoa, your defensive balance is WAY off. Add some physical defenders to your team so that you don't get swept by a specially offensive sweeper!")
+                elif self.defBalance<120:
+                    self.respond("Mmmmm you seem to be leaning towards the specially defensive side of the spectrum. Depending on your team, this can be fine, but I would still suggest to add a physical defender.")
+                elif self.defBalance<180:
+                    self.respond("You have some nice defensive balance in this team!")
+                elif self.defBalance<240:
+                    self.respond("Mmmmm you seem to be leaning towards the physically defensive side of the spectrum. Depending on your team, this can be fine, but I would still suggest to add a special defender.")
+                elif self.defBalance<=300:
+                    self.respond("Whoa, your defensive balance is WAY off. Add some special defender to your team so that you don't get swept by a physically offensive sweeper!")
 
     def __init__(self,toplevel):
         self.toplevel=toplevel
@@ -2939,17 +3180,17 @@ class TeamAnalyzer:
         self.physpecOffCanvas = Canvas(middleFrame, height=20)
         self.physpecOffCanvas.grid(row=2,column=0,columnspan=2,padx=10,sticky=EW)
         size=self.physpecOffCanvas.winfo_reqwidth()
-        offBalance = int(size/2)
-        self.physOffBar=self.physpecOffCanvas.create_rectangle(0,0,offBalance,20,fill="orange red")
-        self.specOffBar=self.physpecOffCanvas.create_rectangle(offBalance,0,size,20,fill="cornflower blue")
+        self.offBalance = int(size/2)
+        self.physOffBar=self.physpecOffCanvas.create_rectangle(0,0,self.offBalance,20,fill="orange red")
+        self.specOffBar=self.physpecOffCanvas.create_rectangle(self.offBalance,0,size,20,fill="cornflower blue")
         self.physpecOffCanvas.create_line(size/2,0,size/2,20,fill="green2")
 
         Label(middleFrame, text="Defensive Balance").grid(row=3,column=0,columnspan=2,sticky=EW)
         self.physpecDefCanvas = Canvas(middleFrame, height=20)
         self.physpecDefCanvas.grid(row=4,column=0,columnspan=2,padx=10,sticky=EW)
-        defBalance = int(size/2)
-        self.physDefBar=self.physpecDefCanvas.create_rectangle(0, 0, defBalance, 20, fill="orange red")
-        self.specDefBar=self.physpecDefCanvas.create_rectangle(defBalance, 0, size, 20, fill="cornflower blue")
+        self.defBalance = int(size/2)
+        self.physDefBar=self.physpecDefCanvas.create_rectangle(0, 0, self.defBalance, 20, fill="orange red")
+        self.specDefBar=self.physpecDefCanvas.create_rectangle(self.defBalance, 0, size, 20, fill="cornflower blue")
         self.physpecDefCanvas.create_line(size/2,0,size/2,20,fill="green2")
 
         self.adviceMssngr = Text(middleFrame, wrap=WORD,width=45,height=21)
@@ -3498,3 +3739,41 @@ class TeamAnalyzer:
         threatscrollbar = Scrollbar(self.toplevel,command=self.threatMssngr.yview)
         threatscrollbar.place(x=850, y=490,height=190)
         self.threatMssngr["yscrollcommand"] = threatscrollbar.set
+
+        self.normalOffArray = []
+        self.fireOffArray = []
+        self.waterOffArray = []
+        self.electricOffArray = []
+        self.grassOffArray = []
+        self.iceOffArray = []
+        self.fightingOffArray = []
+        self.poisonOffArray = []
+        self.groundOffArray = []
+        self.flyingOffArray = []
+        self.psychicOffArray = []
+        self.bugOffArray = []
+        self.rockOffArray = []
+        self.ghostOffArray = []
+        self.dragonOffArray = []
+        self.darkOffArray = []
+        self.steelOffArray = []
+        self.fairyOffArray = []
+        
+        self.normalDefArray = []
+        self.fireDeffArray = []
+        self.waterDefArray = []
+        self.electricDefArray = []
+        self.grassDefArray = []
+        self.iceDefArray = []
+        self.fightingDefArray = []
+        self.poisonDefArray = []
+        self.groundDefArray = []
+        self.flyingDefArray = []
+        self.psychicDefArray = []
+        self.bugDefArray = []
+        self.rockDefArray = []
+        self.ghostDefArray = []
+        self.dragonDefArray = []
+        self.darkDefArray = []
+        self.steelDefArray = []
+        self.fairyDefArray = []

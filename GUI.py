@@ -175,7 +175,6 @@ class AL:
         self.messages.insert(END, 'Al: %s\n\n' % text)
         self.messages.see(END)
         self.messages.config(state=DISABLED)
-        #return "break"
 
     def showAnalyzer(self):
         pass
@@ -184,7 +183,7 @@ class AL:
         #       self.toplevel.deiconify()
     
     def updateAnalyzer(self, option):
-        if option in ["species","moves","stats","physpec Offense","physpec Defense"]:
+        if option in ["species","moves","stats","physpec Offense","physpec Defense","advice"]:
             self.analyzer.update(self, option)
         elif option == "threats":
             self.analyzer.threats(self)
@@ -204,11 +203,11 @@ class AL:
                 self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
                 self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
                 self.spriteCanvas.create_image(2,2, anchor=NW, image=self.spriteCanvas.spriteFile)
-            #else:
-            #    self.spriteCanvas.spriteFile = PhotoImage(file=os.path.dirname(os.path.realpath(__file__)) + "/data/images/icons/Pokeball.png")
-            #    self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(80)
-            #    self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
-            #    self.spriteCanvas.create_image(2, 2, anchor=NW, image=self.spriteCanvas.spriteFile)
+            else:
+                self.spriteCanvas.spriteFile = PhotoImage(file=os.path.dirname(os.path.realpath(__file__)) + "/data/images/icons/Pokeball.png")
+                self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.zoom(7)
+                self.spriteCanvas.spriteFile = self.spriteCanvas.spriteFile.subsample(int(self.spriteCanvas.spriteFile.width() / 80))
+                self.spriteCanvas.create_image(1, 1, anchor=NW, image=self.spriteCanvas.spriteFile)
         self.speciesLabelText.set(self.current["species"])
         if self.current["species"] != None:
             types = Pokedex.findPokemonTypes(self.current["species"])
@@ -682,21 +681,6 @@ class AL:
         else:
             print("whoops, you should fix "+option)
         #print(self.current["index"])
-
-    #TODO: complete this
-    def deletePopUp(self,name):
-        top = Toplevel()
-        top.config(width=30,height=30)
-        top.title("Are you sure?")
-        topMsg = Message(top, text="This command can not be undone. Do you want to proceed?")
-        topMsg.pack(side=TOP, fill=X)
-        topYesButton = Button(top, text="Yes", command=lambda:self.delete(name))
-        #TODO: dont forget to delete top then
-        topYesButton.config(width=int(top.winfo_reqwidth()/2))
-        topYesButton.pack(side=LEFT)
-        topNoButton = Button(top, text="No", command=top.destroy)
-        topNoButton.config(width=int(top.winfo_reqwidth()/2))
-        topNoButton.pack(side=RIGHT)
 
     def delete(self,name):
         #del self.teamMateNames[self.teamMateNames.index(name)]
