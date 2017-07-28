@@ -494,7 +494,7 @@ class TeamAnalyzer:
                                         modifier=modifier*1.5
                                     elif moveType == "Fire":
                                         modifier=0
-                                elif shell.teamMatesDict[member]["ability"]=="Sandstream" or sandstorm:
+                                elif shell.teamMatesDict[member]["ability"]=="Sand Stream" or sandstorm:
                                     if "Rock" in pokeTyping:
                                         if moveCat=="Special":
                                             specDefMod=specDefMod*1.5
@@ -1116,7 +1116,7 @@ class TeamAnalyzer:
                                         modifier = modifier * 1.5
                                     elif moveType == "Fire":
                                         modifier = 0
-                                elif shell.teamMatesDict[member]["ability"] in ["Sandstream"] or msandstorm:
+                                elif shell.teamMatesDict[member]["ability"] in ["Sand Stream"] or msandstorm:
                                     if "Rock" in memberTyping:
                                         if moveData["category"] == "Special":
                                             specDefMod = specDefMod*1.5
@@ -1442,7 +1442,7 @@ class TeamAnalyzer:
                 twoDef.config(bg="sienna1")
             if typeArray[0] != 0:
                 fourDef.config(bg="sienna1")
-        elif -1<=score<=1:
+        elif 0<=score<=1:
             if typeArray[4] != 0:
                 zeroDef.config(bg="green yellow")
             if typeArray[3] != 0:
@@ -1475,6 +1475,30 @@ class TeamAnalyzer:
             twoDef.config(bg="gray95")
         if typeArray[0]==0:
             fourDef.config(bg="gray95")
+
+    def statColor(self,stat,hpStat):
+        if hpStat:
+            if 0<stat<=19:
+                return "orange red"
+            elif stat<=38:
+                return "orange"
+            elif stat<=56:
+                return "yellow"
+            elif stat<=75:
+                return "lawn green"
+            elif stat<=150:
+                return "cornflower blue"
+        else:
+            if 0<stat<=15:
+                return "orange red"
+            elif stat<=30:
+                return "orange"
+            elif stat<=45:
+                return "yellow"
+            elif stat<=60:
+                return "lawn green"
+            elif stat<=150:
+                return "cornflower blue"
 
     def respond(self,text):
         self.adviceMssngr.config(state=NORMAL)
@@ -1516,6 +1540,348 @@ class TeamAnalyzer:
                 else:
                     text += ", " + i
         return "(Covers " + text + ")"
+
+    def defTypeCoverage(self,shell):
+        defTypeArrays = [self.normalDefArray, self.fireDefArray, self.waterDefArray, self.electricDefArray,
+                         self.grassDefArray, self.iceDefArray, self.fightingDefArray, self.poisonDefArray,
+                         self.groundDefArray, self.flyingDefArray, self.psychicDefArray, self.bugDefArray,
+                         self.rockDefArray, self.ghostDefArray, self.dragonDefArray, self.darkDefArray,
+                         self.steelDefArray, self.fairyDefArray]
+        typeStrings = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground", "Flying",
+                       "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"]
+        teamWeaknessesArray = []
+        teamTwoWeaknessesArray = []
+        for i in range(len(defTypeArrays)):
+            score = 2 * defTypeArrays[i][4] + 2 * defTypeArrays[i][3] + defTypeArrays[i][2] - defTypeArrays[i][1] - 2 * \
+                                                                                                                    defTypeArrays[
+                                                                                                                        i][
+                                                                                                                        0]
+            if score <= -2:
+                teamTwoWeaknessesArray.append(typeStrings[i])
+            elif score == -1:
+                teamWeaknessesArray.append(typeStrings[i])
+
+        bestTypes = []
+        for type in typeStrings:
+            weak=Pokedex.findTypeData(type)["weaknesses"]
+            res = Pokedex.findTypeData(type)["resistances"]
+            im = Pokedex.findTypeData(type)["immunities"]
+            score = 0
+            for string in teamTwoWeaknessesArray:
+                if string in res or string in im:
+                    score += 2
+                if string in weak:
+                    score += -2
+            for string in teamWeaknessesArray:
+                if string in res or string in im:
+                    score += 1
+                if string in weak:
+                    score += -1
+            if score > 0:
+                bestTypes.append([type, score])
+        for i in range(len(bestTypes)):
+            for j in range(i, len(bestTypes)):
+                if bestTypes[i][1] < bestTypes[j][1]:
+                    temp = bestTypes[i]
+                    bestTypes[i] = bestTypes[j]
+                    bestTypes[j] = temp
+        firstChoice = []
+        for i in range(len(bestTypes)):
+            if bestTypes[i][1] != bestTypes[0][1]:
+                break
+            else:
+                firstChoice.append(bestTypes[i])
+        for i in firstChoice:
+            del bestTypes[bestTypes.index(i)]
+        secondChoice = []
+        for i in range(len(bestTypes)):
+            if bestTypes[i][1] != bestTypes[0][1]:
+                break
+            else:
+                secondChoice.append(bestTypes[i])
+        for i in secondChoice:
+            del bestTypes[bestTypes.index(i)]
+
+        # text = "Considering that you are still weak to the following move types:"
+        # for string in teamTwoWeaknessesArray:
+        #    text+="\n    "+string
+        # if len(teamTwoWeaknessesArray)!=0:
+        #    text+="\nAnd that you may experience annoyance with the following move types:"
+        # for string in teamWeaknessesArray:
+        #    text+="\n    "+string
+        if len(firstChoice) > 0:
+            text = "I suggest to add a Pokemon with one of the following types:"
+            for type in firstChoice:
+                text += "\n    " + type[0] + " " + self.resistancesText(type[0], teamTwoWeaknessesArray,
+                                                                        teamWeaknessesArray)
+            if len(secondChoice) > 0:
+                text += "\n\nHowever, if you need some more ideas, you could also choose a Pokemon with one of the following types"
+                for type in secondChoice:
+                    text += "\n    " + type[0] + " " + self.resistancesText(type[0], teamTwoWeaknessesArray,
+                                                                            teamWeaknessesArray)
+        elif len(secondChoice) > 0:
+            text = "I suggest to maybe add a Pokemon with one of the following types:"
+            for type in secondChoice:
+                text += "\n    " + type[0] + " " + self.resistancesText(type[0], teamTwoWeaknessesArray,
+                                                                        teamWeaknessesArray)
+        else:
+            text = "Everything is looking good!"
+        # if len(teamTwoWeaknessesArray)<=1 and len(teamWeaknessesArray)<=2 and len(teamTwoWeaknessesArray)+len(teamTwoWeaknessesArray)<=2:
+        #    text+="\n\nHowever, this isn't a huge problem. Your team will probably be fine if you don't"
+        self.respond(text)
+        self.respond("")
+
+    def offTypeCoverage(self,shell):
+        offTypeArrays = [self.normalOffArray, self.fireOffArray, self.waterOffArray, self.electricOffArray,
+                         self.grassOffArray, self.iceOffArray, self.fightingOffArray, self.poisonOffArray,
+                         self.groundOffArray, self.flyingOffArray, self.psychicOffArray, self.bugOffArray,
+                         self.rockOffArray, self.ghostOffArray, self.dragonOffArray, self.darkOffArray,
+                         self.steelOffArray, self.fairyOffArray]
+        typeStrings = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
+                       "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"]
+        k = 0
+        for member in shell.teamMatesDict:
+            for move in shell.teamMatesDict[member]["moves"]:
+                if shell.teamMatesDict[member]["moves"][move] != None and Pokedex.findMoveCategory(
+                        shell.teamMatesDict[member]["moves"][move]) != "Status":
+                    k += 1
+        teamNVEArray = []
+        teamTwoNVEArray = []
+        for i in range(len(offTypeArrays)):
+            score = offTypeArrays[i][0] + (k - offTypeArrays[i][0] - offTypeArrays[i][1] - offTypeArrays[i][2]) / 2 - \
+                    offTypeArrays[i][1] - 2 * offTypeArrays[i][2]
+            if score <= -2:
+                teamTwoNVEArray.append(typeStrings[i])
+            elif score == -1:
+                teamNVEArray.append(typeStrings[i])
+
+        bestTypes = []
+        for type in typeStrings:
+            se = Pokedex.findTypeData(type)["superEffective"]
+            score = 0
+            for string in teamTwoNVEArray:
+                if string in se:
+                    score += 2
+            for string in teamNVEArray:
+                if string in se:
+                    score += 1
+            if score > 0:
+                bestTypes.append([type, score])
+        for i in range(len(bestTypes)):
+            for j in range(i, len(bestTypes)):
+                if bestTypes[i][1] < bestTypes[j][1]:
+                    temp = bestTypes[i]
+                    bestTypes[i] = bestTypes[j]
+                    bestTypes[j] = temp
+
+        firstChoice = []
+        for i in range(len(bestTypes)):
+            if bestTypes[i][1] != bestTypes[0][1]:
+                break
+            else:
+                firstChoice.append(bestTypes[i])
+        for i in firstChoice:
+            del bestTypes[bestTypes.index(i)]
+        secondChoice = []
+        for i in range(len(bestTypes)):
+            if bestTypes[i][1] != bestTypes[0][1]:
+                break
+            else:
+                secondChoice.append(bestTypes[i])
+        for i in secondChoice:
+            del bestTypes[bestTypes.index(i)]
+
+        # text = "Considering that you can't hit the following types Super Effectively:"
+        # for string in teamTwoNVEArray:
+        #    text += "\n    " + string
+        # if len(teamTwoNVEArray) != 0:
+        #    text += "\nAnd that you may experience annoyance with the following types:"
+        # for string in teamNVEArray:
+        #    text += "\n    " + string
+        if len(firstChoice) > 0:
+            text = "I suggest to add a move of the following types:"
+            for type in firstChoice:
+                text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
+                                                                           teamNVEArray)
+            if len(secondChoice) > 0:
+                text += "\n\nHowever, if you need some more ideas, you could also choose a move of the following types"
+                for type in secondChoice:
+                    text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
+                                                                               teamNVEArray)
+        elif len(secondChoice) > 0:
+            text = "I suggest to maybe add a move of the following types:"
+            for type in secondChoice:
+                text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
+                                                                           teamNVEArray)
+        else:
+            text = "Everything is looking good!"
+
+        # if len(teamTwoNVEArray) <= 1 and len(teamNVEArray) <= 2 and len(teamTwoNVEArray) + len(
+        #        teamTwoNVEArray) <= 2:
+        #    text += "\n\nHowever, this isn't a huge problem. Your team will probably be fine if you don't"
+        self.respond(text)
+        self.respond("")
+
+    def weatherTeamsText(self,shell,isSunTeam,isHarshSunTeam,isRainTeam,isHarshRainTeam,isHailTeam,isSandTeam,isHarshWindTeam):
+        if isSunTeam:
+            text=""
+            text+="There is potential for making a Sun team here. Sun teams specialize in using Fire and Grass-type Pokemon to strike hard and fast. The sun also offers protection to Pokemon who are afraid of Water-type moves, such as Fire, Rock, and Ground-types."
+            text+="\n\nHere's a complete list of the affects that the Sun can have:"
+            text+="\n*    Sunlight stays on the field for 5 turns, unless overridden by other weather conditions"
+            text+="\n\n*    Pokemon holding a Heat Rock can summon the Sun for 8 turns"
+            text+="\n\n*    Fire-type move's base power is increased by 50%"
+            text+="\n\n*    Water-type move's base power is decreased by 50%"
+            text+="\n\n*    The moves Solar Beam and Solar Blade do not require charging"
+            text+="\n\n*    The move Thunder's accuracy is reduced by 50%"
+            text+="\n\n*    The move Hurricane's accuracy is reduced by 50%"
+            text+="\n\n*    The moves Synthesis, Morning Sun, and Moonlight recover 66% of the user's maximum HP"
+            text+="\n\n*    The move Growth raises the Atk stat of the user by 1 extra stage"
+            text+="\n\n*    Pokemon with the ability Chlorophyll have their Spe raised by 100%"
+            text+="\n\n*    Pokemon with the ability Dry Skin recieve twice the damage from Fire attacks and also lose 1/8 of their maximum HP every turn"
+            text+="\n\n*    Cherrim changes into it's Sunshine Form."
+            text+="\n\n*    Cherrim's Flower Gift ability raises its ally's Atk and SpD by 1 stage"
+            text+="\n\n*    Pokemon with the ability Leaf Guard are protected from status conditions"
+            text+="\n\n*    Pokemon with the ability Solar Power have their SpA increased by 1 stage and also lose 1/8 of their maximum HP every turn."
+            text+="\n\n*    Castform changes into it's Sunny Form."
+            text+="\n\n*    The move Weather Ball doubles in power and becomes a Fire move"
+            text+="\n\nNotable Sun setters are:"
+            text+="\n    Charizard-Mega-X"
+            text+="\n    Torkoal"
+            text+="\n    Groudon"
+            text+="\n    Ninetales"
+            self.respond(text)
+            self.respond("")
+        elif isHarshSunTeam:
+            text = ""
+            text += "There is potential for making a Harsh Sun team here. Harsh Sun teams specialize in using Fire and Grass-type Pokemon to strike hard and fast. The Harsh Sun also offers immunity to Pokemon who are afraid of Water-type moves, such as Fire, Rock, and Ground-types."
+            text += "\n\nHere's a complete list of the affects that the Sun can have:"
+            text += "\n*    Fire-type move's base power is increased by 50%"
+            text += "\n\n*    Water-type moves do not work at all"
+            text += "\n\n*    The moves Sunny Day, Rain Dance, Hail, and Sandstorm will not work"
+            text += "\n\n*    The abilities Drought, Drizzle, Snow Warning, and Sand Stream will not activate"
+            text += "\n\n*    The moves Solar Beam and Solar Blade do not require charging"
+            text += "\n\n*    The move Thunder's accuracy is reduced by 50%"
+            text += "\n\n*    The move Hurricane's accuracy is reduced by 50%"
+            text += "\n\n*    The moves Synthesis, Morning Sun, and Moonlight recover 66% of the user's maximum HP"
+            text += "\n\n*    The move Growth raises the Atk stat of the user by 1 extra stage"
+            text += "\n\n*    Pokemon with the ability Chlorophyll have their Spe raised by 100%"
+            text += "\n\n*    Pokemon with the ability Dry Skin recieve twice the damage from Fire attacks and also lose 1/8 of their maximum HP every turn"
+            text += "\n\n*    Cherrim changes into it's Sunshine Form."
+            text += "\n\n*    Cherrim's Flower Gift ability raises its ally's Atk and SpD by 1 stage"
+            text += "\n\n*    Pokemon with the ability Leaf Guard are protected from status conditions"
+            text += "\n\n*    Pokemon with the ability Solar Power have their SpA increased by 1 stage and also lose 1/8 of their maximum HP every turn."
+            text += "\n\n*    Castform changes into it's Sunny Form."
+            text += "\n\n*    The move Weather Ball doubles in power and becomes a Fire move"
+            text += "\n\nHarsh Sunlight can only be summoned by Groudon-Primal, using its ability Desolate Land"
+            self.respond(text)
+            self.respond("")
+        elif isRainTeam:
+            text=""
+            text+="There is potential for making a Rain team here. Rain teams are centered around Water and Electric-type Pokemon, either by making them more sustainable or increasing their overal power. Steel and Grass types also appreciate the Rain, considering that they are then more protected from Fire-type moves."
+            text+="\n\nHere's a complete list of the affects that the Rain can have:"
+            text+="\n*    Rain stays on the field for 5 turns, unless overridden by other weather conditions"
+            text+="\n\n*    Pokemon holding a Damp Rock can summon the Rain for 8 turns"
+            text+="\n\n*    Water-type move's base power is increased by 50%"
+            text+="\n\n*    Fire-type move's base power is decreased by 50%"
+            text+="\n\n*    The moves Solar Beam requires two turns to charge"
+            text+="\n\n*    The move Thunder's accuracy is increased to 100%"
+            text+="\n\n*    The move Hurricane's accuracy is increased to 100%"
+            text+="\n\n*    The moves Synthesis, Morning Sun, and Moonlight recover 25% of the user's maximum HP"
+            text+="\n\n*    Pokemon with the ability Dry Skin recover 1/4 of their maximum HP from Water moves instead of taking damage. They also regain 1/8 of their maximum HP every turn"
+            text+="\n\n*    Pokemon with the ability Hydration are cured from status conditions every turn"
+            text+="\n\n*    Pokemon with the ability Rain Dish regain 1/16th of their maximum HP every turn"
+            text+="\n\n*    Pokemon with the ability Swift Swim have their Spe raised by 100%"
+            text+="\n\n*    Castform changes into it's Rain Form."
+            text+="\n\n*    The move Weather Ball doubles in power and becomes a Water move"
+            text += "\n\nNotable Rain setters are:"
+            text += "\n    Politoed"
+            text += "\n    Pelipper"
+            text += "\n    Kyogre"
+            self.respond(text)
+            self.respond("")
+        elif isHarshRainTeam:
+            text = ""
+            text += "There is potential for making a Heavy Rain team here. Heavy Rain teams are centered around Water and Electric-type Pokemon, either by making them more sustainable or increasing their overal power. Steel and Grass types also appreciate the Rain, considering that they are then immune to Fire-type moves."
+            text += "\n\nHere's a complete list of the affects that the Rain can have:"
+            text += "\n*    Water-type move's base power is increased by 50%"
+            text += "\n\n*    Fire-type moves do not work at all"
+            text += "\n\n*    The moves Sunny Day, Rain Dance, Hail, and Sandstorm will not work"
+            text += "\n\n*    The abilities Drought, Drizzle, Snow Warning, and Sand Stream will not activate"
+            text += "\n\n*    The moves Solar Beam requires two turns to charge"
+            text += "\n\n*    The move Thunder's accuracy is increased to 100%"
+            text += "\n\n*    The move Hurricane's accuracy is increased to 100%"
+            text += "\n\n*    The moves Synthesis, Morning Sun, and Moonlight recover 25% of the user's maximum HP"
+            text += "\n\n*    Pokemon with the ability Dry Skin recover 1/4 of their maximum HP from Water moves instead of taking damage. They also regain 1/8 of their maximum HP every turn"
+            text += "\n\n*    Pokemon with the ability Hydration are cured from status conditions every turn"
+            text += "\n\n*    Pokemon with the ability Rain Dish regain 1/16th of their maximum HP every turn"
+            text += "\n\n*    Pokemon with the ability Swift Swim have their Spe raised by 100%"
+            text += "\n\n*    Castform changes into it's Rain Form."
+            text += "\n\n*    The move Weather Ball doubles in power and becomes a Water move"
+            text += "\n\nHeavy Rain can only be summoned by Kyogre-Primal, using its ability Primordial Sea"
+            self.respond(text)
+            self.respond("")
+        elif isHailTeam:
+            text=""
+            text+="I see you are using Hail in your team. Hail is difficult to make an entire team around, but it does offer some interesting buffs for Ice types."
+            text += "\n\nHere's a complete list of the affects that Hail can have:"
+            text += "\n*    Hail stays on the field for 5 turns, unless overridden by other weather conditions"
+            text += "\n\n*    Pokemon holding an Icy Rock can summon Hail for 8 turns"
+            text += "\n\n*    All non-Ice-type Pokemon lose 1/16th of their maximum HP every turn"
+            text += "\n\n*    The move Blizzard's accuracy is increased to 100%"
+            text += "\n\n*    The moves Synthesis, Morning Sun, and Moonlight recover 25% of the user's maximum HP"
+            text += "\n\n*    Pokemon with the ability Ice Body recover 1/16th of their maximum HP every turn"
+            text += "\n\n*    Pokemon with the ability Snow Cloak have their evasion raised by 20%"
+            text += "\n\n*    Pokemon with the ability Slush Rush have their Spe raised by 100%"
+            text += "\n\n*    Castform changes into it's Snowy Form."
+            text += "\n\n*    The move Weather Ball doubles in power and becomes an Ice move"
+            text += "\n\n*    The move Aurora Veil will reduce direct damage taken by the user by 50%, for 5 turns. Is affected by Light Clay"
+            text += "\n\nNotable Hail setters are:"
+            text += "\n    Abomasnow"
+            text += "\n    Abomasnow-Mega"
+            text += "\n    Vanilluxe"
+            text += "\n    Ninetales-Alolan"
+            text += "\n    Aurorus"
+            self.respond(text)
+            self.respond("")
+        elif isSandTeam:
+            text=""
+            text+="There is potential for making a Sand team here. Sand teams focus on helping Rock, Steel, and Ground-type Pokemon by buffing them and their moves."
+            text += "\n\nHere's a complete list of the affects that Hail can have:"
+            text += "\n*A Sandstorm stays on the field for 5 turns, unless overridden by other weather conditions"
+            text += "\n*Pokemon holding a Smooth Rock can summon a Sandstorm for 8 turns"
+            text += "\n*All non-Rock, Steel, and Ground-type Pokemon lose 1/16th of their maximum HP every turn"
+            text += "\n*Rock-type Pokemon have their SpD raised by 1 stage"
+            text += "\n*The move Solar Beam's power is reduced by 50%"
+            text += "\n*The move Shore Up recovers 100% of the user's maximum HP"
+            text += "\n*The moves Synthesis, Morning Sun, and Moonlight recover 25% of the user's maximum HP"
+            text += "\n*Pokemon with the ability Sand Veil have their evasion raised by 20%"
+            text += "\n*Pokemon with the ability Sand Rush have their Spe raised by 100%"
+            text += "\n*Pokemon with the ability Sand Force have their Rock, Steel, and Ground-type moves' power increased by 33%"
+            text += "\n*The move Weather Ball doubles in power and becomes a Rock move"
+            text += "\n\nNotable Hail setters are:"
+            text += "\n    Tyranitar"
+            text += "\n    Tyranitar-Mega"
+            text += "\n    Hippowdon"
+            text += "\n    Gigalith"
+            self.respond(text)
+            self.respond("")
+        elif isHarshWindTeam:
+            text = ""
+            text += "I see you are using Delta Stream in your team. Strong Wind is difficult to make an entire team around, but it does offer some interesting affects."
+            text += "\n\nHere's a complete list of the affects that Strong Winds can have:"
+            text += "\n*    The moves Sunny Day, Rain Dance, Hail, and Sandstorm will not work"
+            text += "\n\n*    The abilities Drought, Drizzle, Snow Warning, and Sand Stream will not activate"
+            text += "\n\n*    Overrides the affects of Heavy Rain and Harsh Sun"
+            text += "\n\n*    Moves used against Flying-type Pokemon that are Super-Effective instead deal neutral damage"
+            text += "\n\nHarsh Sunlight can only be summoned by Rayquaza-Mega, using its ability Delta Stream"
+            self.respond(text)
+            self.respond("")
+
+    def trickRoomTeamText(self,shell,isTrickRoomTeam):
+        if isTrickRoomTeam:
+            text = ""
+            text += "There is potential for making a Trick Room team here. Trick Room teams specialize in turning slow but powerful Pokemon into lightning fast sweepers."
+            self.respond(text)
 
     def update(self,shell,option):
         if self.toplevel.state() in ["iconic","icon","withdrawn"]:
@@ -2531,63 +2897,87 @@ class TeamAnalyzer:
 
         elif option=="stats":
             scale=150/714
-            sumStats = [0,0,0,0,0,0]
+            self.sumStats = [0,0,0,0,0,0]
             if any(shell.teamMatesDict):
                 for member in shell.teamMatesDict:
-                    sumStats[0] += shell.hpStatCalc(shell.teamMatesDict[member]["baseStats"]["hp"],shell.teamMatesDict[member]["evs"]["hp"],shell.teamMatesDict[member]["ivs"]["hp"],shell.teamMatesDict[member]["level"])
-                    sumStats[1] += shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],shell.teamMatesDict[member]["evs"]["atk"],shell.teamMatesDict[member]["ivs"]["atk"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                    sumStats[2] += shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],shell.teamMatesDict[member]["evs"]["def"],shell.teamMatesDict[member]["ivs"]["def"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                    sumStats[3] += shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],shell.teamMatesDict[member]["evs"]["spa"],shell.teamMatesDict[member]["ivs"]["spa"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                    sumStats[4] += shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],shell.teamMatesDict[member]["evs"]["spd"],shell.teamMatesDict[member]["ivs"]["spd"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
-                    sumStats[5] += shell.speStatCalc(shell.teamMatesDict[member]["baseStats"]["spe"],shell.teamMatesDict[member]["evs"]["spe"],shell.teamMatesDict[member]["ivs"]["spe"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    self.sumStats[0] += shell.hpStatCalc(shell.teamMatesDict[member]["baseStats"]["hp"],shell.teamMatesDict[member]["evs"]["hp"],shell.teamMatesDict[member]["ivs"]["hp"],shell.teamMatesDict[member]["level"])
+                    self.sumStats[1] += shell.atkStatCalc(shell.teamMatesDict[member]["baseStats"]["atk"],shell.teamMatesDict[member]["evs"]["atk"],shell.teamMatesDict[member]["ivs"]["atk"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    self.sumStats[2] += shell.defStatCalc(shell.teamMatesDict[member]["baseStats"]["def"],shell.teamMatesDict[member]["evs"]["def"],shell.teamMatesDict[member]["ivs"]["def"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    self.sumStats[3] += shell.spaStatCalc(shell.teamMatesDict[member]["baseStats"]["spa"],shell.teamMatesDict[member]["evs"]["spa"],shell.teamMatesDict[member]["ivs"]["spa"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    self.sumStats[4] += shell.spdStatCalc(shell.teamMatesDict[member]["baseStats"]["spd"],shell.teamMatesDict[member]["evs"]["spd"],shell.teamMatesDict[member]["ivs"]["spd"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
+                    self.sumStats[5] += shell.speStatCalc(shell.teamMatesDict[member]["baseStats"]["spe"],shell.teamMatesDict[member]["evs"]["spe"],shell.teamMatesDict[member]["ivs"]["spe"],shell.teamMatesDict[member]["level"],shell.teamMatesDict[member]["nature"])
 
-                self.averageHPCanvas.coords(self.avHPBar, 0, 0, int(sumStats[0] / len(shell.teamMatesDict) * scale), 20)
-                self.avHP.set(int(sumStats[0] / len(shell.teamMatesDict)))
+                self.averageHPCanvas.coords(self.avHPBar, 0, 0, int(self.sumStats[0] / len(shell.teamMatesDict) * scale), 20)
+                self.avHP.set(int(self.sumStats[0] / len(shell.teamMatesDict)))
+                self.averageHPCanvas.itemconfig(self.avHPBar, fill=self.statColor(
+                    int(self.sumStats[0] / len(shell.teamMatesDict) * scale), True))
 
-                self.averageAtkCanvas.coords(self.avAtkBar, 0, 0, int(sumStats[1] / len(shell.teamMatesDict) * scale),20)
-                self.avAtk.set(int(sumStats[1] / len(shell.teamMatesDict)))
+                self.averageAtkCanvas.coords(self.avAtkBar, 0, 0, int(self.sumStats[1] / len(shell.teamMatesDict) * scale),20)
+                self.avAtk.set(int(self.sumStats[1] / len(shell.teamMatesDict)))
+                self.averageAtkCanvas.itemconfig(self.avAtkBar, fill=self.statColor(
+                    int(self.sumStats[1] / len(shell.teamMatesDict) * scale), False))
 
-                self.averageDefCanvas.coords(self.avDefBar, 0, 0, int(sumStats[2] / len(shell.teamMatesDict) * scale),20)
-                self.avDef.set(int(sumStats[2] / len(shell.teamMatesDict)))
+                self.averageDefCanvas.coords(self.avDefBar, 0, 0, int(self.sumStats[2] / len(shell.teamMatesDict) * scale),20)
+                self.avDef.set(int(self.sumStats[2] / len(shell.teamMatesDict)))
+                self.averageDefCanvas.itemconfig(self.avDefBar, fill=self.statColor(
+                    int(self.sumStats[2] / len(shell.teamMatesDict) * scale), False))
 
-                self.averageSpACanvas.coords(self.avSpABar, 0, 0, int(sumStats[3] / len(shell.teamMatesDict) * scale),20)
-                self.avSpA.set(int(sumStats[3] / len(shell.teamMatesDict)))
+                self.averageSpACanvas.coords(self.avSpABar, 0, 0, int(self.sumStats[3] / len(shell.teamMatesDict) * scale),20)
+                self.avSpA.set(int(self.sumStats[3] / len(shell.teamMatesDict)))
+                self.averageSpACanvas.itemconfig(self.avSpABar, fill=self.statColor(
+                    int(self.sumStats[3] / len(shell.teamMatesDict) * scale), False))
 
-                self.averageSpDCanvas.coords(self.avSpDBar, 0, 0, int(sumStats[4] / len(shell.teamMatesDict) * scale),20)
-                self.avSpD.set(int(sumStats[4] / len(shell.teamMatesDict)))
+                self.averageSpDCanvas.coords(self.avSpDBar, 0, 0, int(self.sumStats[4] / len(shell.teamMatesDict) * scale),20)
+                self.avSpD.set(int(self.sumStats[4] / len(shell.teamMatesDict)))
+                self.averageSpDCanvas.itemconfig(self.avSpDBar, fill=self.statColor(
+                    int(self.sumStats[4] / len(shell.teamMatesDict) * scale), False))
 
-                self.averageSpeCanvas.coords(self.avSpeBar, 0, 0, int(sumStats[5] / len(shell.teamMatesDict) * scale),20)
-                self.avSpe.set(int(sumStats[5] / len(shell.teamMatesDict)))
+                self.averageSpeCanvas.coords(self.avSpeBar, 0, 0, int(self.sumStats[5] / len(shell.teamMatesDict) * scale),20)
+                self.avSpe.set(int(self.sumStats[5] / len(shell.teamMatesDict)))
+                self.averageSpeCanvas.itemconfig(self.avSpeBar, fill=self.statColor(
+                    int(self.sumStats[5] / len(shell.teamMatesDict) * scale), False))
             else:
                 for member in shell.teamMateNames:
                     memberBaseStats = Pokedex.findPokemonBaseStats(member)
                     level=100
                     if "vgc" in shell.tier or "battlespot" in shell.tier:
                         level=50
-                    sumStats[0] += shell.hpStatCalc(memberBaseStats["hp"],0,31,level)
-                    sumStats[1] += shell.atkStatCalc(memberBaseStats["atk"],0,31,level,"Serious")
-                    sumStats[2] += shell.defStatCalc(memberBaseStats["def"],0,31,level,"Serious")
-                    sumStats[3] += shell.spaStatCalc(memberBaseStats["spa"],0,31,level,"Serious")
-                    sumStats[4] += shell.spdStatCalc(memberBaseStats["spd"],0,31,level,"Serious")
-                    sumStats[5] += shell.speStatCalc(memberBaseStats["spe"],0,31,level,"Serious")
+                    self.sumStats[0] += shell.hpStatCalc(memberBaseStats["hp"],0,31,level)
+                    self.sumStats[1] += shell.atkStatCalc(memberBaseStats["atk"],0,31,level,"Serious")
+                    self.sumStats[2] += shell.defStatCalc(memberBaseStats["def"],0,31,level,"Serious")
+                    self.sumStats[3] += shell.spaStatCalc(memberBaseStats["spa"],0,31,level,"Serious")
+                    self.sumStats[4] += shell.spdStatCalc(memberBaseStats["spd"],0,31,level,"Serious")
+                    self.sumStats[5] += shell.speStatCalc(memberBaseStats["spe"],0,31,level,"Serious")
 
-                self.averageHPCanvas.coords(self.avHPBar, 0, 0, int(sumStats[0] / len(shell.teamMateNames) * scale),20)
-                self.avHP.set(int(sumStats[0] / len(shell.teamMateNames)))
+                self.averageHPCanvas.coords(self.avHPBar, 0, 0, int(self.sumStats[0] / len(shell.teamMateNames) * scale),20)
+                self.avHP.set(int(self.sumStats[0] / len(shell.teamMateNames)))
+                self.averageHPCanvas.itemconfig(self.avHPBar, fill=self.statColor(
+                    int(self.sumStats[0] / len(shell.teamMateNames) * scale), True))
 
-                self.averageAtkCanvas.coords(self.avAtkBar, 0, 0,int(sumStats[1] / len(shell.teamMateNames) * scale), 20)
-                self.avAtk.set(int(sumStats[1] / len(shell.teamMateNames)))
+                self.averageAtkCanvas.coords(self.avAtkBar, 0, 0,int(self.sumStats[1] / len(shell.teamMateNames) * scale), 20)
+                self.avAtk.set(int(self.sumStats[1] / len(shell.teamMateNames)))
+                self.averageAtkCanvas.itemconfig(self.avAtkBar, fill=self.statColor(
+                    int(self.sumStats[1] / len(shell.teamMateNames) * scale), False))
 
-                self.averageDefCanvas.coords(self.avDefBar, 0, 0,int(sumStats[2] / len(shell.teamMateNames) * scale), 20)
-                self.avDef.set(int(sumStats[2] / len(shell.teamMateNames)))
+                self.averageDefCanvas.coords(self.avDefBar, 0, 0,int(self.sumStats[2] / len(shell.teamMateNames) * scale), 20)
+                self.avDef.set(int(self.sumStats[2] / len(shell.teamMateNames)))
+                self.averageDefCanvas.itemconfig(self.avDefBar, fill=self.statColor(
+                    int(self.sumStats[2] / len(shell.teamMateNames) * scale), False))
 
-                self.averageSpACanvas.coords(self.avSpABar, 0, 0,int(sumStats[3] / len(shell.teamMateNames) * scale), 20)
-                self.avSpA.set(int(sumStats[3] / len(shell.teamMateNames)))
+                self.averageSpACanvas.coords(self.avSpABar, 0, 0,int(self.sumStats[3] / len(shell.teamMateNames) * scale), 20)
+                self.avSpA.set(int(self.sumStats[3] / len(shell.teamMateNames)))
+                self.averageSpACanvas.itemconfig(self.avSpABar, fill=self.statColor(
+                    int(self.sumStats[3] / len(shell.teamMateNames) * scale), False))
 
-                self.averageSpDCanvas.coords(self.avSpDBar, 0, 0,int(sumStats[4] / len(shell.teamMateNames) * scale), 20)
-                self.avSpD.set(int(sumStats[4] / len(shell.teamMateNames)))
+                self.averageSpDCanvas.coords(self.avSpDBar, 0, 0,int(self.sumStats[4] / len(shell.teamMateNames) * scale), 20)
+                self.avSpD.set(int(self.sumStats[4] / len(shell.teamMateNames)))
+                self.averageSpDCanvas.itemconfig(self.avSpDBar, fill=self.statColor(
+                    int(self.sumStats[4] / len(shell.teamMateNames) * scale), False))
 
-                self.averageSpeCanvas.coords(self.avSpeBar, 0, 0,int(sumStats[5] / len(shell.teamMateNames) * scale), 20)
-                self.avSpe.set(int(sumStats[5] / len(shell.teamMateNames)))
+                self.averageSpeCanvas.coords(self.avSpeBar, 0, 0,int(self.sumStats[5] / len(shell.teamMateNames) * scale), 20)
+                self.avSpe.set(int(self.sumStats[5] / len(shell.teamMateNames)))
+                self.averageSpeCanvas.itemconfig(self.avSpeBar, fill=self.statColor(
+                    int(self.sumStats[5] / len(shell.teamMateNames) * scale), False))
 
         elif option=="physpec Offense":
             physSum=0
@@ -2640,208 +3030,126 @@ class TeamAnalyzer:
                     specSum += shell.spdStatCalc(Pokedex.findPokemonBaseStats(member)["spd"],0,31,level,"Serious")
 
             self.defBalance = physSum / (physSum + specSum) * self.physpecDefCanvas.winfo_reqwidth()
-            print(self.physpecDefCanvas.winfo_reqwidth())
             self.physpecDefCanvas.coords(self.physOffBar, 0, 0, int(self.defBalance), 20)
             self.physpecDefCanvas.coords(self.specOffBar, int(self.defBalance), 0, self.physpecDefCanvas.winfo_reqwidth(), 20)
             
         elif option=="advice":
-            self.respond("Let's take a look at your team...")
+            self.adviceMssngr.config(state=NORMAL)
+            self.adviceMssngr.delete(1.0, END)
+            if len(shell.teamMateNames)>1:
+                self.respond("Let's take a look at your team...")
 
-            #Defensive Coverage
-            self.respond("First, Defensive Type Coverage")
-            defTypeArrays = [self.normalDefArray, self.fireDefArray, self.waterDefArray, self.electricDefArray,
-                             self.grassDefArray, self.iceDefArray, self.fightingDefArray, self.poisonDefArray,
-                             self.groundDefArray, self.flyingDefArray, self.psychicDefArray, self.bugDefArray,
-                             self.rockDefArray, self.ghostDefArray, self.dragonDefArray, self.darkDefArray,
-                             self.steelDefArray, self.fairyDefArray]
-            typeStrings = ["Normal","Fire","Water","Electric","Grass","Ice","Fighting","Poison","Ground","Flying","Psychic","Bug","Rock","Ghost","Dragon","Dark","Steel","Fairy"]
-            teamWeaknessesArray = []
-            teamTwoWeaknessesArray = []
-            for i in range(len(defTypeArrays)):
-                score = 2*defTypeArrays[i][4]+2*defTypeArrays[i][3]+defTypeArrays[i][2]-defTypeArrays[i][1]-2*defTypeArrays[i][0]
-                if score<=-2:
-                    teamTwoWeaknessesArray.append(typeStrings[i])
-                elif score==-1:
-                    teamWeaknessesArray.append(typeStrings[i])
+            #Defensive Type Coverage
+            if len(shell.teamMateNames)>1:
+                self.respond("First, Defensive Type Coverage")
+                self.defTypeCoverage(shell)
 
-            bestTypes = []
-            for type in typeStrings:
-                res = Pokedex.findTypeData(type)["resistances"]
-                im = Pokedex.findTypeData(type)["immunities"]
-                score=0
-                for string in teamTwoWeaknessesArray:
-                    if string in res or string in im:
-                        score+=2
-                for string in teamWeaknessesArray:
-                    if string in res or string in im:
-                        score+=1
-                if score>0:
-                    bestTypes.append([type,score])
-            for i in range(len(bestTypes)):
-                for j in range(i,len(bestTypes)):
-                    if bestTypes[i][1]<bestTypes[j][1]:
-                        temp = bestTypes[i]
-                        bestTypes[i]=bestTypes[j]
-                        bestTypes[j]=temp
-            firstChoice = []
-            for i in range(len(bestTypes)):
-                if bestTypes[i][1]!=bestTypes[0][1]:
-                    break
-                else:
-                    firstChoice.append(bestTypes[i])
-            for i in firstChoice:
-                del bestTypes[bestTypes.index(i)]
-            secondChoice = []
-            for i in range(len(bestTypes)):
-                if bestTypes[i][1]!=bestTypes[0][1]:
-                    break
-                else:
-                    secondChoice.append(bestTypes[i])
-            for i in secondChoice:
-                del bestTypes[bestTypes.index(i)]
+            if len(shell.teamMatesDict)>0:
+                isSunTeam=False
+                isHarshSunTeam=False
+                isRainTeam=False
+                isHarshRainTeam=False
+                isHailTeam=False
+                isSandTeam=False
+                isHarshWindTeam=False
 
-            #text = "Considering that you are still weak to the following move types:"
-            #for string in teamTwoWeaknessesArray:
-            #    text+="\n    "+string
-            #if len(teamTwoWeaknessesArray)!=0:
-            #    text+="\nAnd that you may experience annoyance with the following move types:"
-            #for string in teamWeaknessesArray:
-            #    text+="\n    "+string
-            if len(firstChoice)>0:
-                text="I suggest to add a Pokemon with one of the following types:"
-                for type in firstChoice:
-                    text+="\n    "+type[0]+" "+self.resistancesText(type[0],teamTwoWeaknessesArray,teamWeaknessesArray)
-                if len(secondChoice)>0:
-                    text+="\n\nHowever, if you need some more ideas, you could also choose a Pokemon with one of the following types"
-                    for type in secondChoice:
-                        text+="\n    "+type[0]+" "+self.resistancesText(type[0],teamTwoWeaknessesArray,teamWeaknessesArray)
-            elif len(secondChoice)>0:
-                text = "I suggest to maybe add a Pokemon with one of the following types:"
-                for type in secondChoice:
-                    text += "\n    " + type[0] + " " + self.resistancesText(type[0], teamTwoWeaknessesArray,
-                                                                        teamWeaknessesArray)
-            else:
-                text="Everything is looking good!"
-            #if len(teamTwoWeaknessesArray)<=1 and len(teamWeaknessesArray)<=2 and len(teamTwoWeaknessesArray)+len(teamTwoWeaknessesArray)<=2:
-            #    text+="\n\nHowever, this isn't a huge problem. Your team will probably be fine if you don't"
-            self.respond(text)
+                isTrickRoomTeam=False
 
-            self.respond("")
+                movesTotal=0
+                for member in shell.teamMatesDict:
+                    if shell.teamMatesDict[member]["ability"] == "Drought":
+                        isSunTeam=True
+                    elif shell.teamMatesDict[member]["ability"] == "Desolate Land":
+                        isHarshSunTeam=True
+                    elif shell.teamMatesDict[member]["ability"] == "Drizzle":
+                        isRainTeam=True
+                    elif shell.teamMatesDict[member]["ability"] == "Primordial Sea":
+                        isHarshRainTrue=True
+                    elif shell.teamMatesDict[member]["ability"] == "Snow Warning":
+                        isHailTeam=True
+                    elif shell.teamMatesDict[member]["ability"] == "Sand Stream":
+                        isSandTeam=True
+                    elif shell.teamMatesDict[member]["ability"] == "Delta Stream":
+                        isHarshWindTeam = True
+                    for move in shell.teamMatesDict[member]["moves"]:
+                        if shell.teamMatesDict[member]["moves"][move]!=None:
+                            movesTotal+=1
+                            if shell.teamMatesDict[member]["moves"][move]=="Sunny Day":
+                                isSunTeam=True
+                            elif shell.teamMatesDict[member]["moves"][move]=="Rain Dance":
+                                isRainTeam=True
+                            elif shell.teamMatesDict[member]["moves"][move]=="Hail":
+                                isHailTeam=True
+                            elif shell.teamMatesDict[member]["moves"][move]=="Sand Storm":
+                                isSandTeam=True
+                            elif shell.teamMatesDict[member]["moves"][move]=="Trick Room":
+                                isTrickRoomTeam=True
+                if movesTotal>=8:
+                    #Offensive Type Coverage
+                    self.respond("Next, Offensive Type Coverage")
+                    self.offTypeCoverage(shell)
 
-            #Offensive Coverage
-            self.respond("Next, Offensive Type Coverage")
-            offTypeArrays = [self.normalOffArray, self.fireOffArray, self.waterOffArray, self.electricOffArray,
-                             self.grassOffArray, self.iceOffArray, self.fightingOffArray, self.poisonOffArray,
-                             self.groundOffArray, self.flyingOffArray, self.psychicOffArray, self.bugOffArray,
-                             self.rockOffArray, self.ghostOffArray, self.dragonOffArray, self.darkOffArray,
-                             self.steelOffArray, self.fairyOffArray]
-            typeStrings = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
-                           "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"]
-            k = 0
-            for member in shell.teamMatesDict:
-                for move in shell.teamMatesDict[member]["moves"]:
-                    if shell.teamMatesDict[member]["moves"][move] != None and Pokedex.findMoveCategory(
-                            shell.teamMatesDict[member]["moves"][move]) != "Status":
-                        k += 1
-            teamNVEArray = []
-            teamTwoNVEArray = []
-            for i in range(len(offTypeArrays)):
-                score = offTypeArrays[i][0] + (k - offTypeArrays[i][0] - offTypeArrays[i][1] - offTypeArrays[i][2]) / 2 - offTypeArrays[i][1] - 2 * offTypeArrays[i][2]
-                if score <= -2:
-                    teamTwoNVEArray.append(typeStrings[i])
-                elif score == -1:
-                    teamNVEArray.append(typeStrings[i])
+                    self.weatherTeamsText(shell,isSunTeam,isHarshSunTeam,isRainTeam,isHarshRainTeam,isHailTeam,isSandTeam,isHarshWindTeam)
 
-            bestTypes = []
-            for type in typeStrings:
-                se = Pokedex.findTypeData(type)["superEffective"]
-                score = 0
-                for string in teamTwoNVEArray:
-                    if string in se:
-                        score += 2
-                for string in teamNVEArray:
-                    if string in se:
-                        score += 1
-                if score > 0:
-                    bestTypes.append([type, score])
-            for i in range(len(bestTypes)):
-                for j in range(i, len(bestTypes)):
-                    if bestTypes[i][1] < bestTypes[j][1]:
-                        temp = bestTypes[i]
-                        bestTypes[i] = bestTypes[j]
-                        bestTypes[j] = temp
-
-            firstChoice = []
-            for i in range(len(bestTypes)):
-                if bestTypes[i][1] != bestTypes[0][1]:
-                    break
-                else:
-                    firstChoice.append(bestTypes[i])
-            for i in firstChoice:
-                del bestTypes[bestTypes.index(i)]
-            secondChoice = []
-            for i in range(len(bestTypes)):
-                if bestTypes[i][1] != bestTypes[0][1]:
-                    break
-                else:
-                    secondChoice.append(bestTypes[i])
-            for i in secondChoice:
-                del bestTypes[bestTypes.index(i)]
-
-            #text = "Considering that you can't hit the following types Super Effectively:"
-            #for string in teamTwoNVEArray:
-            #    text += "\n    " + string
-            #if len(teamTwoNVEArray) != 0:
-            #    text += "\nAnd that you may experience annoyance with the following types:"
-            #for string in teamNVEArray:
-            #    text += "\n    " + string
-            if len(firstChoice)>0:
-                text = "I suggest to add a move of the following types:"
-                for type in firstChoice:
-                    text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
-                                                                            teamNVEArray)
-                if len(secondChoice)>0:
-                    text += "\n\nHowever, if you need some more ideas, you could also choose a move of the following types"
-                    for type in secondChoice:
-                        text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
-                                                                                teamNVEArray)
-            elif len(secondChoice)>0:
-                text = "I suggest to maybe add a move of the following types:"
-                for type in secondChoice:
-                    text += "\n    " + type[0] + " " + self.superEffectiveText(type[0], teamTwoNVEArray,
-                                                                           teamNVEArray)
-            else:
-                text="Everything is looking good!"
-
-            #if len(teamTwoNVEArray) <= 1 and len(teamNVEArray) <= 2 and len(teamTwoNVEArray) + len(
-            #        teamTwoNVEArray) <= 2:
-            #    text += "\n\nHowever, this isn't a huge problem. Your team will probably be fine if you don't"
-            self.respond(text)
+                    self.trickRoomTeamText(shell,isTrickRoomTeam)
+                if movesTotal>=12:
+                    #Entry Hazard Setters and Removers
+                    if "doubles" not in shell.tier and "vgc" not in shell.tier:
+                        removal = False
+                        setter = False
+                        for member in shell.teamMatesDict:
+                            for m in shell.teamMatesDict[member]["moves"]:
+                                if shell.teamMatesDict[member]["moves"][m] in ["Defog", "Rapid Spin"]:
+                                    removal = True
+                                elif shell.teamMatesDict[member]["moves"][m] in ["Spikes", "Toxic Spikes",
+                                                                                 "Stealth Rock", "Sticky Web"]:
+                                    setter = True
+                        if not removal:
+                            self.respond(
+                                "Oh, you don't have a Pokemon to remove entry hazards. Entry hazards can hurt your Pokemon everytime they switch in and give your opponent the winning advantage. Consider giving one of your Pokemon the move Defog or Rapid Spin")
+                        if not setter:
+                            self.respond(
+                                "Oh, you don't have a Pokemon to set entry hazards. Entry hazards can damage your opponent's Pokemon everytime they switch in and can give you the winning advatage. Consider giving one of your Pokemon the move Stealth Rock, Spikes, Toxic Spikes, or Sticky Web")
 
             #Offensive and Defensive Balance
-            self.respond("Next, Offensive and Defensive Balance")
-            if len(shell.teamMatesDict)>2:
-                if self.offBalance<60:
+            if len(shell.teamMateNames)>1:
+                self.respond("Next, Offensive Balance")
+                if self.offBalance<=self.physpecOffCanvas.winfo_reqwidth()*0.2:
                     self.respond("Whoa, your offensive balance is WAY off. Add some physical attackers to your team so that you don't get countered by a specially defensive wall!")
-                elif self.offBalance<120:
+                elif self.offBalance<=self.physpecOffCanvas.winfo_reqwidth()*0.4:
                     self.respond("Mmmmm you seem to be leaning towards the specially offensive side of the spectrum. Depending on your team, this can be fine, but I would still suggest to add a physical attacker.")
-                elif self.offBalance<180:
+                elif self.offBalance<=self.physpecOffCanvas.winfo_reqwidth()*0.6:
                     self.respond("You have some nice offensive balance in this team!")
-                elif self.offBalance<240:
+                elif self.offBalance<=self.physpecOffCanvas.winfo_reqwidth()*0.8:
                     self.respond("Mmmmm you seem to be leaning towards the physically offensive side of the spectrum. Depending on your team, this can be fine, but I would still suggest to add a special attacker.")
-                elif self.offBalance<=300:
+                elif self.offBalance<=self.physpecOffCanvas.winfo_reqwidth():
                     self.respond("Whoa, your offensive balance is WAY off. Add some special attackers to your team so that you don't get countered by a physically defensive wall!")
 
-                if self.defBalance<60:
+                self.respond("Next, Defensive Balance")
+                if self.defBalance<=self.physpecDefCanvas.winfo_reqwidth()*0.2:
                     self.respond("Whoa, your defensive balance is WAY off. Add some physical defenders to your team so that you don't get swept by a specially offensive sweeper!")
-                elif self.defBalance<120:
+                elif self.defBalance<=self.physpecDefCanvas.winfo_reqwidth()*0.4:
                     self.respond("Mmmmm you seem to be leaning towards the specially defensive side of the spectrum. Depending on your team, this can be fine, but I would still suggest to add a physical defender.")
-                elif self.defBalance<180:
+                elif self.defBalance<=self.physpecDefCanvas.winfo_reqwidth()*0.6:
                     self.respond("You have some nice defensive balance in this team!")
-                elif self.defBalance<240:
+                elif self.defBalance<=self.physpecDefCanvas.winfo_reqwidth()*0.8:
                     self.respond("Mmmmm you seem to be leaning towards the physically defensive side of the spectrum. Depending on your team, this can be fine, but I would still suggest to add a special defender.")
-                elif self.defBalance<=300:
+                elif self.defBalance<=self.physpecDefCanvas.winfo_reqwidth():
                     self.respond("Whoa, your defensive balance is WAY off. Add some special defender to your team so that you don't get swept by a physically offensive sweeper!")
+                self.respond("")
+
+            # Average Team Stats
+            #if len(shell.teamMatesDict)>1:
+            #    self.respond(
+            #        "Now for the team's average stats\nPlease note that I am excluding boosts from items, abilities, and/or moves.")
+            #    sumTotal = sum(self.sumStats)
+            #    if (self.sumStats[1]+self.sumStats[3]+self.sumStats[5])/sumTotal>=0.66:
+            #        self.respond("It seems that you're going for a Hyper Offensive team. In other words, you are currently focussing on hitting hard and fast.")
+            #    elif 0.152<=self.sumStats[1]/sumTotal<=0.184 and 0.152<=self.sumStats[2]/sumTotal<=0.184 and 0.152<=self.sumStats[3]/sumTotal<=0.184 and 0.152<=self.sumStats[4]/sumTotal<=0.184 and 0.152<=self.sumStats[5]/sumTotal<=0.184:
+            #        self.respond("It seems that you're going for a Balanced Team. In other words, you are currently focussing on finding a balance between offense and defense.")
+            #    elif (self.sumStats[0]+self.sumStats[2]+self.sumStats[4])/sumTotal>=0.75:
+            #        self.respond("It seems that you're going for a stall team. In other words, you are currently focussing on outlasting the opponent through high defenses and status conditions.")
+            #    self.respond("")
 
     def __init__(self,toplevel):
         self.toplevel=toplevel
@@ -3739,6 +4047,8 @@ class TeamAnalyzer:
         threatscrollbar = Scrollbar(self.toplevel,command=self.threatMssngr.yview)
         threatscrollbar.place(x=850, y=490,height=190)
         self.threatMssngr["yscrollcommand"] = threatscrollbar.set
+
+        self.sumStats=[]
 
         self.normalOffArray = []
         self.fireOffArray = []

@@ -1,14 +1,14 @@
 import math, Pokedex
 
-name = "sigilyph"
+name = "Toxapex"
 baseHP = Pokedex.findPokemonHP(name)
 baseDef = Pokedex.findPokemonDef(name)
 defNature = 1.0
 baseSpDef = Pokedex.findPokemonSpD(name)
-spDefNature = 1.0
+spDefNature = 1.1
 ivs = [31,31,31,31,31,31]
-usableEVs = 510-252
-level = 100
+usableEVs = 510
+level = 50
 oppAttack = 100
 power = 100
 STAB = 1.0

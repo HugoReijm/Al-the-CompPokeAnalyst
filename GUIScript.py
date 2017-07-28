@@ -9,15 +9,15 @@ def AI(shell):
     shell.respond("The great thing is, after we have built your team, I'll automatically export your team so you can easily import it into Pokemon Showdown, a Competitive Pokemon Battle Simulator used by hundreds of people every day!")
     shell.respond("Let's get started!")
 
-    #chooseTier(shell)
+    chooseTier(shell)
     #CLEAR THIS
-    shell.tier = "gen7ou-1695"
-    shell.tierfile = shell.tier+".json"
+    #shell.tier = "gen7ou-1695"
+    #shell.tierfile = shell.tier+".json"
 
     imp = False
     newTeamGate = False
     while not newTeamGate:
-        shell.respond("Would you start a completely new team? (Y/N)")
+        shell.respond("Would you like to start a completely new team? (Y/N)")
         shell.inputEvent.wait()
         if shell.input_get in shell.yes:
             newTeamGate = True
@@ -423,6 +423,8 @@ def chooseTier(shell):
         else:
             shell.respond("Um...I don't understand your response...")
 
+    shell.tierLabel.set("Tier/Format: " + shell.tier.capitalize())
+
     # Select Level of Competitiveness
     shell.respond(
         "Ok, now how hard core do you want to make this team? You have 4 options.\n    Fun\n    Serious\n    Hard Core\n    Champion")
@@ -439,7 +441,7 @@ def chooseTier(shell):
         elif shell.input_get in ["hard core", "hard Core", "Hard Core", "Hard Core", "hardcore", "hardCore",
                                  "Hardcore",
                                  "HardCore"]:
-            if "ou" in shell.tier:
+            if "ou" in shell.tier and "doubles" not in shell.tier:
                 shell.tier = shell.tier + "-1695"
             else:
                 shell.tier = shell.tier + "-1630"
@@ -455,20 +457,23 @@ def chooseTier(shell):
                 "Um, I don't understand that response. You must pick one of the four options shown above.")
     shell.tierfile = shell.tier + ".json"
     shell.respond("Excellent! Let's get started with your team then!")
-    
+
 def teamAdder(shell):
     teamAdderGate = False
     while not teamAdderGate:
         if len(shell.teamMateNames) == 0:
             shell.respond("Which Pokemon would you like to start your team with?")
+            shell.respond("Notice that if you want to add a mega to your team (if allowed), you must use the following format: <Species>-Mega. For example, to add a Mega Venusaur, you must type Venusaur-Mega; if you want to add a Mega Charizard X, you must type Charizard-Mega-X.")
             shell.inputEvent.wait()
         else:
             if "anythinggoes" not in shell.tier:
                 shell.respond("Which Pokemon would you like to add to your team? Note that your team can not have two or more Pokemon with the same National Pokedex number!")
-                shell.inputEvent.wait()
+                shell.respond("Notice that if you want to add a mega to your team (if allowed), you must use the following format: <Species>-Mega.")
             else:
                 shell.respond("Which Pokemon would you like to add to your team?")
-                shell.inputEvent.wait()
+                shell.respond(
+                    "Notice that if you want to add a mega to your team (if allowed), you must use the following format: <Species>-Mega.")
+            shell.inputEvent.wait()
         species = Pokedex.findPokemonSpecies(shell.input_get)
         if species != None:
             if MetaDex.findPokemonTierData(species, shell.tierfile) != None:
@@ -488,6 +493,7 @@ def teamAdder(shell):
                                     break
                             if megaCheck:
                                 shell.teamMateNames.append(species)
+                                shell.updateTeamPreview(species,len(shell.teamMateNames)-1)
                                 teamAdderGate = True
                             else:
                                 shell.respond("Oh, I see that you're trying to add another mega to your team. I mean, this is technically allowed, but I wouldn't suggest it. You can only use one mega per battle.")
@@ -498,6 +504,7 @@ def teamAdder(shell):
                                     if shell.input_get in shell.yes:
                                         shell.respond("Alright, I'll add another mega then!")
                                         shell.teamMateNames.append(species)
+                                        shell.updateTeamPreview(species, len(shell.teamMateNames) - 1)
                                         multiMegaGate = True
                                         teamAdderGate = True
                                     elif shell.input_get in shell.no:
@@ -506,6 +513,7 @@ def teamAdder(shell):
                                         shell.respond("Um...I don't understand your response...")
                         else:
                             shell.teamMateNames.append(species)
+                            shell.updateTeamPreview(species, len(shell.teamMateNames) - 1)
                             teamAdderGate = True
                 else:
                     forme = Pokedex.findPokemonForme(species)
@@ -517,6 +525,7 @@ def teamAdder(shell):
                                 break
                         if megaCheck:
                             shell.teamMateNames.append(species)
+                            shell.updateTeamPreview(species, len(shell.teamMateNames) - 1)
                             teamAdderGate = True
                         else:
                             shell.respond(
@@ -528,6 +537,7 @@ def teamAdder(shell):
                                 if shell.input_get in shell.yes:
                                     shell.respond("Alright, I'll add another mega then!")
                                     shell.teamMateNames.append(species)
+                                    shell.updateTeamPreview(species, len(shell.teamMateNames) - 1)
                                     multiMegaGate = True
                                     teamAdderGate = True
                                 elif shell.input_get in shell.no:
@@ -536,6 +546,7 @@ def teamAdder(shell):
                                     shell.respond("Um...I don't understand your response...")
                     else:
                         shell.teamMateNames.append(species)
+                        shell.updateTeamPreview(species, len(shell.teamMateNames) - 1)
                         teamAdderGate = True
             else:
                 shell.respond("Oh, I'm sorry. There seems to be a problem.")
@@ -549,6 +560,7 @@ def teamAdder(shell):
     shell.updateAnalyzer("stats")
     shell.updateAnalyzer("physpec Offense")
     shell.updateAnalyzer("physpec Defense")
+    shell.updateAnalyzer("advice")
 
 def teamAdjuster(shell,index):
     teamAdderGate = False
@@ -578,6 +590,7 @@ def teamAdjuster(shell,index):
                                     break
                             if megaCheck:
                                 shell.teamMateNames[index]=species
+                                shell.updateTeamPreview(species,index)
                                 teamAdderGate = True
                             else:
                                 shell.respond("Oh, I see that you're trying to add another mega to your team. I mean, this is technically allowed, but I wouldn't suggest it. You can only use one mega per battle.")
@@ -588,6 +601,7 @@ def teamAdjuster(shell,index):
                                     if shell.input_get in shell.yes:
                                         shell.respond("Alright, I'll add another mega then!")
                                         shell.teamMateNames[index]=species
+                                        shell.updateTeamPreview(species, index)
                                         multiMegaGate = True
                                         teamAdderGate = True
                                     elif shell.input_get in shell.no:
@@ -596,6 +610,7 @@ def teamAdjuster(shell,index):
                                         shell.respond("Um...I don't understand your response...")
                         else:
                             shell.teamMateNames[index]=species
+                            shell.updateTeamPreview(species, index)
                             teamAdderGate = True
                 else:
                     forme = Pokedex.findPokemonForme(species)
@@ -607,6 +622,7 @@ def teamAdjuster(shell,index):
                                 break
                         if megaCheck:
                             shell.teamMateNames[index]=species
+                            shell.updateTeamPreview(species, index)
                             teamAdderGate = True
                         else:
                             shell.respond(
@@ -618,6 +634,7 @@ def teamAdjuster(shell,index):
                                 if shell.input_get in shell.yes:
                                     shell.respond("Alright, I'll add another mega then!")
                                     shell.teamMateNames[index]=species
+                                    shell.updateTeamPreview(species, index)
                                     multiMegaGate = True
                                     teamAdderGate = True
                                 elif shell.input_get in shell.no:
@@ -626,6 +643,7 @@ def teamAdjuster(shell,index):
                                     shell.respond("Um...I don't understand your response...")
                     else:
                         shell.teamMateNames[index]=species
+                        shell.updateTeamPreview(species, index)
                         teamAdderGate = True
             else:
                 shell.respond("Oh, I'm sorry. There seems to be a problem.")
@@ -640,6 +658,7 @@ def teamAdjuster(shell,index):
     shell.updateAnalyzer("physpec Offense")
     shell.updateAnalyzer("physpec Defense")
 
+#TODO: will show mega scizor when scizor has already been chosen
 def showMemberOptions(shell):
     shell.respond("Ok, let me suggest some team-mates. How many suggestions would you like to see? (Int)")
     memberSelectGate = False
@@ -655,20 +674,22 @@ def showMemberOptions(shell):
     for poke in Tools.findTeamMetaMatches(shell.teamMateNames, shell.tierfile, teamSuggAmount):
         # TODO: fix this
         pokeData = Pokedex.findPokemonData(poke[0])
+        text += poke[0] + ":\n\tTYPE: "
         if len(pokeData["types"]) == 1:
-            text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + "\n\tSTATS: " + str(
-                pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
-                pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(
-                pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(
-                poke[1]) + "\n\n    "
+            text += pokeData["types"][0]
         elif len(pokeData["types"]) == 2:
-            text += poke[0] + ":\n\tTYPE: " + pokeData["types"][0] + ", " + pokeData["types"][
-                1] + "\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(
-                pokeData["baseStats"]["atk"]) + "/" + str(pokeData["baseStats"]["def"]) + "/" + str(
-                pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(
-                pokeData["baseStats"]["spe"]) + "\n\tPOP: " + str(poke[1]) + "\n\n    "
-
-            # text+=t[0]+":\n\tPOP: "+str(t[1])+"\n\n    "
+            text += pokeData["types"][0] + ", " + pokeData["types"][1]
+        text+="\n\tSTATS: " + str(pokeData["baseStats"]["hp"]) + "/" + str(pokeData["baseStats"]["atk"]) + "/" + str(
+                pokeData["baseStats"]["def"]) + "/" + str(pokeData["baseStats"]["spa"]) + "/" + str(pokeData["baseStats"]["spd"]) + "/" + str(pokeData["baseStats"]["spe"])
+        text+="\n\tABILITIES: "
+        allAbilities = Pokedex.findPokemonAbilities(poke[0])
+        metaAbilities = MetaDex.findPokemonTierAbilities(poke[0], shell.tierfile)
+        abilities = []
+        for ab in allAbilities:
+            if ab in metaAbilities:
+                abilities.append(ab)
+        text+=", ".join(abilities)
+        text+="\n\tPOP: " + str(poke[1]) + "\n\n    "
     shell.respond(text[:-5])
 
 def switchMembers(shell):
@@ -695,6 +716,7 @@ def switchMembers(shell):
                 flip = shell.input_get
                 flipName = Pokedex.findPokemonSpecies(flip)
                 if flipName in shell.teamMateNames:
+                    shell.updateTeamPreview("CLEAR",shell.teamMateNames.index(flipName))
                     flipMemberGate = True
                 else:
                     shell.respond("Pokemon %s isn't part of your team" % flip)
@@ -1132,7 +1154,6 @@ def chooseGender(shell,poke):
         shell.respond("Done! Your %s has no gender at all!" % spName)
     shell.update("gender")
 
-#TODO: nature's madness fix it
 def chooseMoves(shell,poke):
     spName = shell.teamMatesDict[poke]["species"]
     moves = [shell.teamMatesDict[spName]["moves"]["move1"], shell.teamMatesDict[spName]["moves"]["move2"],
@@ -1637,6 +1658,7 @@ def checkMember(shell,poke):
                     index = shell.teamMateNames.index(poke)
                     shell.delete(poke)
                     del shell.teamMatesDict[poke]
+                    shell.updateTeamPreview("CLEAR",index)
 
                     showMemberOptions(shell)
                     teamAdjuster(shell,index)
@@ -1800,6 +1822,7 @@ def checkMember(shell,poke):
             shell.updateAnalyzer("threats")
             shell.updateAnalyzer("checkAndCounters")
 
+#TODO: doesnt really flow nicely into checkMember
 def finalCheck(shell):
     finalGate = False
     while not finalGate:
@@ -2041,9 +2064,9 @@ def process_csv(shell):
                     dict["baseStats"][stat]=baseStats[stat]
 
                 for i in range(1,len(member)):
-                    if "Ability" in member[i]:
+                    if "Ability:" in member[i]:
                         dict["ability"]=member[i][9:]
-                    elif "Level" in member[i]:
+                    elif "Level:" in member[i]:
                         try:
                             dict["level"]=int(member[i][7:])
                         except:
@@ -2051,13 +2074,13 @@ def process_csv(shell):
                                 dict["level"]=50
                             else:
                                 dict["level"]=100
-                    elif "Happiness" in member[i]:
+                    elif "Happiness:" in member[i]:
                         try:
                             dict["happiness"]=int(member[i][11:])
                         except:
                             #print(member[i][11:])
                             dict["happiness"]=255
-                    elif "Shiny" in member[i]:
+                    elif "Shiny:" in member[i]:
                         dict["shiny"]="Yes"
                     elif "EVs:" in member[i]:
                         evArray = member[i][5:].split(" / ")
@@ -2092,7 +2115,7 @@ def process_csv(shell):
                                     dict["evs"]["spe"]=int(e[:-4])
                                 except:
                                     dict["evs"]["spe"]=0
-                    elif "Nature" in member[i]:
+                    elif "Nature" in member[i] and "Madness" not in member[i]:
                         dict["nature"]=member[i][:-7]
                     elif "IVs:" in member[i]:
                         ivArray = member[i][5:].split(" / ")
@@ -2129,6 +2152,7 @@ def process_csv(shell):
                                     dict["ivs"]["spe"]=31
                     elif "- " in member[i]:
                         for move in dict["moves"]:
+                            #print(dict["moves"][move])
                             if dict["moves"][move]==None:
                                 if "Hidden Power [" in member[i]:
                                     moveList = list(member[i])
@@ -2136,6 +2160,7 @@ def process_csv(shell):
                                     del moveList[moveList.index("]")]
                                     member[i]="".join(moveList)
                                 dict["moves"][move]=member[i][2:]
+                                #print(dict["moves"])
                                 break
 
                 #Species Legality Check
@@ -2147,17 +2172,42 @@ def process_csv(shell):
                             for i in shell.teamMatesDict:
                                 items.append(shell.teamMatesDict[i]["item"])
                             if Tools.compress(dict["item"]) not in MetaDex.findPokemonTierItems(dict["species"],shell.tierfile):
-                                print("The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." % dict["species"])
-                                dict["item"] = None
+                                otherFormes = Pokedex.findPokemonOtherFormes(dict["species"])
+                                if otherFormes!=None:
+                                    legalItem = False
+                                    for form in otherFormes:
+                                        if Tools.compress(dict["item"]) in MetaDex.findPokemonTierItems(form,shell.tierfile):
+                                            legalItem=True
+                                    if not legalItem:
+                                        print("The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." % dict["species"])
+                                        dict["item"] = None
+                                else:
+                                    print(
+                                        "The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." %
+                                        dict["species"])
+                                    dict["item"] = None
                             elif dict["item"] in items:
                                 print("The %s in your team you want to import has an item that is already used in your team. In the %s tier, this is illegal. I'm going to delete this item and import the rest." % (dict["species"],shell.tier))
                                 dict["item"] = None
                         else:
                             if Tools.compress(dict["item"]) not in MetaDex.findPokemonTierItems(dict["species"],shell.tierfile):
-                                print(
-                                    "The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." %
-                                    dict["species"])
-                                dict["item"] = None
+                                otherFormes = Pokedex.findPokemonOtherFormes(dict["species"])
+                                if otherFormes != None:
+                                    legalItem = False
+                                    for form in otherFormes:
+                                        otherFormesItems=MetaDex.findPokemonTierItems(Pokedex.findPokemonSpecies(form), shell.tierfile)
+                                        if otherFormesItems!=None and Tools.compress(dict["item"]) in otherFormesItems:
+                                            legalItem = True
+                                    if not legalItem:
+                                        print(
+                                            "The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." %
+                                            dict["species"])
+                                        dict["item"] = None
+                                else:
+                                    print(
+                                        "The %s in your team you want to import has an item that is either illegal or never used. Since I don't know which, I'm going to delete this item and import the rest." %
+                                        dict["species"])
+                                    dict["item"] = None
                         # Ability Legality Check
                         baseSpecies = Pokedex.findPokemonBaseSpecies(dict["species"])
                         if baseSpecies!=None:
@@ -2222,6 +2272,7 @@ def process_csv(shell):
                                 dict["gender"] = None
 
                         shell.teamMateNames.append(dict["species"])
+                        shell.updateTeamPreview(dict["species"], len(shell.teamMateNames)-1)
                         shell.teamMatesDict[dict["species"]] = dict
                     else:
                         print("Your team contains multiple %s, which is illegal in the %s tier. I will only import the first %s in your team." % (dict["species"],shell.tier,dict["species"]))

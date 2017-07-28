@@ -143,7 +143,7 @@ def compress(name):
         n=name.lower()
         nList = list(n)
         for i in range(len(nList)-1,-1,-1):
-            if nList[i]==" " or nList[i]=="-" or nList[i]==":":
+            if nList[i] in [" ","-",":","'"]:
                 del nList[i]
         return "".join(nList)
     else:
@@ -254,19 +254,17 @@ def buildPokemon(poke,tier):
         return None
 
 def downloadTier(url):
-    if isinstance(url,str)==True:
+    if isinstance(url,str):
         if url[42:][:-5] not in MetaDex.getTiers():
-            tier = url[42:]
+            tierfile = url[42:]
             try:
                 with urllib.request.urlopen(url) as file:
                     python_obj = json.loads(file.read().decode())
-                    file.close
-                with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/"+tier,"w") as file:
+                with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/"+tierfile,"w") as file:
                     json.dump(python_obj,file)
-                    file.close
-                tier = tier[:-5]
+                tier = tierfile[:-5]
                 if tier not in MetaDex.getTiers():
-                    MetaDex.setTiers(tier)
+                    MetaDex.addTier(tier)
             except:
                 print("I'm sorry, but I couldn't find that file. Download aborted.")
         else:
@@ -274,6 +272,23 @@ def downloadTier(url):
     else:
         print("The given variable %s is not a string!" % url)
 
-def upDateTiers(timestamp):
-    #TODO: update all tier files
-    print(timestamp)
+def upDateTiers(tier,timestamp):
+    if isinstance(timestamp,str):
+        tiers=[]
+        for t in MetaDex.getTiers():
+            if tier in t:
+                tiers.append(t)
+        for t in tiers:
+            url = "http://www.smogon.com/stats/"+timestamp+"/chaos/"+t+".json"
+            print(url)
+            try:
+                with urllib.request.urlopen(url) as file:
+                    python_obj = json.loads(file.read().decode())
+                with open(os.path.dirname(os.path.realpath(__file__)) + "/data/tiers/" + t +".json", "w") as file:
+                    json.dump(python_obj, file)
+                print("The file "+t+".json has finished updating.")
+            except:
+                print("I'm sorry, but I couldn't find that file. Download aborted.")
+    else:
+        print("The given variable %s is not a string!" % timestamp)
+

@@ -18,10 +18,9 @@ def getTiers():
     return python_list
 
 @synchronized
-def setTiers(tier):
+def addTier(tier):
     with open(os.path.dirname(os.path.realpath(__file__))+"/data/tiers/tiers.txt", "a") as file:
         file.write(tier+"\n")
-    file.close()
 
 __singletonMetaDexList=[]
 for i in range(len(getTiers())):
